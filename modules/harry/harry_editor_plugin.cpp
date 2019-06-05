@@ -37,9 +37,6 @@
 //#include "core/math/geometry.h"
 //#include "core/os/keyboard.h"
 
-
-
-
 #include "harry_editor_plugin.h"
 //#include "tools/editor/plugins/canvas_item_editor_plugin.h"
 //#include "tools/editor/editor_settings.h"
@@ -50,7 +47,8 @@
 
 //HarryEditor::HarryEditor(EditorNode *p_editor) {
 HarryEditor::HarryEditor() {
-		std::cout << "New Harry Editor" << std::endl;
+
+	std::cout << "New Harry Editor" << std::endl;
 
 	//path_edit = memnew(ScrollContainer);
 	//add_child(path_edit);
@@ -69,12 +67,25 @@ HarryEditor::HarryEditor() {
 	graph = memnew(GraphEdit);
 	add_child(graph);
 	graph->set_v_size_flags(SIZE_EXPAND_FILL);
+	graph->add_valid_right_disconnect_type(0);
+	graph->add_valid_left_disconnect_type(0);
 	graph->connect("popup_request", this, "_popup_request");
+	graph->connect("connection_request", this, "_connection_request", varray(), CONNECT_DEFERRED);
+	graph->connect("disconnection_request", this, "_disconnection_request", varray(), CONNECT_DEFERRED);
 
 	add_popup = memnew(PopupMenu);
 	graph->add_child(add_popup);
 	add_popup->connect("id_pressed", this, "_add_node");
 	add_popup->add_item("Animation", 0);
+
+	HarryNode *hn = memnew(HarryNode);
+	graph->add_child(hn);
+
+	hn = memnew(HarryNode);
+	graph->add_child(hn);
+
+	hn = memnew(HarryNode);
+	graph->add_child(hn);
 }
 
 void HarryEditor::_popup_request(const Vector2 &p_position) {
@@ -86,17 +97,39 @@ void HarryEditor::_popup_request(const Vector2 &p_position) {
 	add_popup->popup();
 }
 
-void HarryEditor::_add_node(int p_idx) {
-	std::cout << "_add_node" + p_idx  << std::endl;
+void HarryEditor::_connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index) {
+
+	graph->connect_node(p_from, p_from_index, p_to, p_to_index);
 }
+
+void HarryEditor::_disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index) {
+
+	graph->disconnect_node(p_from, p_from_index, p_to, p_to_index);
+}
+
+void HarryEditor::_add_node(int p_idx) {
+
+	std::cout << "_add_node" + p_idx << std::endl;
+}
+
+void HarryEditor::_bind_methods() {
+
+	ClassDB::bind_method("_add_node", &HarryEditor::_add_node);
+	ClassDB::bind_method("_connection_request", &HarryEditor::_connection_request);
+	ClassDB::bind_method("_disconnection_request", &HarryEditor::_disconnection_request);
+	ClassDB::bind_method("_popup_request", &HarryEditor::_popup_request);
+}
+
 
 // **************************** PLUGIN BEGIN ********************************************
 
 HarryEditorPlugin::HarryEditorPlugin(EditorNode *p_editor) {
+
 	std::cout << "Editor" << std::endl;
 
 	editor = p_editor;
 	harryEditor = memnew(HarryEditor);
+	harryEditor->set_custom_minimum_size(Size2(0, 300));
 
 	button = editor->add_bottom_panel_item(TTR("Harry"), harryEditor);
 	button->hide();
@@ -106,6 +139,7 @@ HarryEditorPlugin::~HarryEditorPlugin() {
 }
 
 void HarryEditorPlugin::make_visible(bool isVisible) {
+
 	std::cout << "Make visible" << std::endl;
 
 	if (isVisible) {
@@ -125,6 +159,7 @@ void HarryEditorPlugin::make_visible(bool isVisible) {
 }
 
 void HarryEditorPlugin::edit(Object *p_object) {
+
 	std::cout << "Edit" << std::endl;
 }
 

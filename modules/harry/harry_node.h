@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  grid_map_editor_plugin.h                                             */
+/*  grid_map.h                                                           */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,55 +28,16 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HARRY_EDITOR_PLUGIN_H
-#define HARRY_EDITOR_PLUGIN_H
+#ifndef HARRY_NODE_H
+#define HARRY_NODE_H
 
-#include "editor/editor_node.h"
-#include "editor/editor_plugin.h"
-#include "editor/pane_drag.h"
-#include "harry.h"
-#include "scene/gui/graph_edit.h"
+#include "scene/gui/graph_node.h"
 
-class HarryEditor : public VBoxContainer {
-	GDCLASS(HarryEditor, VBoxContainer);
-
-	EditorNode *editor;
-	VBoxContainer *settings_vbc;
-	Label *label;
-
-	//ScrollContainer *path_edit;
-	//HBoxContainer *path_hb;
-	PanelContainer *editor_base;
-
-	GraphEdit *graph;
-	PopupMenu *add_popup;
-
-	void _popup_request(const Vector2 &p_position);
-	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
-	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
-	void _add_node(int p_idx);
-
-protected:
-	static void _bind_methods();
+class HarryNode : public GraphNode {
+	GDCLASS(HarryNode, GraphNode);
 
 public:
-	HarryEditor();
-	//HarryEditor(EditorNode *p_editor);
+	HarryNode();
 };
 
-class HarryEditorPlugin : public EditorPlugin {
-	GDCLASS(HarryEditorPlugin, EditorPlugin);
-
-	EditorNode *editor;
-	HarryEditor *harryEditor;
-	Button *button;
-
-public:
-	HarryEditorPlugin(EditorNode *p_editor);
-	~HarryEditorPlugin();
-
-	virtual void make_visible(bool isVisible);
-	virtual void edit(Object *p_node);
-	virtual bool handles(Object *p_node) const;
-};
 #endif

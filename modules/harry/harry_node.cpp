@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  grid_map_editor_plugin.h                                             */
+/*  grid_map.cpp                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,55 +28,30 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HARRY_EDITOR_PLUGIN_H
-#define HARRY_EDITOR_PLUGIN_H
+#include "harry_node.h"
+#include "scene/gui/label.h"
 
-#include "editor/editor_node.h"
-#include "editor/editor_plugin.h"
-#include "editor/pane_drag.h"
-#include "harry.h"
-#include "scene/gui/graph_edit.h"
+HarryNode::HarryNode() {
+	set_title("Base");
+	set_size(Size2(300, 120));
 
-class HarryEditor : public VBoxContainer {
-	GDCLASS(HarryEditor, VBoxContainer);
+	for (int i = 0; i < 4; i++) {
+		Label *in_name = memnew(Label);
+		add_child(in_name);
+		in_name->set_text("");
 
-	EditorNode *editor;
-	VBoxContainer *settings_vbc;
-	Label *label;
+		set_slot(i,
+				true, 0, Color(1, 1, 1, 1),
+				true, 0, Color(0.8f, 0.8f, 0.9f, 1));
+	}
 
-	//ScrollContainer *path_edit;
-	//HBoxContainer *path_hb;
-	PanelContainer *editor_base;
+	//for (int i = 0; i < 2; i++) {
+	//	//Label *in_name = memnew(Label);
+	//	//add_child(in_name);
+	//	//in_name->set_text("output " + i);
 
-	GraphEdit *graph;
-	PopupMenu *add_popup;
-
-	void _popup_request(const Vector2 &p_position);
-	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
-	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
-	void _add_node(int p_idx);
-
-protected:
-	static void _bind_methods();
-
-public:
-	HarryEditor();
-	//HarryEditor(EditorNode *p_editor);
-};
-
-class HarryEditorPlugin : public EditorPlugin {
-	GDCLASS(HarryEditorPlugin, EditorPlugin);
-
-	EditorNode *editor;
-	HarryEditor *harryEditor;
-	Button *button;
-
-public:
-	HarryEditorPlugin(EditorNode *p_editor);
-	~HarryEditorPlugin();
-
-	virtual void make_visible(bool isVisible);
-	virtual void edit(Object *p_node);
-	virtual bool handles(Object *p_node) const;
-};
-#endif
+	//	set_slot(4 + i,
+	//			false, 0, Color(),
+	//			true, 0, Color(1, 1, 1, 1));
+	//}
+}

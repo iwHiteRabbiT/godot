@@ -32,6 +32,7 @@
 #define HARRY_H
 
 #include "scene/3d/spatial.h"
+#include "harry_node.h"
 
 class Harry : public Spatial {
 	GDCLASS(Harry, Spatial);
