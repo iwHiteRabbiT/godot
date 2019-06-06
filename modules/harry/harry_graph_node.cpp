@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  grid_map.h                                                           */
+/*  harry_node.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,16 +28,27 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HARRY_NODE_H
-#define HARRY_NODE_H
+#include "harry_graph_node.h"
+#include "scene/gui/label.h"
 
-#include "scene/gui/graph_node.h"
+/**
+ * @Author iWhiteRabbiT
+*/
 
-class HarryNode : public GraphNode {
-	GDCLASS(HarryNode, GraphNode);
+void HarryGraphNode::Set(const Ref<HarryNode> &p_node) {
 
-public:
-	HarryNode();
-};
+	node = p_node;
 
-#endif
+	set_title(p_node->GetName());
+	set_size(Size2(300, 120));
+
+	for (int i = 0; i < 4; i++) {
+		Label *in_name = memnew(Label);
+		add_child(in_name);
+		in_name->set_text("");
+
+		set_slot(i,
+				true, 0, Color(1, 1, 1, 1),
+				true, 0, Color(0.7f, 0.7f, 0.9f, 1));
+	}
+}

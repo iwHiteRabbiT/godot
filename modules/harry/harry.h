@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  grid_map.h                                                           */
+/*  harry.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -32,10 +32,60 @@
 #define HARRY_H
 
 #include "scene/3d/spatial.h"
-#include "harry_node.h"
+
+/**
+ * @Author iWhiteRabbiT
+*/
+
+class HarrySubnet;
+
+class HarryNode : public Resource {
+	GDCLASS(HarryNode, Resource);
+
+	HarrySubnet *parent;
+
+public:
+	StringName GetName() const;
+};
+
+class HarryWrangle : public HarryNode {
+	GDCLASS(HarryWrangle, HarryNode);
+};
+
+class HarrySubnet : public HarryNode {
+	GDCLASS(HarrySubnet, HarryNode);
+
+	struct Node {
+		Ref<HarryNode> node;
+		Vector2 position;
+		Vector<StringName> connections;
+	};
+
+	Map<StringName, Node> children;
+
+public:
+	StringName GetName(const Ref<HarryNode> &p_node) const;
+	void AddNode(const StringName &p_name, Ref<HarryNode> p_node);
+	Ref<HarryNode> GetNode(const StringName &p_name) const;
+	StringName FindNewName(const StringName &p_name) const;
+	void GetNodeList(List<StringName> *r_list);
+};
+
+class HarryRoot : public HarrySubnet {
+	GDCLASS(HarryRoot, HarrySubnet);
+};
 
 class Harry : public Spatial {
 	GDCLASS(Harry, Spatial);
+
+	Ref<HarryRoot> harry_root;
+
+protected:
+	static void _bind_methods();
+
+public:
+	void set_harry_root(const Ref<HarryRoot> &p_root);
+	Ref<HarryRoot> get_harry_root() const;
 };
 
 #endif

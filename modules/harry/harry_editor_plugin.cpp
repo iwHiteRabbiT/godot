@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  grid_map_editor_plugin.cpp                                           */
+/*  harry_editor_plugin.cpp                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -45,6 +45,10 @@
 
 #include <iostream>
 
+/**
+ * @Author iWhiteRabbiT
+*/
+
 //HarryEditor::HarryEditor(EditorNode *p_editor) {
 HarryEditor::HarryEditor() {
 
@@ -76,16 +80,25 @@ HarryEditor::HarryEditor() {
 	add_popup = memnew(PopupMenu);
 	graph->add_child(add_popup);
 	add_popup->connect("id_pressed", this, "_add_node");
-	add_popup->add_item("Animation", 0);
+	add_popup->add_item("Wrangle", 0);
+	add_popup->add_item("Subnet", 1);
 
-	HarryNode *hn = memnew(HarryNode);
-	graph->add_child(hn);
+	//HarryNode *hn = memnew(HarryNode);
+	//graph->add_child(hn);
 
-	hn = memnew(HarryNode);
-	graph->add_child(hn);
+	//hn = memnew(HarryNode);
+	//graph->add_child(hn);
 
-	hn = memnew(HarryNode);
-	graph->add_child(hn);
+	//hn = memnew(HarryNode);
+	//graph->add_child(hn);
+}
+
+void HarryEditor::edit(Harry *p_harry) {
+	//if (harry == p_harry)
+	//	return;
+
+	harry = p_harry;
+	harry_subnet = harry->get_harry_root();
 }
 
 void HarryEditor::_popup_request(const Vector2 &p_position) {
@@ -110,6 +123,65 @@ void HarryEditor::_disconnection_request(const String &p_from, int p_from_index,
 void HarryEditor::_add_node(int p_idx) {
 
 	std::cout << "_add_node" + p_idx << std::endl;
+	
+	HarryNode *hn;
+	StringName name;
+
+	switch (p_idx) {
+		case 0:
+			hn = memnew(HarryWrangle);
+			name = "Wrangle";
+			break;
+
+		case 1:
+			hn = memnew(HarrySubnet);
+			name = "Subnet";
+			break;
+	}
+
+	name = harry_subnet->FindNewName(name);
+	harry_subnet->AddNode(name, hn);
+}
+
+void HarryEditor::_update_graph() {
+
+	//if (updating)
+	//	return;
+
+	graph->clear_connections();
+	//erase all nodes
+	for (int i = 0; i < graph->get_child_count(); i++) {
+
+		if (Object::cast_to<GraphNode>(graph->get_child(i))) {
+			memdelete(graph->get_child(i));
+			i--;
+		}
+	}
+	
+	List<StringName> nodes;
+	harry_subnet->GetNodeList(&nodes);
+
+	for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {
+
+		HarryGraphNode *node = memnew(HarryGraphNode);
+		graph->add_child(node);
+
+		Ref<HarryNode> hnode = harry_subnet->GetNode(E->get());
+		node->Set(hnode);
+	}
+}
+
+
+void HarryEditor::_notification(int p_what) {
+
+	if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
+
+		//error_panel->add_style_override("panel", get_stylebox("bg", "Tree"));
+		//error_label->add_color_override("font_color", get_color("error_color", "Editor"));
+
+		if (p_what == NOTIFICATION_THEME_CHANGED && is_visible_in_tree())
+			_update_graph();
+	}
 }
 
 void HarryEditor::_bind_methods() {
@@ -120,7 +192,6 @@ void HarryEditor::_bind_methods() {
 	ClassDB::bind_method("_popup_request", &HarryEditor::_popup_request);
 }
 
-
 // **************************** PLUGIN BEGIN ********************************************
 
 HarryEditorPlugin::HarryEditorPlugin(EditorNode *p_editor) {
@@ -128,10 +199,10 @@ HarryEditorPlugin::HarryEditorPlugin(EditorNode *p_editor) {
 	std::cout << "Editor" << std::endl;
 
 	editor = p_editor;
-	harryEditor = memnew(HarryEditor);
-	harryEditor->set_custom_minimum_size(Size2(0, 300));
+	harry_editor = memnew(HarryEditor);
+	harry_editor->set_custom_minimum_size(Size2(0, 300));
 
-	button = editor->add_bottom_panel_item(TTR("Harry"), harryEditor);
+	button = editor->add_bottom_panel_item(TTR("Harry"), harry_editor);
 	button->hide();
 }
 
@@ -145,22 +216,23 @@ void HarryEditorPlugin::make_visible(bool isVisible) {
 	if (isVisible) {
 		std::cout << "Showing" << std::endl;
 		button->show();
-		editor->make_bottom_panel_item_visible(harryEditor);
-		harryEditor->set_process(true);
-		//harryEditor->show();
+		editor->make_bottom_panel_item_visible(harry_editor);
+		harry_editor->set_process(true);
+		//harry_editor->show();
 	} else {
 		std::cout << "Hiding" << std::endl;
-		if (harryEditor->is_visible_in_tree())
+		if (harry_editor->is_visible_in_tree())
 			editor->hide_bottom_panel();
 		button->hide();
-		harryEditor->set_process(false);
-		//harryEditor->hide();
+		harry_editor->set_process(false);
+		//harry_editor->hide();
 	}
 }
 
 void HarryEditorPlugin::edit(Object *p_object) {
 
 	std::cout << "Edit" << std::endl;
+	harry_editor->edit(Object::cast_to<Harry>(p_object));
 }
 
 bool HarryEditorPlugin::handles(Object *p_object) const {

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  grid_map_editor_plugin.h                                             */
+/*  harry_editor_plugin.h                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -35,17 +35,23 @@
 #include "editor/editor_plugin.h"
 #include "editor/pane_drag.h"
 #include "harry.h"
+#include "harry_graph_node.h"
 #include "scene/gui/graph_edit.h"
+
+/**
+ * @Author iWhiteRabbiT
+*/
 
 class HarryEditor : public VBoxContainer {
 	GDCLASS(HarryEditor, VBoxContainer);
 
+	Harry *harry;
+	Ref<HarrySubnet> harry_subnet;
+	
 	EditorNode *editor;
 	VBoxContainer *settings_vbc;
 	Label *label;
 
-	//ScrollContainer *path_edit;
-	//HBoxContainer *path_hb;
 	PanelContainer *editor_base;
 
 	GraphEdit *graph;
@@ -55,20 +61,23 @@ class HarryEditor : public VBoxContainer {
 	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
 	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
 	void _add_node(int p_idx);
+	void _update_graph();
 
 protected:
+	void _notification(int p_what);
 	static void _bind_methods();
 
 public:
 	HarryEditor();
 	//HarryEditor(EditorNode *p_editor);
+	void edit(Harry *p_harry);
 };
 
 class HarryEditorPlugin : public EditorPlugin {
 	GDCLASS(HarryEditorPlugin, EditorPlugin);
 
 	EditorNode *editor;
-	HarryEditor *harryEditor;
+	HarryEditor *harry_editor;
 	Button *button;
 
 public:

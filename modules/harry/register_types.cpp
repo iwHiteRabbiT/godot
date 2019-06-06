@@ -41,6 +41,10 @@ void register_harry_types() {
 
 #ifndef _3D_DISABLED
 	ClassDB::register_class<Harry>();
+	ClassDB::register_class<HarryNode>();
+	ClassDB::register_class<HarryWrangle>();
+	ClassDB::register_class<HarrySubnet>();
+	ClassDB::register_class<HarryRoot>();
 #ifdef TOOLS_ENABLED
 	EditorPlugins::add_by_type<HarryEditorPlugin>();
 #endif

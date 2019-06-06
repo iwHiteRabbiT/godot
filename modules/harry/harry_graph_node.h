@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  grid_map.cpp                                                         */
+/*  harry_node.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,30 +28,24 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "harry_node.h"
-#include "scene/gui/label.h"
+#ifndef HARRY_GRAPHNODE_H
+#define HARRY_GRAPHNODE_H
 
-HarryNode::HarryNode() {
-	set_title("Base");
-	set_size(Size2(300, 120));
+#include "harry.h"
+#include "scene/gui/graph_node.h"
 
-	for (int i = 0; i < 4; i++) {
-		Label *in_name = memnew(Label);
-		add_child(in_name);
-		in_name->set_text("");
+/**
+ * @Author iWhiteRabbiT
+*/
 
-		set_slot(i,
-				true, 0, Color(1, 1, 1, 1),
-				true, 0, Color(0.8f, 0.8f, 0.9f, 1));
-	}
+class HarryGraphNode : public GraphNode {
+	GDCLASS(HarryGraphNode, GraphNode);
 
-	//for (int i = 0; i < 2; i++) {
-	//	//Label *in_name = memnew(Label);
-	//	//add_child(in_name);
-	//	//in_name->set_text("output " + i);
+	Ref<HarryNode> node;
 
-	//	set_slot(4 + i,
-	//			false, 0, Color(),
-	//			true, 0, Color(1, 1, 1, 1));
-	//}
-}
+public:
+	HarryGraphNode() {};
+	void Set(const Ref<HarryNode> &p_node);
+};
+
+#endif
