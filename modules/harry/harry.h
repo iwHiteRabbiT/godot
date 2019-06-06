@@ -46,6 +46,7 @@ class HarryNode : public Resource {
 
 public:
 	StringName GetName() const;
+	void SetParent(HarrySubnet *parent);
 };
 
 class HarryWrangle : public HarryNode {

@@ -94,11 +94,13 @@ HarryEditor::HarryEditor() {
 }
 
 void HarryEditor::edit(Harry *p_harry) {
-	//if (harry == p_harry)
-	//	return;
+	if (harry == p_harry)
+		return;
 
 	harry = p_harry;
 	harry_subnet = harry->get_harry_root();
+
+	_update_graph();
 }
 
 void HarryEditor::_popup_request(const Vector2 &p_position) {
@@ -123,7 +125,7 @@ void HarryEditor::_disconnection_request(const String &p_from, int p_from_index,
 void HarryEditor::_add_node(int p_idx) {
 
 	std::cout << "_add_node" + p_idx << std::endl;
-	
+
 	HarryNode *hn;
 	StringName name;
 
@@ -141,6 +143,8 @@ void HarryEditor::_add_node(int p_idx) {
 
 	name = harry_subnet->FindNewName(name);
 	harry_subnet->AddNode(name, hn);
+
+	_update_graph();
 }
 
 void HarryEditor::_update_graph() {
@@ -157,7 +161,10 @@ void HarryEditor::_update_graph() {
 			i--;
 		}
 	}
-	
+
+	if (harry_subnet == NULL)
+		return;
+
 	List<StringName> nodes;
 	harry_subnet->GetNodeList(&nodes);
 
@@ -171,7 +178,6 @@ void HarryEditor::_update_graph() {
 	}
 }
 
-
 void HarryEditor::_notification(int p_what) {
 
 	if (p_what == NOTIFICATION_ENTER_TREE || p_what == NOTIFICATION_THEME_CHANGED) {
@@ -181,6 +187,24 @@ void HarryEditor::_notification(int p_what) {
 
 		if (p_what == NOTIFICATION_THEME_CHANGED && is_visible_in_tree())
 			_update_graph();
+	}
+
+	if (p_what == NOTIFICATION_PROCESS) {
+		if (harry && harry->get_harry_root().is_valid()) {
+
+			ObjectID root = 0;
+			if (harry_subnet != NULL)
+				root = harry_subnet->get_instance_id();
+
+			ObjectID root1 = 0;
+			if (harry->get_harry_root() != NULL)
+				root1 = harry->get_harry_root()->get_instance_id();
+
+			if (root != root1) {
+				harry_subnet = harry->get_harry_root();
+				_update_graph();
+			}
+		}
 	}
 }
 

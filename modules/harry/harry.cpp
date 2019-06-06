@@ -47,6 +47,8 @@ StringName HarrySubnet::GetName(const Ref<HarryNode> &p_node) const {
 void HarrySubnet::AddNode(const StringName &p_name, Ref<HarryNode> p_node) {
 	ERR_FAIL_COND(children.has(p_name));
 
+	p_node->SetParent(this);
+
 	Node n;
 	n.node = p_node;
 	children[p_name] = n;
@@ -91,6 +93,10 @@ void HarrySubnet::GetNodeList(List<StringName> *r_list) {
 
 StringName HarryNode::GetName() const {
 	return parent->GetName(Ref<HarryNode>(this));
+}
+
+void HarryNode::SetParent(HarrySubnet *parent) {
+	this->parent = parent;
 }
 
 void Harry::_bind_methods() {
