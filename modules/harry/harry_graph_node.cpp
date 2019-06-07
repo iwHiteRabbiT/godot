@@ -29,7 +29,6 @@
 /*************************************************************************/
 
 #include "harry_graph_node.h"
-#include "scene/gui/label.h"
 
 /**
  * @Author iWhiteRabbiT
@@ -39,10 +38,10 @@ void HarryGraphNode::Set(const Ref<HarryNode> &p_node) {
 
 	node = p_node;
 
-	set_title(p_node->GetName());
-	set_size(Size2(300, 120));
+	set_title(node->GetName());
+	set_size(Size2(150, 85));
 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 1; i++) {
 		Label *in_name = memnew(Label);
 		add_child(in_name);
 		in_name->set_text("");

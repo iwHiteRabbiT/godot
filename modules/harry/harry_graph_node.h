@@ -31,8 +31,10 @@
 #ifndef HARRY_GRAPHNODE_H
 #define HARRY_GRAPHNODE_H
 
-#include "harry.h"
+#include "harry_node.h"
 #include "scene/gui/graph_node.h"
+#include "scene/gui/label.h"
+
 
 /**
  * @Author iWhiteRabbiT

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  register_types.cpp                                                   */
+/*  harry.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,29 +28,24 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "register_types.h"
-#ifndef _3D_DISABLED
-#include "core/class_db.h"
-#include "harry.h"
-#include "harry_wrangle.h"
-#include "harry_editor_plugin.h"
+#ifndef HARRY_NODE_H
+#define HARRY_NODE_H
+
+#include "core/resource.h"
+
+/**
+ * @Author iWhiteRabbiT
+*/
+
+class HarryNode : public Resource {
+	GDCLASS(HarryNode, Resource);
+
+protected:
+	StringName name;
+
+public:
+	StringName GetName() const;
+	void SetName(const StringName &p_name);
+};
+
 #endif
-
-#define TOOLS_ENABLED 1
-
-void register_harry_types() {
-
-#ifndef _3D_DISABLED
-	ClassDB::register_class<Harry>();
-	//ClassDB::register_class<HarryNode>();
-	ClassDB::register_class<HarryWrangle>();
-	ClassDB::register_class<HarrySubnet>();
-	ClassDB::register_class<HarryRoot>();
-#ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<HarryEditorPlugin>();
-#endif
-#endif
-}
-
-void unregister_harry_types() {
-}

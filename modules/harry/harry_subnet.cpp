@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  register_types.cpp                                                   */
+/*  harry.cpp                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,29 +28,77 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "register_types.h"
-#ifndef _3D_DISABLED
-#include "core/class_db.h"
-#include "harry.h"
-#include "harry_wrangle.h"
-#include "harry_editor_plugin.h"
-#endif
+#include "harry_subnet.h"
 
-#define TOOLS_ENABLED 1
+/**
+ * @Author iWhiteRabbiT
+*/
 
-void register_harry_types() {
-
-#ifndef _3D_DISABLED
-	ClassDB::register_class<Harry>();
-	//ClassDB::register_class<HarryNode>();
-	ClassDB::register_class<HarryWrangle>();
-	ClassDB::register_class<HarrySubnet>();
-	ClassDB::register_class<HarryRoot>();
-#ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<HarryEditorPlugin>();
-#endif
-#endif
+bool HarrySubnet::_set(const StringName &p_name, const Variant &p_value) {
+	return false;
 }
 
-void unregister_harry_types() {
+bool HarrySubnet::_get(const StringName &p_name, Variant &r_ret) const {
+	return false;
+}
+
+void HarrySubnet::_get_property_list(List<PropertyInfo> *p_list) const {
+}
+
+StringName HarrySubnet::GetName(const Ref<HarryNode> &p_node) const {
+	for (Map<StringName, Node>::Element *E = children.front(); E; E = E->next()) {
+		if (E->get().node == p_node) {
+			return E->key();
+		}
+	}
+
+	ERR_FAIL_V(StringName());
+}
+
+void HarrySubnet::AddNode(Ref<HarryNode> p_node) {
+
+	StringName name = p_node->GetName();
+
+	ERR_FAIL_COND(children.has(name));
+
+	Node n;
+	n.node = p_node;
+	children[name] = n;
+
+	emit_changed();
+	//emit_signal("tree_changed");
+
+	//p_node->connect("tree_changed", this, "_tree_changed", varray(), CONNECT_REFERENCE_COUNTED);
+	//p_node->connect("changed", this, "_node_changed", varray(p_name), CONNECT_REFERENCE_COUNTED);
+}
+
+Ref<HarryNode> HarrySubnet::GetNode(const StringName &p_name) const {
+	ERR_FAIL_COND_V(!children.has(p_name), Ref<HarryNode>());
+
+	return children[p_name].node;
+}
+
+StringName HarrySubnet::FindNewName(const StringName &p_name) const {
+
+	StringName name = p_name;
+
+	int i = 0;
+	while (children.has(name)) {
+		i++;
+
+		Array vals;
+		vals.push_back(p_name);
+		vals.push_back(i);
+
+		bool e;
+		name = String("%s %d").sprintf(vals, &e);
+	}
+
+	return StringName(name);
+}
+
+void HarrySubnet::GetNodeList(List<StringName> *r_list) {
+	for (Map<StringName, Node>::Element *E = children.front(); E; E = E->next()) {
+		r_list->push_back(E->key());
+	}
 }

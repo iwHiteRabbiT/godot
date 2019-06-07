@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  register_types.cpp                                                   */
+/*  harry_editor_plugin.h                                                */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,29 +28,49 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "register_types.h"
-#ifndef _3D_DISABLED
-#include "core/class_db.h"
+#ifndef HARRY_EDITOR_H
+#define HARRY_EDITOR_H
+
 #include "harry.h"
 #include "harry_wrangle.h"
-#include "harry_editor_plugin.h"
+#include "harry_graph_node.h"
+#include "editor/editor_node.h"
+#include "scene/gui/graph_edit.h"
+//#include "editor/editor_plugin.h"
+//#include "editor/pane_drag.h"
+
+/**
+ * @Author iWhiteRabbiT
+*/
+
+class HarryEditor : public VBoxContainer {
+	GDCLASS(HarryEditor, VBoxContainer);
+
+	Harry *harry;
+	Ref<HarrySubnet> harry_subnet;
+
+	EditorNode *editor;
+	VBoxContainer *settings_vbc;
+	Label *label;
+
+	PanelContainer *editor_base;
+
+	GraphEdit *graph;
+	PopupMenu *add_popup;
+
+	void _popup_request(const Vector2 &p_position);
+	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
+	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
+	void _add_node(int p_idx);
+	void _update_graph();
+
+protected:
+	void _notification(int p_what);
+	static void _bind_methods();
+
+public:
+	HarryEditor();
+	void edit(Harry *p_harry);
+};
+
 #endif
-
-#define TOOLS_ENABLED 1
-
-void register_harry_types() {
-
-#ifndef _3D_DISABLED
-	ClassDB::register_class<Harry>();
-	//ClassDB::register_class<HarryNode>();
-	ClassDB::register_class<HarryWrangle>();
-	ClassDB::register_class<HarrySubnet>();
-	ClassDB::register_class<HarryRoot>();
-#ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<HarryEditorPlugin>();
-#endif
-#endif
-}
-
-void unregister_harry_types() {
-}

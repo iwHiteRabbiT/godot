@@ -32,49 +32,11 @@
 #define HARRY_H
 
 #include "scene/3d/spatial.h"
+#include "harry_root.h"
 
 /**
  * @Author iWhiteRabbiT
 */
-
-class HarrySubnet;
-
-class HarryNode : public Resource {
-	GDCLASS(HarryNode, Resource);
-
-	HarrySubnet *parent;
-
-public:
-	StringName GetName() const;
-	void SetParent(HarrySubnet *parent);
-};
-
-class HarryWrangle : public HarryNode {
-	GDCLASS(HarryWrangle, HarryNode);
-};
-
-class HarrySubnet : public HarryNode {
-	GDCLASS(HarrySubnet, HarryNode);
-
-	struct Node {
-		Ref<HarryNode> node;
-		Vector2 position;
-		Vector<StringName> connections;
-	};
-
-	Map<StringName, Node> children;
-
-public:
-	StringName GetName(const Ref<HarryNode> &p_node) const;
-	void AddNode(const StringName &p_name, Ref<HarryNode> p_node);
-	Ref<HarryNode> GetNode(const StringName &p_name) const;
-	StringName FindNewName(const StringName &p_name) const;
-	void GetNodeList(List<StringName> *r_list);
-};
-
-class HarryRoot : public HarrySubnet {
-	GDCLASS(HarryRoot, HarrySubnet);
-};
 
 class Harry : public Spatial {
 	GDCLASS(Harry, Spatial);

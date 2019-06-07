@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  register_types.cpp                                                   */
+/*  harry.h                                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,29 +28,39 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "register_types.h"
-#ifndef _3D_DISABLED
-#include "core/class_db.h"
-#include "harry.h"
-#include "harry_wrangle.h"
-#include "harry_editor_plugin.h"
+#ifndef HARRY_SUBNET_H
+#define HARRY_SUBNET_H
+
+#include "harry_node.h"
+
+/**
+ * @Author iWhiteRabbiT
+*/
+
+class HarrySubnet : public HarryNode {
+	GDCLASS(HarrySubnet, HarryNode);
+
+	struct Node {
+		Ref<HarryNode> node;
+		Vector2 position;
+		Vector<StringName> connections;
+	};
+
+	Map<StringName, Node> children;
+
+protected:
+	//static void _bind_methods();
+	bool _set(const StringName &p_name, const Variant &p_value);
+	bool _get(const StringName &p_name, Variant &r_ret) const;
+	void _get_property_list(List<PropertyInfo> *p_list) const;
+
+public:
+	HarrySubnet() { name = "Subnet"; }
+	StringName GetName(const Ref<HarryNode> &p_node) const;
+	void AddNode(Ref<HarryNode> p_node);
+	Ref<HarryNode> GetNode(const StringName &p_name) const;
+	StringName FindNewName(const StringName &p_name) const;
+	void GetNodeList(List<StringName> *r_list);
+};
+
 #endif
-
-#define TOOLS_ENABLED 1
-
-void register_harry_types() {
-
-#ifndef _3D_DISABLED
-	ClassDB::register_class<Harry>();
-	//ClassDB::register_class<HarryNode>();
-	ClassDB::register_class<HarryWrangle>();
-	ClassDB::register_class<HarrySubnet>();
-	ClassDB::register_class<HarryRoot>();
-#ifdef TOOLS_ENABLED
-	EditorPlugins::add_by_type<HarryEditorPlugin>();
-#endif
-#endif
-}
-
-void unregister_harry_types() {
-}
