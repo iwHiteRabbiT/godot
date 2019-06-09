@@ -34,10 +34,18 @@
  * @Author iWhiteRabbiT
 */
 
-StringName HarryNode::GetName() const {
-	return name;
+void HarryNode::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_node_name", "node_name"), &HarryNode::set_node_name);
+	ClassDB::bind_method(D_METHOD("get_node_name"), &HarryNode::get_node_name);
+
+	//ADD_GROUP("Group", "Group_");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "node_name"), "set_node_name", "get_node_name");
 }
 
-void HarryNode::SetName(const StringName &p_name) {
-	name = p_name;
+String HarryNode::get_node_name() const {
+	return node_name;
+}
+
+void HarryNode::set_node_name(const String &p_name) {
+	node_name = p_name;
 }

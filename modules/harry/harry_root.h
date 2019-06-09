@@ -41,7 +41,7 @@ class HarryRoot : public HarrySubnet {
 	GDCLASS(HarryRoot, HarrySubnet);
 
 public:
-	HarryRoot() { name = "Root"; }
+	HarryRoot() { node_name = "Root"; }
 };
 
 #endif

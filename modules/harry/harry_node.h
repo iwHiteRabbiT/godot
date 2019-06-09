@@ -41,11 +41,12 @@ class HarryNode : public Resource {
 	GDCLASS(HarryNode, Resource);
 
 protected:
-	StringName name;
+	StringName node_name;
+	static void _bind_methods();
 
 public:
-	StringName GetName() const;
-	void SetName(const StringName &p_name);
+	String get_node_name() const;
+	void set_node_name(const String &p_name);
 };
 
 #endif

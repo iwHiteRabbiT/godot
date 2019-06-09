@@ -95,8 +95,8 @@ void HarryEditor::_add_node(int p_idx) {
 			break;
 	}
 
-	hn->SetName(harry_subnet->FindNewName(hn->GetName()));
-	harry_subnet->AddNode(hn);
+	StringName instance_name = harry_subnet->FindNewName(hn->get_node_name());
+	harry_subnet->AddNode(instance_name, hn);
 
 	_update_graph();
 }
@@ -127,8 +127,9 @@ void HarryEditor::_update_graph() {
 		HarryGraphNode *node = memnew(HarryGraphNode);
 		graph->add_child(node);
 
-		Ref<HarryNode> hnode = harry_subnet->GetNode(E->get());
-		node->Set(hnode);
+		StringName name = E->get();
+		HarrySubnet::Node hn = harry_subnet->GetNode(name);
+		node->Set(name, hn.node);
 	}
 }
 

@@ -40,12 +40,15 @@
 class HarrySubnet : public HarryNode {
 	GDCLASS(HarrySubnet, HarryNode);
 
+public:
 	struct Node {
+		//StringName instance_name;
 		Ref<HarryNode> node;
 		Vector2 position;
-		Vector<StringName> connections;
+		//Vector<StringName> connections;
 	};
 
+private:
 	Map<StringName, Node> children;
 
 protected:
@@ -55,10 +58,10 @@ protected:
 	void _get_property_list(List<PropertyInfo> *p_list) const;
 
 public:
-	HarrySubnet() { name = "Subnet"; }
+	HarrySubnet() { node_name = "Subnet"; }
 	StringName GetName(const Ref<HarryNode> &p_node) const;
-	void AddNode(Ref<HarryNode> p_node);
-	Ref<HarryNode> GetNode(const StringName &p_name) const;
+	void AddNode(StringName instance_name, Ref<HarryNode> p_node);
+	Node GetNode(const StringName &p_name) const;
 	StringName FindNewName(const StringName &p_name) const;
 	void GetNodeList(List<StringName> *r_list);
 };

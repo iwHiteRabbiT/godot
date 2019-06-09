@@ -41,7 +41,7 @@ class HarryWrangle : public HarryNode {
 	GDCLASS(HarryWrangle, HarryNode);
 
 public:
-	HarryWrangle() { name = "Wrangle"; }
+	HarryWrangle() { node_name = "Wrangle"; }
 };
 
 #endif

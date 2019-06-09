@@ -47,7 +47,7 @@ class HarryGraphNode : public GraphNode {
 
 public:
 	HarryGraphNode() {};
-	void Set(const Ref<HarryNode> &p_node);
+	void Set(const StringName &p_name, const Ref<HarryNode> &p_node);
 };
 
 #endif

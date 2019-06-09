@@ -34,11 +34,11 @@
  * @Author iWhiteRabbiT
 */
 
-void HarryGraphNode::Set(const Ref<HarryNode> &p_node) {
+void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node) {
 
 	node = p_node;
 
-	set_title(node->GetName());
+	set_title(p_name);
 	set_size(Size2(150, 85));
 
 	for (int i = 0; i < 1; i++) {
