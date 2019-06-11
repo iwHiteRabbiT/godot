@@ -41,11 +41,23 @@ class HarrySubnet : public HarryNode {
 	GDCLASS(HarrySubnet, HarryNode);
 
 public:
+	struct Connection {
+		int from_index;
+		StringName to;
+		int to_index;
+
+		bool operator==(const Connection &c) {
+			return from_index == c.from_index &&
+				   to == c.to &&
+				   to_index == c.to_index; 
+		}
+	};
+
 	struct Node {
 		//StringName instance_name;
 		Ref<HarryNode> node;
 		Vector2 position;
-		//Vector<StringName> connections;
+		List<Connection> connections;
 	};
 
 private:
@@ -56,12 +68,21 @@ protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
+	static void _bind_methods();
 
 public:
 	HarrySubnet() { node_name = "Subnet"; }
 	StringName GetName(const Ref<HarryNode> &p_node) const;
 	void AddNode(StringName instance_name, Ref<HarryNode> p_node);
 	Node GetNode(const StringName &p_name) const;
+
+	void set_node_position(const StringName &p_node, const Vector2 &p_position);
+	Vector2 get_node_position(const StringName &p_node) const;
+
+	void connect_node(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index);
+	bool connection_exists(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index);
+	void disconnect_node(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index);
+
 	StringName FindNewName(const StringName &p_name) const;
 	void GetNodeList(List<StringName> *r_list);
 };

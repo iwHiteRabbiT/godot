@@ -58,11 +58,19 @@ class HarryEditor : public VBoxContainer {
 	GraphEdit *graph;
 	PopupMenu *add_popup;
 
+	UndoRedo *undo_redo;
+	bool updating = false;
+
 	void _popup_request(const Vector2 &p_position);
 	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
 	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
+
 	void _add_node(int p_idx);
+	void _node_selected(Object *p_node);
+
 	void _update_graph();
+
+	void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, const StringName &p_which);
 
 protected:
 	void _notification(int p_what);

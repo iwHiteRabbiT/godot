@@ -44,12 +44,16 @@ HarryEditor::HarryEditor() {
 	graph->connect("popup_request", this, "_popup_request");
 	graph->connect("connection_request", this, "_connection_request", varray(), CONNECT_DEFERRED);
 	graph->connect("disconnection_request", this, "_disconnection_request", varray(), CONNECT_DEFERRED);
+	graph->connect("node_selected", this, "_node_selected");
+
 
 	add_popup = memnew(PopupMenu);
 	graph->add_child(add_popup);
 	add_popup->connect("id_pressed", this, "_add_node");
 	add_popup->add_item("Wrangle", 0);
 	add_popup->add_item("Subnet", 1);
+
+	undo_redo = EditorNode::get_singleton()->get_undo_redo();
 }
 
 void HarryEditor::edit(Harry *p_harry) {
@@ -66,19 +70,44 @@ void HarryEditor::_popup_request(const Vector2 &p_position) {
 
 	//_update_options_menu();
 	//use_popup_menu_position = true;
-	//popup_menu_position = graph->get_local_mouse_position();
+	Vector2 popup_menu_position = graph->get_local_mouse_position();
 	add_popup->set_position(p_position);
 	add_popup->popup();
 }
 
 void HarryEditor::_connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index) {
 
-	graph->connect_node(p_from, p_from_index, p_to, p_to_index);
+	//AnimationNodeBlendTree::ConnectionError err = blend_tree->can_connect_node(p_to, p_to_index, p_from);
+
+	//if (err != AnimationNodeBlendTree::CONNECTION_OK) {
+	//	EditorNode::get_singleton()->show_warning(TTR("Unable to connect, port may be in use or connection may be invalid."));
+	//	return;
+	//}
+
+	//updating = true;
+	undo_redo->create_action(TTR("Nodes Connected"));
+	undo_redo->add_do_method(harry_subnet.ptr(), "connect_node", p_from, p_from_index, p_to, p_to_index);
+	undo_redo->add_undo_method(harry_subnet.ptr(), "disconnect_node", p_from, p_from_index, p_to, p_to_index);
+	undo_redo->add_do_method(this, "_update_graph");
+	undo_redo->add_undo_method(this, "_update_graph");
+	undo_redo->commit_action();
+	//updating = false;
 }
 
 void HarryEditor::_disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index) {
 
-	graph->disconnect_node(p_from, p_from_index, p_to, p_to_index);
+	if (harry_subnet->connection_exists(p_from, p_from_index, p_to, p_to_index)) {
+		graph->disconnect_node(p_from, p_from_index, p_to, p_to_index);
+
+		updating = true;
+		undo_redo->create_action(TTR("Nodes Disconnected"));
+		undo_redo->add_do_method(harry_subnet.ptr(), "disconnect_node", p_from, p_from_index, p_to, p_to_index);
+		undo_redo->add_undo_method(harry_subnet.ptr(), "connect_node", p_from, p_from_index, p_to, p_to_index);
+		undo_redo->add_do_method(this, "_update_graph");
+		undo_redo->add_undo_method(this, "_update_graph");
+		undo_redo->commit_action();
+		updating = false;
+	}
 }
 
 void HarryEditor::_add_node(int p_idx) {
@@ -101,10 +130,36 @@ void HarryEditor::_add_node(int p_idx) {
 	_update_graph();
 }
 
+void HarryEditor::_node_selected(Object *p_node) {
+
+	GraphNode *gn = Object::cast_to<GraphNode>(p_node);
+	ERR_FAIL_COND(!gn);
+
+	String name = gn->get_name();
+
+	Ref<HarryNode> hn = harry_subnet->GetNode(name).node;
+	ERR_FAIL_COND(!hn.is_valid());
+
+	EditorNode::get_singleton()->push_item(hn.ptr(), "", true);
+}
+
+void HarryEditor::_node_dragged(const Vector2 &p_from, const Vector2 &p_to, const StringName &p_which) {
+
+	updating = true;
+	undo_redo->create_action(TTR("Node Moved"));
+	undo_redo->add_do_method(harry_subnet.ptr(), "set_node_position", p_which, p_to / EDSCALE);
+	undo_redo->add_undo_method(harry_subnet.ptr(), "set_node_position", p_which, p_from / EDSCALE);
+	//undo_redo->add_do_method(this, "_update_graph");
+	undo_redo->add_undo_method(this, "_update_graph");
+	undo_redo->commit_action();
+	updating = false;
+}
+
+
 void HarryEditor::_update_graph() {
 
-	//if (updating)
-	//	return;
+	if (updating)
+		return;
 
 	graph->clear_connections();
 	//erase all nodes
@@ -129,7 +184,21 @@ void HarryEditor::_update_graph() {
 
 		StringName name = E->get();
 		HarrySubnet::Node hn = harry_subnet->GetNode(name);
-		node->Set(name, hn.node);
+		node->Set(name, hn.node, hn.position);
+		node->connect("dragged", this, "_node_dragged", varray(name));
+	}
+
+	for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {
+
+		StringName name = E->get();
+		HarrySubnet::Node hn = harry_subnet->GetNode(name);
+
+		for (List<HarrySubnet::Connection>::Element *E = hn.connections.front(); E; E = E->next()) {
+
+			HarrySubnet::Connection c = E->get();
+
+			graph->connect_node(name, c.from_index, c.to, c.to_index);
+		}
 	}
 }
 
@@ -169,4 +238,7 @@ void HarryEditor::_bind_methods() {
 	ClassDB::bind_method("_connection_request", &HarryEditor::_connection_request);
 	ClassDB::bind_method("_disconnection_request", &HarryEditor::_disconnection_request);
 	ClassDB::bind_method("_popup_request", &HarryEditor::_popup_request);
+	ClassDB::bind_method("_node_dragged", &HarryEditor::_node_dragged);
+	ClassDB::bind_method("_update_graph", &HarryEditor::_update_graph);
+	ClassDB::bind_method("_node_selected", &HarryEditor::_node_selected);
 }

@@ -57,6 +57,19 @@ bool HarrySubnet::_set(const StringName &p_name, const Variant &p_value) {
 			}
 			return true;
 		}
+
+		if (what == "connections") {
+
+			if (children.has(node_name)) {
+				Array conns = p_value;
+				ERR_FAIL_COND_V(conns.size() % 3 != 0, false);
+
+				for (int i = 0; i < conns.size(); i += 3) {
+					connect_node(node_name, conns[i], conns[i + 1], conns[i + 2]);
+				}
+			}
+			return true;
+		}
 	}
 	//else if (name == "node_connections") {
 
@@ -93,24 +106,30 @@ bool HarrySubnet::_get(const StringName &p_name, Variant &r_ret) const {
 				return true;
 			}
 		}
+
+		if (what == "connections") {
+
+			if (children.has(node_name)) {
+
+				List<Connection> cs = children[node_name].connections;
+
+				Array conns;
+				conns.resize(cs.size() * 3);
+
+				int idx = 0;
+				for (List<Connection>::Element *E = cs.front(); E; E = E->next()) {
+					Connection c = E->get();
+					conns[idx * 3 + 0] = c.from_index;
+					conns[idx * 3 + 1] = c.to;
+					conns[idx * 3 + 2] = c.to_index;
+					idx++;
+				}
+
+				r_ret = conns;
+				return true;
+			}
+		}
 	}
-	//else if (name == "node_connections") {
-	//	List<NodeConnection> nc;
-	//	get_node_connections(&nc);
-	//	Array conns;
-	//	conns.resize(nc.size() * 3);
-
-	//	int idx = 0;
-	//	for (List<NodeConnection>::Element *E = nc.front(); E; E = E->next()) {
-	//		conns[idx * 3 + 0] = E->get().input_node;
-	//		conns[idx * 3 + 1] = E->get().input_index;
-	//		conns[idx * 3 + 2] = E->get().output_node;
-	//		idx++;
-	//	}
-
-	//	r_ret = conns;
-	//	return true;
-	//}
 
 	return false;
 }
@@ -125,14 +144,24 @@ void HarrySubnet::_get_property_list(List<PropertyInfo> *p_list) const {
 
 	for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
 		String name = E->get();
-		//if (name != "output") {
-		//p_list->push_back(PropertyInfo(Variant::STRING, "nodes/" + name + "/name", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
-		p_list->push_back(PropertyInfo(Variant::OBJECT, "nodes/" + name + "/node", PROPERTY_HINT_RESOURCE_TYPE, "HarryNode", PROPERTY_USAGE_NOEDITOR));
-		//}
+		p_list->push_back(PropertyInfo(Variant::OBJECT, "nodes/" + name + "/node", PROPERTY_HINT_RESOURCE_TYPE, "HarryNode", PROPERTY_USAGE_DEFAULT));
 		p_list->push_back(PropertyInfo(Variant::VECTOR2, "nodes/" + name + "/position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
-		//p_list->push_back(PropertyInfo(Variant::ARRAY, "node_connections", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+		//p_list->push_back(PropertyInfo(Variant::ARRAY, "nodes/" + name + "/connections", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
 	}
 
+	for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
+		String name = E->get();
+		//p_list->push_back(PropertyInfo(Variant::OBJECT, "nodes/" + name + "/node", PROPERTY_HINT_RESOURCE_TYPE, "HarryNode", PROPERTY_USAGE_NOEDITOR));
+		//p_list->push_back(PropertyInfo(Variant::VECTOR2, "nodes/" + name + "/position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+		p_list->push_back(PropertyInfo(Variant::ARRAY, "nodes/" + name + "/connections", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+	}
+}
+
+void HarrySubnet::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_node_position", "name", "position"), &HarrySubnet::set_node_position);
+	ClassDB::bind_method(D_METHOD("get_node_position", "name"), &HarrySubnet::get_node_position);
+	ClassDB::bind_method(D_METHOD("connect_node", "from", "from_i", "to", "to_i"), &HarrySubnet::connect_node);
+	ClassDB::bind_method(D_METHOD("disconnect_node", "from", "from_i", "to", "to_i"), &HarrySubnet::disconnect_node);
 }
 
 StringName HarrySubnet::GetName(const Ref<HarryNode> &p_node) const {
@@ -168,6 +197,66 @@ HarrySubnet::Node HarrySubnet::GetNode(const StringName &p_name) const {
 		return Node();
 
 	return children[p_name];
+}
+
+void HarrySubnet::set_node_position(const StringName &p_node, const Vector2 &p_position) {
+	ERR_FAIL_COND(!children.has(p_node));
+	children[p_node].position = p_position;
+}
+
+Vector2 HarrySubnet::get_node_position(const StringName &p_node) const {
+	ERR_FAIL_COND_V(!children.has(p_node), Vector2());
+	return children[p_node].position;
+}
+
+void HarrySubnet::connect_node(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index) {
+
+	ERR_FAIL_COND(!children.has(p_from_node));
+	ERR_FAIL_COND(!children.has(p_to_node));
+	//ERR_FAIL_COND(p_output_node == SceneStringNames::get_singleton()->output);
+	ERR_FAIL_COND(p_from_node == p_to_node);
+
+	Connection connection;
+	connection.from_index = p_from_index;
+	connection.to = p_to_node;
+	connection.to_index = p_to_index;
+
+	children[p_from_node].connections.push_back(connection);
+
+	emit_changed();
+}
+
+bool HarrySubnet::connection_exists(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index) {
+	ERR_FAIL_COND_V(!children.has(p_from_node), false);
+
+	Node n = children[p_from_node];
+
+	for (int i = 0; i < n.connections.size(); i++) {
+		Connection c = n.connections[i];
+		if (c.from_index == p_from_index &&
+				c.to == p_to_node &&
+				c.to_index == p_to_index) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void HarrySubnet::disconnect_node(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index) {
+
+	ERR_FAIL_COND(!children.has(p_from_node));
+
+	Node &n = children[p_from_node];
+
+	for (int i = 0; i < n.connections.size(); i++) {
+		Connection c = n.connections[i];
+		if (c.from_index == p_from_index &&
+				c.to == p_to_node &&
+				c.to_index == p_to_index) {
+			n.connections.erase(c);
+		}
+	}
 }
 
 StringName HarrySubnet::FindNewName(const StringName &p_name) const {

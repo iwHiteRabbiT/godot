@@ -34,12 +34,15 @@
  * @Author iWhiteRabbiT
 */
 
-void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node) {
+void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset) {
 
 	node = p_node;
 
+	set_name(p_name);
+
 	set_title(p_name);
 	set_size(Size2(150, 85));
+	set_offset(p_offset);
 
 	for (int i = 0; i < 1; i++) {
 		Label *in_name = memnew(Label);
