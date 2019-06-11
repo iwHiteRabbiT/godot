@@ -46,6 +46,12 @@
 class HarryEditor : public VBoxContainer {
 	GDCLASS(HarryEditor, VBoxContainer);
 
+	enum {
+		MENU_LOAD_FILE = 1000,
+		MENU_PASTE = 1001,
+		MENU_LOAD_FILE_CONFIRM = 1002
+	};
+
 	Harry *harry;
 	Ref<HarrySubnet> harry_subnet;
 
@@ -60,6 +66,10 @@ class HarryEditor : public VBoxContainer {
 
 	UndoRedo *undo_redo;
 	bool updating = false;
+
+	EditorFileDialog *open_file;
+	Ref<HarryNode> file_loaded;
+	void _file_opened(const String &p_file);
 
 	void _popup_request(const Vector2 &p_position);
 	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);

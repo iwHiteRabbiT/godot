@@ -32,6 +32,7 @@
 #define HARRY_GRAPHNODE_H
 
 #include "harry_node.h"
+#include "harry_subnet.h"
 #include "scene/gui/graph_node.h"
 #include "scene/gui/label.h"
 
@@ -44,10 +45,15 @@ class HarryGraphNode : public GraphNode {
 	GDCLASS(HarryGraphNode, GraphNode);
 
 	Ref<HarryNode> node;
+	Ref<HarrySubnet> subnet;
+
+protected:
+	static void _bind_methods();
 
 public:
 	HarryGraphNode() {};
-	void Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset);
+	void Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset, const Ref<HarrySubnet> &p_subnet);
+	void set_unique_title(const StringName &p_name);
 };
 
 #endif

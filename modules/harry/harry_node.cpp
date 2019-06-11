@@ -40,6 +40,8 @@ void HarryNode::_bind_methods() {
 
 	//ADD_GROUP("Group", "Group_");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "node_name"), "set_node_name", "get_node_name");
+
+	ADD_SIGNAL(MethodInfo("name_changed", PropertyInfo(Variant::STRING, "name")));
 }
 
 String HarryNode::get_node_name() const {
@@ -48,4 +50,5 @@ String HarryNode::get_node_name() const {
 
 void HarryNode::set_node_name(const String &p_name) {
 	node_name = p_name;
+	emit_signal("name_changed", node_name);
 }

@@ -34,9 +34,10 @@
  * @Author iWhiteRabbiT
 */
 
-void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset) {
+void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset, const Ref<HarrySubnet> &p_subnet) {
 
 	node = p_node;
+	subnet = p_subnet;
 
 	set_name(p_name);
 
@@ -53,4 +54,16 @@ void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node,
 				true, 0, Color(1, 1, 1, 1),
 				true, 0, Color(0.7f, 0.7f, 0.9f, 1));
 	}
+
+	node->connect("name_changed", this, "set_unique_title");
+}
+
+void HarryGraphNode::set_unique_title(const StringName &p_name) {
+
+	set_title(subnet->FindNewName(p_name));
+}
+
+void HarryGraphNode::_bind_methods() {
+
+	ClassDB::bind_method("set_unique_title", &HarryGraphNode::set_unique_title);
 }

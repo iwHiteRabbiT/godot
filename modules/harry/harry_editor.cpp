@@ -46,12 +46,19 @@ HarryEditor::HarryEditor() {
 	graph->connect("disconnection_request", this, "_disconnection_request", varray(), CONNECT_DEFERRED);
 	graph->connect("node_selected", this, "_node_selected");
 
-
 	add_popup = memnew(PopupMenu);
 	graph->add_child(add_popup);
 	add_popup->connect("id_pressed", this, "_add_node");
 	add_popup->add_item("Wrangle", 0);
 	add_popup->add_item("Subnet", 1);
+	add_popup->add_separator();
+	add_popup->add_item(TTR("Load..."), MENU_LOAD_FILE);
+
+	open_file = memnew(EditorFileDialog);
+	add_child(open_file);
+	open_file->set_title(TTR("Open Harry Node"));
+	open_file->set_mode(EditorFileDialog::MODE_OPEN_FILE);
+	open_file->connect("file_selected", this, "_file_opened");
 
 	undo_redo = EditorNode::get_singleton()->get_undo_redo();
 }
@@ -110,22 +117,54 @@ void HarryEditor::_disconnection_request(const String &p_from, int p_from_index,
 	}
 }
 
+void HarryEditor::_file_opened(const String &p_file) {
+
+	file_loaded = ResourceLoader::load(p_file);
+	if (file_loaded.is_valid()) {
+		_add_node(MENU_LOAD_FILE_CONFIRM);
+	}
+}
+
 void HarryEditor::_add_node(int p_idx) {
 
-	HarryNode *hn;
+	Ref<HarryNode> rhn;
 
+	String type;
 	switch (p_idx) {
 		case 0:
-			hn = memnew(HarryWrangle);
+			type = "HarryWrangle";
 			break;
 
 		case 1:
-			hn = memnew(HarrySubnet);
+			type = "HarrySubnet";
+			break;
+
+		case MENU_LOAD_FILE:
+			open_file->clear_filters();
+			{
+				List<String> filters;
+				ResourceLoader::get_recognized_extensions_for_type("HarryNode", &filters);
+				for (List<String>::Element *E = filters.front(); E; E = E->next()) {
+					open_file->add_filter("*." + E->get());
+				}
+			}
+			open_file->popup_centered_ratio();
+			return;
+
+		case MENU_LOAD_FILE_CONFIRM:
+			rhn = file_loaded;
+			file_loaded.unref();
 			break;
 	}
 
-	StringName instance_name = harry_subnet->FindNewName(hn->get_node_name());
-	harry_subnet->AddNode(instance_name, hn);
+	if (!rhn.is_valid()) {
+		HarryNode *hn = Object::cast_to<HarryNode>(ClassDB::instance(type));
+		ERR_FAIL_COND(!hn);
+		rhn = Ref<HarryNode>(hn);
+	}
+
+	StringName instance_name = harry_subnet->FindNewName(rhn->get_node_name());
+	harry_subnet->AddNode(instance_name, rhn);
 
 	_update_graph();
 }
@@ -155,7 +194,6 @@ void HarryEditor::_node_dragged(const Vector2 &p_from, const Vector2 &p_to, cons
 	updating = false;
 }
 
-
 void HarryEditor::_update_graph() {
 
 	if (updating)
@@ -184,7 +222,7 @@ void HarryEditor::_update_graph() {
 
 		StringName name = E->get();
 		HarrySubnet::Node hn = harry_subnet->GetNode(name);
-		node->Set(name, hn.node, hn.position);
+		node->Set(name, hn.node, hn.position, harry_subnet);
 		node->connect("dragged", this, "_node_dragged", varray(name));
 	}
 
@@ -241,4 +279,5 @@ void HarryEditor::_bind_methods() {
 	ClassDB::bind_method("_node_dragged", &HarryEditor::_node_dragged);
 	ClassDB::bind_method("_update_graph", &HarryEditor::_update_graph);
 	ClassDB::bind_method("_node_selected", &HarryEditor::_node_selected);
+	ClassDB::bind_method("_file_opened", &HarryEditor::_file_opened);
 }

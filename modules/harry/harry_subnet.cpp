@@ -45,7 +45,7 @@ bool HarrySubnet::_set(const StringName &p_name, const Variant &p_value) {
 		if (what == "node") {
 			Ref<HarryNode> anode = p_value;
 			if (anode.is_valid()) {
-				AddNode(node_name, p_value);
+				AddNode(node_name, anode);
 			}
 			return true;
 		}
