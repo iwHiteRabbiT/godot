@@ -58,6 +58,24 @@ public:
 		Ref<HarryNode> node;
 		Vector2 position;
 		List<Connection> connections;
+
+		bool operator==(const Node &n) {
+
+			if (!(node.get_ref_ptr() == n.node.get_ref_ptr()))
+				return false;
+
+			if (position != n.position)
+				return false;
+
+			if (connections.size() != n.connections.size())
+				return false;
+
+			for (int i = 0; i < connections.size(); i++)
+				if (!(connections[i] == n.connections[i]))
+					return false;
+
+			return true;
+		}
 	};
 
 private:
@@ -71,10 +89,16 @@ protected:
 	static void _bind_methods();
 
 public:
-	HarrySubnet() { node_name = "Subnet"; }
-	StringName GetName(const Ref<HarryNode> &p_node) const;
+	HarrySubnet() {
+		node_name = "Subnet";
+		graph_name = "SubnetGraphNode";
+	}
 	void AddNode(StringName instance_name, Ref<HarryNode> p_node);
 	Node GetNode(const StringName &p_name) const;
+	List<Node> GetNodes(const Ref<HarryNode> &p_node) const;
+	StringName GetName(const Node &p_node) const;
+
+	void set_unique_title(const Ref<HarryNode> &p_node);
 
 	void set_node_position(const StringName &p_node, const Vector2 &p_position);
 	Vector2 get_node_position(const StringName &p_node) const;

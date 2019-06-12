@@ -47,6 +47,8 @@ protected:
 public:
 	String get_node_name() const;
 	void set_node_name(const String &p_name);
+
+	StringName graph_name = "GraphNode";
 };
 
 #endif

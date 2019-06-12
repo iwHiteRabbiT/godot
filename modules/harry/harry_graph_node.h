@@ -47,13 +47,13 @@ class HarryGraphNode : public GraphNode {
 	Ref<HarryNode> node;
 	Ref<HarrySubnet> subnet;
 
-protected:
-	static void _bind_methods();
+//protected:
+	//static void _bind_methods();
 
 public:
 	HarryGraphNode() {};
-	void Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset, const Ref<HarrySubnet> &p_subnet);
-	void set_unique_title(const StringName &p_name);
+	virtual void Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset, const Ref<HarrySubnet> &p_subnet);
+	//void set_unique_title(const StringName &p_name);
 };
 
 #endif

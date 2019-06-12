@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.cpp                                                            */
+/*  harry_node.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,35 +28,33 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "harry_node.h"
+#ifndef HARRY_SUBNET_GRAPHNODE_H
+#define HARRY_SUBNET_GRAPHNODE_H
+
+#include "harry_graph_node.h"
+#include "scene/gui/button.h"
+//#include "harry_subnet.h"
+//#include "scene/gui/graph_node.h"
+//#include "scene/gui/label.h"
+
 
 /**
  * @Author iWhiteRabbiT
 */
 
-void HarryNode::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_node_name", "node_name"), &HarryNode::set_node_name);
-	ClassDB::bind_method(D_METHOD("get_node_name"), &HarryNode::get_node_name);
+class HarrySubnetGraphNode : public HarryGraphNode {
+	GDCLASS(HarrySubnetGraphNode, HarryGraphNode);
 
-	//ADD_GROUP("Group", "Group_");
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "node_name"), "set_node_name", "get_node_name");
+	//Ref<HarryNode> node;
+	//Ref<HarrySubnet> subnet;
 
-	ADD_SIGNAL(MethodInfo("name_changed", PropertyInfo(Variant::OBJECT, "node")));
-}
+//protected:
+	//static void _bind_methods();
 
-String HarryNode::get_node_name() const {
-	return node_name;
-}
+public:
+	//HarrySubnetGraphNode(){};
+	void Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset, const Ref<HarrySubnet> &p_subnet) override;
+	//void set_unique_title(const StringName &p_name);
+};
 
-void HarryNode::set_node_name(const String &p_name) {
-
-	if (node_name == p_name)
-		return;
-
-	StringName old_name = node_name;
-	node_name = p_name;
-
-	Ref<HarryNode> t = this;
-
-	emit_signal("name_changed", t);
-}
+#endif

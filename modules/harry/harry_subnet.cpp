@@ -162,16 +162,9 @@ void HarrySubnet::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_node_position", "name"), &HarrySubnet::get_node_position);
 	ClassDB::bind_method(D_METHOD("connect_node", "from", "from_i", "to", "to_i"), &HarrySubnet::connect_node);
 	ClassDB::bind_method(D_METHOD("disconnect_node", "from", "from_i", "to", "to_i"), &HarrySubnet::disconnect_node);
-}
+	ClassDB::bind_method(D_METHOD("set_unique_title", "node"), &HarrySubnet::set_unique_title);	
 
-StringName HarrySubnet::GetName(const Ref<HarryNode> &p_node) const {
-	for (Map<StringName, Node>::Element *E = children.front(); E; E = E->next()) {
-		if (E->get().node == p_node) {
-			return E->key();
-		}
-	}
-
-	ERR_FAIL_V(StringName());
+	ADD_SIGNAL(MethodInfo("node_instance_name_changed", PropertyInfo(Variant::STRING, "old_name"), PropertyInfo(Variant::STRING, "new_name")));
 }
 
 void HarrySubnet::AddNode(StringName instance_name, Ref<HarryNode> p_node) {
@@ -181,6 +174,8 @@ void HarrySubnet::AddNode(StringName instance_name, Ref<HarryNode> p_node) {
 	Node n;
 	//n.instance_name = instance_name;
 	n.node = p_node;
+	if (!n.node->is_connected("name_changed", this, "set_unique_title"))
+		n.node->connect("name_changed", this, "set_unique_title");
 	children[instance_name] = n;
 
 	emit_changed();
@@ -197,6 +192,60 @@ HarrySubnet::Node HarrySubnet::GetNode(const StringName &p_name) const {
 		return Node();
 
 	return children[p_name];
+}
+
+List<HarrySubnet::Node> HarrySubnet::GetNodes(const Ref<HarryNode> &p_node) const {
+
+	List<Node> nodes;
+
+	for (Map<StringName, Node>::Element *E = children.front(); E; E = E->next()) {
+		if (E->get().node == p_node) {
+			nodes.push_back(E->get());
+		}
+	}
+
+	return nodes;
+}
+
+StringName HarrySubnet::GetName(const Node &p_node) const {
+	for (Map<StringName, Node>::Element *E = children.front(); E; E = E->next()) {
+		if (E->get() == p_node) {
+			return E->key();
+		}
+	}
+
+	ERR_FAIL_V(StringName());
+}
+
+void HarrySubnet::set_unique_title(const Ref<HarryNode> &p_node) {
+
+	List<Node> ns = GetNodes(p_node);
+
+	for (List<Node>::Element *E = ns.front(); E; E = E->next())
+	{
+		Node n = E->get();
+		String old_instance_name = GetName(n);
+		String new_instance_name = FindNewName(p_node->get_node_name());
+
+		children.erase(old_instance_name);
+		//Node n = children[old_instance_name];
+		children[new_instance_name] = n;
+
+		for (Map<StringName, Node>::Element *E1 = children.front(); E1; E1 = E1->next()) {
+
+			Node n1 = E1->get();
+
+			for (int i = 0; i < n1.connections.size(); i++)
+			{
+					if (n1.connections[i].to == old_instance_name)
+						n1.connections[i].to = new_instance_name;
+			}
+
+			children[E1->key()] = n1;
+		}
+
+		emit_signal("node_instance_name_changed", old_instance_name, new_instance_name);
+	}
 }
 
 void HarrySubnet::set_node_position(const StringName &p_node, const Vector2 &p_position) {

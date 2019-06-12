@@ -68,7 +68,14 @@ void HarryEditor::edit(Harry *p_harry) {
 		return;
 
 	harry = p_harry;
+
+	if (harry_subnet.is_valid())
+		harry_subnet->disconnect("node_instance_name_changed", this, "_node_instance_name_changed");
+
 	harry_subnet = harry->get_harry_root();
+
+	if (harry_subnet.is_valid())
+		harry_subnet->connect("node_instance_name_changed", this, "_node_instance_name_changed");
 
 	_update_graph();
 }
@@ -174,7 +181,7 @@ void HarryEditor::_node_selected(Object *p_node) {
 	GraphNode *gn = Object::cast_to<GraphNode>(p_node);
 	ERR_FAIL_COND(!gn);
 
-	String name = gn->get_name();
+	String name = gn->get_title();
 
 	Ref<HarryNode> hn = harry_subnet->GetNode(name).node;
 	ERR_FAIL_COND(!hn.is_valid());
@@ -192,6 +199,22 @@ void HarryEditor::_node_dragged(const Vector2 &p_from, const Vector2 &p_to, cons
 	undo_redo->add_undo_method(this, "_update_graph");
 	undo_redo->commit_action();
 	updating = false;
+}
+
+void HarryEditor::_node_instance_name_changed(const StringName &p_old_name, const StringName &p_new_name) {
+
+	for (int i = 0; i < graph->get_child_count(); i++) {
+
+		GraphNode *gn = Object::cast_to<GraphNode>(graph->get_child(i));
+
+		if (!gn)
+			continue;
+
+		if (gn->get_title() == p_old_name) {
+			//gn->set_name(p_new_name);
+			gn->set_title(p_new_name);
+		}
+	}
 }
 
 void HarryEditor::_update_graph() {
@@ -217,11 +240,17 @@ void HarryEditor::_update_graph() {
 
 	for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {
 
-		HarryGraphNode *node = memnew(HarryGraphNode);
-		graph->add_child(node);
-
 		StringName name = E->get();
 		HarrySubnet::Node hn = harry_subnet->GetNode(name);
+
+		HarryGraphNode *node;
+		if (hn.node->graph_name == "SubnetGraphNode")
+			node = memnew(HarrySubnetGraphNode);
+		else
+			node = memnew(HarryGraphNode);
+
+		graph->add_child(node);
+
 		node->Set(name, hn.node, hn.position, harry_subnet);
 		node->connect("dragged", this, "_node_dragged", varray(name));
 	}
@@ -280,4 +309,5 @@ void HarryEditor::_bind_methods() {
 	ClassDB::bind_method("_update_graph", &HarryEditor::_update_graph);
 	ClassDB::bind_method("_node_selected", &HarryEditor::_node_selected);
 	ClassDB::bind_method("_file_opened", &HarryEditor::_file_opened);
+	ClassDB::bind_method("_node_instance_name_changed", &HarryEditor::_node_instance_name_changed);	
 }

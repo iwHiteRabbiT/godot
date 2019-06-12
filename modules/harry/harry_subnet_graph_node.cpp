@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.cpp                                                            */
+/*  harry_node.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,35 +28,19 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "harry_node.h"
+#include "harry_subnet_graph_node.h"
 
 /**
  * @Author iWhiteRabbiT
 */
 
-void HarryNode::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_node_name", "node_name"), &HarryNode::set_node_name);
-	ClassDB::bind_method(D_METHOD("get_node_name"), &HarryNode::get_node_name);
+void HarrySubnetGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset, const Ref<HarrySubnet> &p_subnet) {
 
-	//ADD_GROUP("Group", "Group_");
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "node_name"), "set_node_name", "get_node_name");
+	HarryGraphNode::Set(p_name, p_node, p_offset, p_subnet);
 
-	ADD_SIGNAL(MethodInfo("name_changed", PropertyInfo(Variant::OBJECT, "node")));
-}
-
-String HarryNode::get_node_name() const {
-	return node_name;
-}
-
-void HarryNode::set_node_name(const String &p_name) {
-
-	if (node_name == p_name)
-		return;
-
-	StringName old_name = node_name;
-	node_name = p_name;
-
-	Ref<HarryNode> t = this;
-
-	emit_signal("name_changed", t);
+	Button *open_editor = memnew(Button);
+	add_child(open_editor);
+	open_editor->set_text(TTR("Open Editor"));
+	//open_editor->connect("pressed", this, "_open_editor", varray(), CONNECT_DEFERRED);
+	//node->connect("name_changed", this, "set_unique_title");
 }

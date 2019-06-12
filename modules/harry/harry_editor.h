@@ -33,7 +33,7 @@
 
 #include "harry.h"
 #include "harry_wrangle.h"
-#include "harry_graph_node.h"
+#include "harry_subnet_graph_node.h"
 #include "editor/editor_node.h"
 #include "scene/gui/graph_edit.h"
 //#include "editor/editor_plugin.h"
@@ -81,6 +81,8 @@ class HarryEditor : public VBoxContainer {
 	void _update_graph();
 
 	void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, const StringName &p_which);
+
+	void _node_instance_name_changed(const StringName &p_old_name, const StringName &p_new_name);
 
 protected:
 	void _notification(int p_what);
