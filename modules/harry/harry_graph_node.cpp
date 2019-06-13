@@ -45,6 +45,37 @@ void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node,
 	set_size(Size2(150, 85));
 	set_offset(p_offset);
 
+	GridContainer *gc = memnew(GridContainer);
+	add_child(gc);
+	gc->set_columns(3);
+	gc->set_anchor(MARGIN_LEFT, 0);
+	gc->set_anchor(MARGIN_RIGHT, 1);
+	gc->set_anchor(MARGIN_TOP, 0);
+	gc->set_anchor(MARGIN_BOTTOM, 0);
+	gc->set_margin(MARGIN_LEFT, 0);
+	gc->set_margin(MARGIN_RIGHT, 0);
+	gc->set_margin(MARGIN_TOP, 0);
+	gc->set_margin(MARGIN_BOTTOM, 0);
+
+	Ref<StyleBoxFlat> sbi;
+	sbi.instance();
+	sbi->set_bg_color(Color(1, 1, 0));
+
+	CheckButton *cb = memnew(CheckButton);
+	gc->add_child(cb);
+	cb->set_pressed(true);
+	cb->add_style_override("normal", sbi);
+
+	Panel *p = memnew(Panel);
+	gc->add_child(p);
+	p->set_h_size_flags(SIZE_FILL);
+	p->set_v_size_flags(0);
+
+	cb = memnew(CheckButton);
+	gc->add_child(cb);
+	cb->set_pressed(true);
+	//cb->connect("toggled", this, "_")
+
 	for (int i = 0; i < 1; i++) {
 		Label *in_name = memnew(Label);
 		add_child(in_name);
@@ -54,6 +85,4 @@ void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node,
 				true, 0, Color(1, 1, 1, 1),
 				true, 0, Color(0.7f, 0.7f, 0.9f, 1));
 	}
-
-	//node->connect("name_changed", this, "set_unique_title");
 }

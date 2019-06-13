@@ -50,7 +50,11 @@ HarryEditor::HarryEditor() {
 	editor_base->set_v_size_flags(SIZE_EXPAND_FILL);
 	add_child(editor_base);
 
+	Ref<Theme> base_theme = Theme::get_default();
+	//base_theme = EditorNode::get_singleton()->get_theme_base()->get_theme();
+
 	graph = memnew(GraphEdit);
+	graph->set_theme(base_theme);
 	editor_base->add_child(graph);
 	graph->set_v_size_flags(SIZE_EXPAND_FILL);
 	graph->add_valid_right_disconnect_type(0);
