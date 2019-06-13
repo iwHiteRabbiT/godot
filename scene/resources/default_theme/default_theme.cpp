@@ -856,6 +856,10 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 
 	theme->set_icon("logo", "Icons", make_icon(logo_png));
 
+	// Harry
+	theme->set_icon("bypass", "Harry", make_icon(harry_bypass_png));
+	theme->set_icon("output", "Harry", make_icon(harry_output_png));
+
 	// Visual Node Ports
 	theme->set_constant("port_grab_distance_horizontal", "GraphEdit", 48 * scale);
 	theme->set_constant("port_grab_distance_vertical", "GraphEdit", 6 * scale);

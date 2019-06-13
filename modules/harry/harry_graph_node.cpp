@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "harry_graph_node.h"
+#include "scene/resources/default_theme/default_theme.h"
 
 /**
  * @Author iWhiteRabbiT
@@ -48,32 +49,62 @@ void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node,
 	GridContainer *gc = memnew(GridContainer);
 	add_child(gc);
 	gc->set_columns(3);
-	gc->set_anchor(MARGIN_LEFT, 0);
-	gc->set_anchor(MARGIN_RIGHT, 1);
-	gc->set_anchor(MARGIN_TOP, 0);
-	gc->set_anchor(MARGIN_BOTTOM, 0);
-	gc->set_margin(MARGIN_LEFT, 0);
-	gc->set_margin(MARGIN_RIGHT, 0);
-	gc->set_margin(MARGIN_TOP, 0);
-	gc->set_margin(MARGIN_BOTTOM, 0);
+	//gc->set_anchor(MARGIN_LEFT, 0);
+	//gc->set_anchor(MARGIN_RIGHT, 1);
+	//gc->set_anchor(MARGIN_TOP, 0);
+	//gc->set_anchor(MARGIN_BOTTOM, 0);
+	//gc->set_margin(MARGIN_LEFT, 0);
+	//gc->set_margin(MARGIN_RIGHT, 0);
+	//gc->set_margin(MARGIN_TOP, 0);
+	//gc->set_margin(MARGIN_BOTTOM, 0);
 
-	Ref<StyleBoxFlat> sbi;
-	sbi.instance();
-	sbi->set_bg_color(Color(1, 1, 0));
+	Ref<StyleBoxFlat> sbi_white;
+	sbi_white.instance();
+	sbi_white->set_bg_color(Color(1, 1, 1));
 
-	CheckButton *cb = memnew(CheckButton);
+	Ref<StyleBoxFlat> sbi_blue;
+	sbi_blue.instance();
+	sbi_blue->set_bg_color(Color(14 / 255.0f, 77 / 255.0f, 146 / 255.0f));
+
+	Ref<StyleBoxFlat> sbi_blueless;
+	sbi_blueless.instance();
+	sbi_blueless->set_bg_color(Color(14 / 255.0f, 77 / 255.0f, 146 / 255.0f, 40/255.0f));
+
+	Ref<StyleBoxFlat> sbi_yellow;
+	sbi_yellow.instance();
+	sbi_yellow->set_bg_color(Color(91 / 255.0f, 77 / 255.0f, 14 / 255.0f));
+
+	Ref<StyleBoxFlat> sbi_yellowless;
+	sbi_yellowless.instance();
+	sbi_yellowless->set_bg_color(Color(91 / 255.0f, 77 / 255.0f, 14 / 255.0f, 40/255.0f));
+
+	Ref<Texture> tex_bypass = get_icon("bypass", "Harry");
+	Ref<Texture> tex_output = get_icon("output", "Harry");
+
+	CheckBox *cb = memnew(CheckBox);
 	gc->add_child(cb);
 	cb->set_pressed(true);
-	cb->add_style_override("normal", sbi);
+	cb->add_style_override("hover", sbi_white);
+	cb->add_style_override("hover_pressed", sbi_white);
+	cb->add_style_override("pressed", sbi_yellow);
+	cb->add_style_override("normal", sbi_yellowless);
+	cb->add_icon_override("checked", tex_bypass);
+	cb->add_icon_override("unchecked", tex_bypass);
 
-	Panel *p = memnew(Panel);
+	Control *p = memnew(Control);
 	gc->add_child(p);
-	p->set_h_size_flags(SIZE_FILL);
+	p->set_h_size_flags(SIZE_EXPAND);
 	p->set_v_size_flags(0);
 
-	cb = memnew(CheckButton);
+	cb = memnew(CheckBox);
 	gc->add_child(cb);
 	cb->set_pressed(true);
+	cb->add_style_override("hover", sbi_white);
+	cb->add_style_override("hover_pressed", sbi_white);
+	cb->add_style_override("pressed", sbi_blue);
+	cb->add_style_override("normal", sbi_blueless);
+	cb->add_icon_override("checked", tex_output);
+	cb->add_icon_override("unchecked", tex_output);
 	//cb->connect("toggled", this, "_")
 
 	for (int i = 0; i < 1; i++) {
