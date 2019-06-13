@@ -36,8 +36,22 @@
 
 HarryEditor::HarryEditor() {
 
+	ScrollContainer *path_edit = memnew(ScrollContainer);
+	add_child(path_edit);
+	path_edit->set_enable_h_scroll(true);
+	path_edit->set_enable_v_scroll(false);
+	path_hb = memnew(HBoxContainer);
+	path_edit->add_child(path_hb);
+	path_hb->add_child(memnew(Label(TTR("Path:"))));
+
+	add_child(memnew(HSeparator));
+
+	PanelContainer *editor_base = memnew(PanelContainer);
+	editor_base->set_v_size_flags(SIZE_EXPAND_FILL);
+	add_child(editor_base);
+
 	graph = memnew(GraphEdit);
-	add_child(graph);
+	editor_base->add_child(graph);
 	graph->set_v_size_flags(SIZE_EXPAND_FILL);
 	graph->add_valid_right_disconnect_type(0);
 	graph->add_valid_left_disconnect_type(0);
@@ -69,15 +83,54 @@ void HarryEditor::edit(Harry *p_harry) {
 
 	harry = p_harry;
 
+	button_path.clear();
+	button_path.push_back(NameNode { "Root", harry->get_harry_root() } );
+
+	edit(harry->get_harry_root());
+}
+
+void HarryEditor::edit(Ref<HarrySubnet> p_subnet) {
+
 	if (harry_subnet.is_valid())
 		harry_subnet->disconnect("node_instance_name_changed", this, "_node_instance_name_changed");
 
-	harry_subnet = harry->get_harry_root();
+	harry_subnet = p_subnet;
 
 	if (harry_subnet.is_valid())
 		harry_subnet->connect("node_instance_name_changed", this, "_node_instance_name_changed");
 
 	_update_graph();
+	update_path();
+}
+
+void HarryEditor::update_path() {
+	while (path_hb->get_child_count() > 1) {
+		memdelete(path_hb->get_child(1));
+	}
+
+	Ref<ButtonGroup> group;
+	group.instance();
+
+	for (int i = 0; i < button_path.size(); i++) {
+		Button *b = memnew(Button);
+		b->set_text(button_path[i].name);
+		b->set_toggle_mode(true);
+		b->set_button_group(group);
+		path_hb->add_child(b);
+		b->set_pressed(true);
+		b->set_focus_mode(FOCUS_NONE);
+		b->connect("pressed", this, "_path_button_pressed", varray(i));
+	}
+}
+
+void HarryEditor::_path_button_pressed(int p_path) {
+
+	Ref<HarryNode> hn = button_path[p_path].node;
+
+	for (int i = button_path.size() - 1; i > p_path; i--)
+		button_path.remove(i);
+
+	edit(hn);
 }
 
 void HarryEditor::_popup_request(const Vector2 &p_position) {
@@ -201,6 +254,18 @@ void HarryEditor::_node_dragged(const Vector2 &p_from, const Vector2 &p_to, cons
 	updating = false;
 }
 
+void HarryEditor::_dive_in(const String &p_which) {
+
+	Ref<HarryNode> hn = harry_subnet->GetNode(p_which).node;
+
+	NameNode nn;
+	nn.name = p_which;
+	nn.node = hn;
+
+	button_path.push_back(nn);
+	edit(nn.node);
+}
+
 void HarryEditor::_node_instance_name_changed(const StringName &p_old_name, const StringName &p_new_name) {
 
 	for (int i = 0; i < graph->get_child_count(); i++) {
@@ -243,10 +308,13 @@ void HarryEditor::_update_graph() {
 		StringName name = E->get();
 		HarrySubnet::Node hn = harry_subnet->GetNode(name);
 
+		//HarryNode *p_hn = hn.node.ptr();
+
 		HarryGraphNode *node;
-		if (hn.node->graph_name == "SubnetGraphNode")
+		if (dynamic_cast<HarrySubnet *>(hn.node.ptr())) {
 			node = memnew(HarrySubnetGraphNode);
-		else
+			node->connect("dive_in", this, "_dive_in");
+		} else
 			node = memnew(HarryGraphNode);
 
 		graph->add_child(node);
@@ -281,20 +349,20 @@ void HarryEditor::_notification(int p_what) {
 	}
 
 	if (p_what == NOTIFICATION_PROCESS) {
-		if (harry && harry->get_harry_root().is_valid()) {
+		if (harry && !harry_subnet.is_valid() && harry->get_harry_root().is_valid()) {
 
-			ObjectID root = 0;
-			if (harry_subnet != NULL)
-				root = harry_subnet->get_instance_id();
+			//		ObjectID root = 0;
+			//		if (harry_subnet != NULL)
+			//			root = harry_subnet->get_instance_id();
 
-			ObjectID root1 = 0;
-			if (harry->get_harry_root() != NULL)
-				root1 = harry->get_harry_root()->get_instance_id();
+			//		ObjectID root1 = 0;
+			//		if (harry->get_harry_root() != NULL)
+			//			root1 = harry->get_harry_root()->get_instance_id();
 
-			if (root != root1) {
-				harry_subnet = harry->get_harry_root();
-				_update_graph();
-			}
+			//		if (root != root1) {
+			harry_subnet = harry->get_harry_root();
+			_update_graph();
+			//		}
 		}
 	}
 }
@@ -309,5 +377,7 @@ void HarryEditor::_bind_methods() {
 	ClassDB::bind_method("_update_graph", &HarryEditor::_update_graph);
 	ClassDB::bind_method("_node_selected", &HarryEditor::_node_selected);
 	ClassDB::bind_method("_file_opened", &HarryEditor::_file_opened);
-	ClassDB::bind_method("_node_instance_name_changed", &HarryEditor::_node_instance_name_changed);	
+	ClassDB::bind_method("_node_instance_name_changed", &HarryEditor::_node_instance_name_changed);
+	ClassDB::bind_method("_dive_in", &HarryEditor::_dive_in);
+	ClassDB::bind_method("_path_button_pressed", &HarryEditor::_path_button_pressed);
 }

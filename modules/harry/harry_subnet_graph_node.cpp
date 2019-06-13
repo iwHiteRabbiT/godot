@@ -34,13 +34,25 @@
  * @Author iWhiteRabbiT
 */
 
+void HarrySubnetGraphNode::_dive_in() {
+
+	emit_signal("dive_in", get_title());
+}
+
+void HarrySubnetGraphNode::_bind_methods() {
+
+	ClassDB::bind_method("_dive_in", &HarrySubnetGraphNode::_dive_in);
+
+	ADD_SIGNAL(MethodInfo("dive_in", PropertyInfo(Variant::STRING, "node_name")));
+}
+
 void HarrySubnetGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset, const Ref<HarrySubnet> &p_subnet) {
 
 	HarryGraphNode::Set(p_name, p_node, p_offset, p_subnet);
 
-	Button *open_editor = memnew(Button);
-	add_child(open_editor);
-	open_editor->set_text(TTR("Open Editor"));
-	//open_editor->connect("pressed", this, "_open_editor", varray(), CONNECT_DEFERRED);
-	//node->connect("name_changed", this, "set_unique_title");
+	Button *btn_dive_in = memnew(Button);
+	add_child(btn_dive_in);
+	btn_dive_in->set_text(TTR("Dive In"));
+	btn_dive_in->connect("pressed", this, "_dive_in", varray(), CONNECT_DEFERRED);
 }
+

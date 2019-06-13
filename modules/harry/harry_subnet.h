@@ -49,7 +49,7 @@ public:
 		bool operator==(const Connection &c) {
 			return from_index == c.from_index &&
 				   to == c.to &&
-				   to_index == c.to_index; 
+				   to_index == c.to_index;
 		}
 	};
 
@@ -89,10 +89,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	HarrySubnet() {
-		node_name = "Subnet";
-		graph_name = "SubnetGraphNode";
-	}
+	HarrySubnet() { node_name = "Subnet"; }
 	void AddNode(StringName instance_name, Ref<HarryNode> p_node);
 	Node GetNode(const StringName &p_name) const;
 	List<Node> GetNodes(const Ref<HarryNode> &p_node) const;

@@ -48,8 +48,10 @@ class HarrySubnetGraphNode : public HarryGraphNode {
 	//Ref<HarryNode> node;
 	//Ref<HarrySubnet> subnet;
 
-//protected:
-	//static void _bind_methods();
+	void _dive_in();
+
+protected:
+	static void _bind_methods();
 
 public:
 	//HarrySubnetGraphNode(){};
