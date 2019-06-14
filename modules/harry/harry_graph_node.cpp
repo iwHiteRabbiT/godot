@@ -35,6 +35,14 @@
  * @Author iWhiteRabbiT
 */
 
+void HarryGraphNode::_bind_methods() {
+	ClassDB::bind_method("set_bypass", &HarryGraphNode::set_bypass);
+	ClassDB::bind_method("set_output", &HarryGraphNode::set_output);
+
+	ADD_SIGNAL(MethodInfo("toggle_bypass", PropertyInfo(Variant::STRING, "node_name"), PropertyInfo(Variant::BOOL, "pressed")));
+	ADD_SIGNAL(MethodInfo("toggle_output", PropertyInfo(Variant::STRING, "node_name"), PropertyInfo(Variant::BOOL, "pressed")));
+}
+
 void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset, const Ref<HarrySubnet> &p_subnet) {
 
 	node = p_node;
@@ -43,69 +51,38 @@ void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node,
 	set_name(p_name);
 
 	set_title(p_name);
-	set_size(Size2(150, 85));
+	//set_size(Size2(150, 85));
+	set_size(Size2(100, 55));
 	set_offset(p_offset);
 
 	GridContainer *gc = memnew(GridContainer);
 	add_child(gc);
 	gc->set_columns(3);
-	//gc->set_anchor(MARGIN_LEFT, 0);
-	//gc->set_anchor(MARGIN_RIGHT, 1);
-	//gc->set_anchor(MARGIN_TOP, 0);
-	//gc->set_anchor(MARGIN_BOTTOM, 0);
-	//gc->set_margin(MARGIN_LEFT, 0);
-	//gc->set_margin(MARGIN_RIGHT, 0);
-	//gc->set_margin(MARGIN_TOP, 0);
-	//gc->set_margin(MARGIN_BOTTOM, 0);
-
-	Ref<StyleBoxFlat> sbi_white;
-	sbi_white.instance();
-	sbi_white->set_bg_color(Color(1, 1, 1));
-
-	Ref<StyleBoxFlat> sbi_blue;
-	sbi_blue.instance();
-	sbi_blue->set_bg_color(Color(14 / 255.0f, 77 / 255.0f, 146 / 255.0f));
-
-	Ref<StyleBoxFlat> sbi_blueless;
-	sbi_blueless.instance();
-	sbi_blueless->set_bg_color(Color(14 / 255.0f, 77 / 255.0f, 146 / 255.0f, 40/255.0f));
-
-	Ref<StyleBoxFlat> sbi_yellow;
-	sbi_yellow.instance();
-	sbi_yellow->set_bg_color(Color(91 / 255.0f, 77 / 255.0f, 14 / 255.0f));
-
-	Ref<StyleBoxFlat> sbi_yellowless;
-	sbi_yellowless.instance();
-	sbi_yellowless->set_bg_color(Color(91 / 255.0f, 77 / 255.0f, 14 / 255.0f, 40/255.0f));
-
-	Ref<Texture> tex_bypass = get_icon("bypass", "Harry");
-	Ref<Texture> tex_output = get_icon("output", "Harry");
-
-	CheckBox *cb = memnew(CheckBox);
-	gc->add_child(cb);
-	cb->set_pressed(true);
-	cb->add_style_override("hover", sbi_white);
-	cb->add_style_override("hover_pressed", sbi_white);
-	cb->add_style_override("pressed", sbi_yellow);
-	cb->add_style_override("normal", sbi_yellowless);
-	cb->add_icon_override("checked", tex_bypass);
-	cb->add_icon_override("unchecked", tex_bypass);
 
 	Control *p = memnew(Control);
 	gc->add_child(p);
 	p->set_h_size_flags(SIZE_EXPAND);
 	p->set_v_size_flags(0);
 
-	cb = memnew(CheckBox);
-	gc->add_child(cb);
-	cb->set_pressed(true);
-	cb->add_style_override("hover", sbi_white);
-	cb->add_style_override("hover_pressed", sbi_white);
-	cb->add_style_override("pressed", sbi_blue);
-	cb->add_style_override("normal", sbi_blueless);
-	cb->add_icon_override("checked", tex_output);
-	cb->add_icon_override("unchecked", tex_output);
-	//cb->connect("toggled", this, "_")
+	btn_output = memnew(TextureButton);
+	gc->add_child(btn_output);
+	btn_output->set_toggle_mode(true);
+	btn_output->set_normal_texture(get_icon("GuiVisibilityHidden", "EditorIcons"));
+	btn_output->set_pressed_texture(get_icon("GuiVisibilityVisible", "EditorIcons"));
+	btn_output->set_v_size_flags(SIZE_SHRINK_CENTER);
+	btn_output->set_modulate(Color(0, 173 / 255.0f, 240 / 255.0f, 1));
+	btn_output->connect("toggled", this, "set_output");	
+	old_output = btn_output->is_pressed();
+
+	btn_bypass = memnew(TextureButton);
+	gc->add_child(btn_bypass);
+	btn_bypass->set_toggle_mode(true);
+	btn_bypass->set_normal_texture(get_icon("ArrowRight", "EditorIcons"));
+	btn_bypass->set_pressed_texture(get_icon("ArrowUp", "EditorIcons"));
+	btn_bypass->set_v_size_flags(SIZE_SHRINK_CENTER);
+	btn_bypass->set_modulate(Color(213 / 255.0f, 205 / 255.0f, 47 / 255.0f, 1));
+	btn_bypass->connect("toggled", this, "set_bypass");
+	old_bypass = btn_bypass->is_pressed();
 
 	for (int i = 0; i < 1; i++) {
 		Label *in_name = memnew(Label);
@@ -116,4 +93,44 @@ void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node,
 				true, 0, Color(1, 1, 1, 1),
 				true, 0, Color(0.7f, 0.7f, 0.9f, 1));
 	}
+
+	set_bypass(subnet->get_node_bypass(p_name));
+	set_output(subnet->get_node_bypass(p_name));
+}
+
+bool HarryGraphNode::get_bypass() {
+	return btn_bypass->is_pressed();
+}
+
+void HarryGraphNode::set_bypass(bool enabled) {
+
+	if (enabled == old_bypass)
+		return;
+
+	old_bypass = enabled;
+	btn_bypass->set_pressed(enabled);
+
+	set_comment(enabled);
+	emit_signal("toggle_bypass", get_title(), enabled);
+
+	if (enabled)
+		set_output(false);
+}
+
+bool HarryGraphNode::get_output() {
+	return btn_output->is_pressed();
+}
+
+void HarryGraphNode::set_output(bool enabled) {
+
+	if (enabled == old_output)
+		return;
+
+	old_output = enabled;
+	btn_output->set_pressed(enabled);
+
+	emit_signal("toggle_output", get_title(), enabled);
+
+	if (enabled)
+		set_bypass(false);
 }

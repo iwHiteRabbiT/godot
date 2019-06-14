@@ -54,7 +54,7 @@ HarryEditor::HarryEditor() {
 	//base_theme = EditorNode::get_singleton()->get_theme_base()->get_theme();
 
 	graph = memnew(GraphEdit);
-	graph->set_theme(base_theme);
+	//graph->set_theme(base_theme);
 	editor_base->add_child(graph);
 	graph->set_v_size_flags(SIZE_EXPAND_FILL);
 	graph->add_valid_right_disconnect_type(0);
@@ -88,7 +88,7 @@ void HarryEditor::edit(Harry *p_harry) {
 	harry = p_harry;
 
 	button_path.clear();
-	button_path.push_back(NameNode { "Root", harry->get_harry_root() } );
+	button_path.push_back(NameNode{ "Root", harry->get_harry_root() });
 
 	edit(harry->get_harry_root());
 }
@@ -270,6 +270,37 @@ void HarryEditor::_dive_in(const String &p_which) {
 	edit(nn.node);
 }
 
+void HarryEditor::_toggle_bypass(const String &p_which, bool pressed) {
+
+	harry_subnet->set_node_bypass(p_which, pressed);
+}
+
+void HarryEditor::_toggle_output(const String &p_which, bool pressed) {
+
+	if (updating)
+		return;
+
+	updating = true;
+
+	harry_subnet->set_node_output(p_which, pressed);
+
+	bool enable_next = !pressed;
+
+	for (int i = 0; i < graph->get_child_count(); i++) {
+
+		HarryGraphNode *gn = Object::cast_to<HarryGraphNode>(graph->get_child(i));
+
+		if (!gn)
+			continue;
+
+		if (gn->get_title() != p_which) {
+			gn->set_output(enable_next);
+			enable_next = false;
+		}
+	}
+	updating = false;
+}
+
 void HarryEditor::_node_instance_name_changed(const StringName &p_old_name, const StringName &p_new_name) {
 
 	for (int i = 0; i < graph->get_child_count(); i++) {
@@ -325,6 +356,8 @@ void HarryEditor::_update_graph() {
 
 		node->Set(name, hn.node, hn.position, harry_subnet);
 		node->connect("dragged", this, "_node_dragged", varray(name));
+		node->connect("toggle_bypass", this, "_toggle_bypass");
+		node->connect("toggle_output", this, "_toggle_output");
 	}
 
 	for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {
@@ -384,4 +417,6 @@ void HarryEditor::_bind_methods() {
 	ClassDB::bind_method("_node_instance_name_changed", &HarryEditor::_node_instance_name_changed);
 	ClassDB::bind_method("_dive_in", &HarryEditor::_dive_in);
 	ClassDB::bind_method("_path_button_pressed", &HarryEditor::_path_button_pressed);
+	ClassDB::bind_method("_toggle_bypass", &HarryEditor::_toggle_bypass);
+	ClassDB::bind_method("_toggle_output", &HarryEditor::_toggle_output);
 }

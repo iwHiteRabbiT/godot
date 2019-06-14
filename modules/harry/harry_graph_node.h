@@ -34,10 +34,10 @@
 #include "harry_node.h"
 #include "harry_subnet.h"
 #include "scene/gui/graph_node.h"
-#include "scene/gui/label.h"
-#include "scene/gui/check_box.h"
 #include "scene/gui/grid_container.h"
+#include "scene/gui/label.h"
 #include "scene/gui/panel.h"
+#include "scene/gui/texture_button.h"
 
 /**
  * @Author iWhiteRabbiT
@@ -49,13 +49,24 @@ class HarryGraphNode : public GraphNode {
 	Ref<HarryNode> node;
 	Ref<HarrySubnet> subnet;
 
-//protected:
-	//static void _bind_methods();
+	TextureButton *btn_bypass;
+	TextureButton *btn_output;
+
+	bool old_bypass;
+	bool old_output;
+
+protected:
+	static void _bind_methods();
 
 public:
-	HarryGraphNode() {};
+	HarryGraphNode(){};
 	virtual void Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset, const Ref<HarrySubnet> &p_subnet);
 	//void set_unique_title(const StringName &p_name);
+
+	bool get_bypass();
+	void set_bypass(bool enabled);
+	bool get_output();
+	void set_output(bool enabled);
 };
 
 #endif

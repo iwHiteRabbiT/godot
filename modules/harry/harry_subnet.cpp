@@ -58,6 +58,22 @@ bool HarrySubnet::_set(const StringName &p_name, const Variant &p_value) {
 			return true;
 		}
 
+		if (what == "bypass") {
+
+			if (children.has(node_name)) {
+				children[node_name].bypass = p_value;
+			}
+			return true;
+		}
+
+		if (what == "output") {
+
+			if (children.has(node_name)) {
+				children[node_name].output = p_value;
+			}
+			return true;
+		}
+
 		if (what == "connections") {
 
 			if (children.has(node_name)) {
@@ -107,6 +123,22 @@ bool HarrySubnet::_get(const StringName &p_name, Variant &r_ret) const {
 			}
 		}
 
+		if (what == "bypass") {
+
+			if (children.has(node_name)) {
+				r_ret = children[node_name].bypass;
+				return true;
+			}
+		}
+
+		if (what == "output") {
+
+			if (children.has(node_name)) {
+				r_ret = children[node_name].output;
+				return true;
+			}
+		}
+
 		if (what == "connections") {
 
 			if (children.has(node_name)) {
@@ -147,6 +179,8 @@ void HarrySubnet::_get_property_list(List<PropertyInfo> *p_list) const {
 		p_list->push_back(PropertyInfo(Variant::OBJECT, "nodes/" + name + "/node", PROPERTY_HINT_RESOURCE_TYPE, "HarryNode", PROPERTY_USAGE_NOEDITOR));
 		p_list->push_back(PropertyInfo(Variant::VECTOR2, "nodes/" + name + "/position", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
 		//p_list->push_back(PropertyInfo(Variant::ARRAY, "nodes/" + name + "/connections", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+		p_list->push_back(PropertyInfo(Variant::BOOL, "nodes/" + name + "/bypass", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
+		p_list->push_back(PropertyInfo(Variant::BOOL, "nodes/" + name + "/output", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NOEDITOR));
 	}
 
 	for (List<StringName>::Element *E = names.front(); E; E = E->next()) {
@@ -256,6 +290,26 @@ void HarrySubnet::set_node_position(const StringName &p_node, const Vector2 &p_p
 Vector2 HarrySubnet::get_node_position(const StringName &p_node) const {
 	ERR_FAIL_COND_V(!children.has(p_node), Vector2());
 	return children[p_node].position;
+}
+
+void HarrySubnet::set_node_bypass(const StringName &p_node, bool enabled) {
+	ERR_FAIL_COND(!children.has(p_node));
+	children[p_node].bypass = enabled;
+}
+
+bool HarrySubnet::get_node_bypass(const StringName &p_node) const {
+	ERR_FAIL_COND_V(!children.has(p_node), false);
+	return children[p_node].bypass;
+}
+
+void HarrySubnet::set_node_output(const StringName &p_node, bool enabled) {
+	ERR_FAIL_COND(!children.has(p_node));
+	children[p_node].output = enabled;
+}
+
+bool HarrySubnet::get_node_output(const StringName &p_node) const {
+	ERR_FAIL_COND_V(!children.has(p_node), false);
+	return children[p_node].output;
 }
 
 void HarrySubnet::connect_node(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index) {

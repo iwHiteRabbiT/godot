@@ -78,6 +78,8 @@ class HarryEditor : public VBoxContainer {
 
 	void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, const StringName &p_which);
 	void _dive_in(const String &p_which);
+	void _toggle_bypass(const String &p_which, bool pressed);
+	void _toggle_output(const String &p_which, bool pressed);
 
 	void _node_instance_name_changed(const StringName &p_old_name, const StringName &p_new_name);
 
