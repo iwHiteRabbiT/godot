@@ -102,10 +102,10 @@ public:
 	void set_node_position(const StringName &p_node, const Vector2 &p_position);
 	Vector2 get_node_position(const StringName &p_node) const;
 
-	void set_node_bypass(const StringName &p_node, bool enabled);
+	void set_node_bypass(const StringName &p_node, const bool &enabled);
 	bool get_node_bypass(const StringName &p_node) const;
 
-	void set_node_output(const StringName &p_node, bool enabled);
+	void set_node_output(const StringName &p_node, const bool &enabled);
 	bool get_node_output(const StringName &p_node) const;
 
 	void connect_node(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index);

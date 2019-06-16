@@ -46,9 +46,9 @@ void HarrySubnetGraphNode::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("dive_in", PropertyInfo(Variant::STRING, "node_name")));
 }
 
-void HarrySubnetGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset, const Ref<HarrySubnet> &p_subnet) {
+void HarrySubnetGraphNode::Set(const StringName &p_name, const Vector2 &p_offset, bool bypass, bool output) {
 
-	HarryGraphNode::Set(p_name, p_node, p_offset, p_subnet);
+	HarryGraphNode::Set(p_name, p_offset, bypass, output);
 
 	Button *btn_dive_in = memnew(Button);
 	add_child(btn_dive_in);

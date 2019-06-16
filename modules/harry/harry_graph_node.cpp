@@ -29,24 +29,45 @@
 /*************************************************************************/
 
 #include "harry_graph_node.h"
-#include "scene/resources/default_theme/default_theme.h"
+//#include "scene/resources/default_theme/default_theme.h"
 
 /**
  * @Author iWhiteRabbiT
 */
 
+
+void HarryGraphNode::_toggle_bypass(bool enabled) {
+
+	if (!set_bypass(enabled))
+		return;
+
+	emit_signal("toggle_bypass", get_title(), enabled);
+}
+
+//bool HarryGraphNode::get_output() {
+//	return btn_output->is_pressed();
+//}
+
+void HarryGraphNode::_toggle_output(bool enabled) {
+
+	if (!set_output(enabled))
+		return;
+
+	emit_signal("toggle_output", get_title(), enabled);
+}
+
 void HarryGraphNode::_bind_methods() {
-	ClassDB::bind_method("set_bypass", &HarryGraphNode::set_bypass);
-	ClassDB::bind_method("set_output", &HarryGraphNode::set_output);
+	ClassDB::bind_method("_toggle_bypass", &HarryGraphNode::_toggle_bypass);
+	ClassDB::bind_method("_toggle_output", &HarryGraphNode::_toggle_output);
 
 	ADD_SIGNAL(MethodInfo("toggle_bypass", PropertyInfo(Variant::STRING, "node_name"), PropertyInfo(Variant::BOOL, "pressed")));
 	ADD_SIGNAL(MethodInfo("toggle_output", PropertyInfo(Variant::STRING, "node_name"), PropertyInfo(Variant::BOOL, "pressed")));
 }
 
-void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node, const Vector2 &p_offset, const Ref<HarrySubnet> &p_subnet) {
+void HarryGraphNode::Set(const StringName &p_name, const Vector2 &p_offset, bool bypass, bool output) {
 
-	node = p_node;
-	subnet = p_subnet;
+	//node = p_node;
+	//subnet = p_subnet;
 
 	set_name(p_name);
 
@@ -71,8 +92,6 @@ void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node,
 	btn_output->set_pressed_texture(get_icon("GuiVisibilityVisible", "EditorIcons"));
 	btn_output->set_v_size_flags(SIZE_SHRINK_CENTER);
 	btn_output->set_modulate(Color(0, 173 / 255.0f, 240 / 255.0f, 1));
-	btn_output->connect("toggled", this, "set_output");	
-	old_output = btn_output->is_pressed();
 
 	btn_bypass = memnew(TextureButton);
 	gc->add_child(btn_bypass);
@@ -81,8 +100,14 @@ void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node,
 	btn_bypass->set_pressed_texture(get_icon("ArrowUp", "EditorIcons"));
 	btn_bypass->set_v_size_flags(SIZE_SHRINK_CENTER);
 	btn_bypass->set_modulate(Color(213 / 255.0f, 205 / 255.0f, 47 / 255.0f, 1));
-	btn_bypass->connect("toggled", this, "set_bypass");
-	old_bypass = btn_bypass->is_pressed();
+
+	old_output = !output;
+	old_bypass = !bypass;
+	set_output(output);
+	set_bypass(bypass);
+
+	btn_output->connect("toggled", this, "_toggle_output");	
+	btn_bypass->connect("toggled", this, "_toggle_bypass");
 
 	for (int i = 0; i < 1; i++) {
 		Label *in_name = memnew(Label);
@@ -93,44 +118,42 @@ void HarryGraphNode::Set(const StringName &p_name, const Ref<HarryNode> &p_node,
 				true, 0, Color(1, 1, 1, 1),
 				true, 0, Color(0.7f, 0.7f, 0.9f, 1));
 	}
-
-	set_bypass(subnet->get_node_bypass(p_name));
-	set_output(subnet->get_node_bypass(p_name));
 }
 
-bool HarryGraphNode::get_bypass() {
-	return btn_bypass->is_pressed();
-}
+//bool HarryGraphNode::get_bypass() {
+//	return btn_bypass->is_pressed();
+//}
 
-void HarryGraphNode::set_bypass(bool enabled) {
+bool HarryGraphNode::set_bypass(bool enabled) {
 
 	if (enabled == old_bypass)
-		return;
+		return false;
 
 	old_bypass = enabled;
 	btn_bypass->set_pressed(enabled);
 
 	set_comment(enabled);
-	emit_signal("toggle_bypass", get_title(), enabled);
 
-	if (enabled)
-		set_output(false);
+	//if (enabled)
+		//set_output(false);
+
+	return true;
 }
 
-bool HarryGraphNode::get_output() {
-	return btn_output->is_pressed();
-}
+//bool HarryGraphNode::get_output() {
+//	return btn_output->is_pressed();
+//}
 
-void HarryGraphNode::set_output(bool enabled) {
+bool HarryGraphNode::set_output(bool enabled) {
 
 	if (enabled == old_output)
-		return;
+		return false;
 
 	old_output = enabled;
 	btn_output->set_pressed(enabled);
 
-	emit_signal("toggle_output", get_title(), enabled);
+	//if (enabled)
+		//set_bypass(false);
 
-	if (enabled)
-		set_bypass(false);
+	return true;
 }

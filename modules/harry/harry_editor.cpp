@@ -277,13 +277,13 @@ void HarryEditor::_toggle_bypass(const String &p_which, bool pressed) {
 
 void HarryEditor::_toggle_output(const String &p_which, bool pressed) {
 
-	if (updating)
-		return;
-
-	updating = true;
-
 	harry_subnet->set_node_output(p_which, pressed);
 
+	return;
+	if (toggling)
+		return;
+
+	toggling = true;
 	bool enable_next = !pressed;
 
 	for (int i = 0; i < graph->get_child_count(); i++) {
@@ -295,10 +295,11 @@ void HarryEditor::_toggle_output(const String &p_which, bool pressed) {
 
 		if (gn->get_title() != p_which) {
 			gn->set_output(enable_next);
+			harry_subnet->set_node_output(p_which, enable_next);
 			enable_next = false;
 		}
 	}
-	updating = false;
+	toggling = false;
 }
 
 void HarryEditor::_node_instance_name_changed(const StringName &p_old_name, const StringName &p_new_name) {
@@ -354,10 +355,10 @@ void HarryEditor::_update_graph() {
 
 		graph->add_child(node);
 
-		node->Set(name, hn.node, hn.position, harry_subnet);
 		node->connect("dragged", this, "_node_dragged", varray(name));
 		node->connect("toggle_bypass", this, "_toggle_bypass");
 		node->connect("toggle_output", this, "_toggle_output");
+		node->Set(name, hn.position, hn.bypass, hn.output);
 	}
 
 	for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {

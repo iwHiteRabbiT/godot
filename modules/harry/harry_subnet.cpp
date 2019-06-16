@@ -292,7 +292,7 @@ Vector2 HarrySubnet::get_node_position(const StringName &p_node) const {
 	return children[p_node].position;
 }
 
-void HarrySubnet::set_node_bypass(const StringName &p_node, bool enabled) {
+void HarrySubnet::set_node_bypass(const StringName &p_node, const bool &enabled) {
 	ERR_FAIL_COND(!children.has(p_node));
 	children[p_node].bypass = enabled;
 }
@@ -302,7 +302,7 @@ bool HarrySubnet::get_node_bypass(const StringName &p_node) const {
 	return children[p_node].bypass;
 }
 
-void HarrySubnet::set_node_output(const StringName &p_node, bool enabled) {
+void HarrySubnet::set_node_output(const StringName &p_node, const bool &enabled) {
 	ERR_FAIL_COND(!children.has(p_node));
 	children[p_node].output = enabled;
 }
