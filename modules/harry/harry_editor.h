@@ -54,6 +54,7 @@ class HarryEditor : public VBoxContainer {
 
 	Harry *harry;
 	Ref<HarrySubnet> harry_subnet;
+	Ref<ButtonGroup> output_btn_grp;
 
 	HBoxContainer *path_hb;
 

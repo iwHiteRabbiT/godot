@@ -44,6 +44,12 @@ void HarryNode::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("name_changed", PropertyInfo(Variant::OBJECT, "node")));
 }
 
+void HarryNode::dirty() {
+	//set_edited(true);
+	//emit_changed();
+	_change_notify();
+}
+
 String HarryNode::get_node_name() const {
 	return node_name;
 }
@@ -59,4 +65,5 @@ void HarryNode::set_node_name(const String &p_name) {
 	Ref<HarryNode> t = this;
 
 	emit_signal("name_changed", t);
+	dirty();
 }

@@ -38,9 +38,7 @@
 
 void HarryGraphNode::_toggle_bypass(bool enabled) {
 
-	if (!set_bypass(enabled))
-		return;
-
+	set_bypass(enabled);
 	emit_signal("toggle_bypass", get_title(), enabled);
 }
 
@@ -50,9 +48,7 @@ void HarryGraphNode::_toggle_bypass(bool enabled) {
 
 void HarryGraphNode::_toggle_output(bool enabled) {
 
-	if (!set_output(enabled))
-		return;
-
+	set_output(enabled);
 	emit_signal("toggle_output", get_title(), enabled);
 }
 
@@ -64,10 +60,10 @@ void HarryGraphNode::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("toggle_output", PropertyInfo(Variant::STRING, "node_name"), PropertyInfo(Variant::BOOL, "pressed")));
 }
 
-void HarryGraphNode::Set(const StringName &p_name, const Vector2 &p_offset, bool bypass, bool output) {
+void HarryGraphNode::Set(Ref<HarrySubnet> &p_subnet, const StringName &p_name, const Vector2 &p_offset, bool bypass, bool output, Ref<ButtonGroup> &output_btn_grp) {
 
 	//node = p_node;
-	//subnet = p_subnet;
+	subnet = p_subnet;
 
 	set_name(p_name);
 
@@ -101,13 +97,14 @@ void HarryGraphNode::Set(const StringName &p_name, const Vector2 &p_offset, bool
 	btn_bypass->set_v_size_flags(SIZE_SHRINK_CENTER);
 	btn_bypass->set_modulate(Color(213 / 255.0f, 205 / 255.0f, 47 / 255.0f, 1));
 
-	old_output = !output;
-	old_bypass = !bypass;
-	set_output(output);
-	set_bypass(bypass);
+	btn_output->set_button_group(output_btn_grp);
 
 	btn_output->connect("toggled", this, "_toggle_output");	
 	btn_bypass->connect("toggled", this, "_toggle_bypass");
+
+	set_output(output);
+	set_bypass(bypass);
+
 
 	for (int i = 0; i < 1; i++) {
 		Label *in_name = memnew(Label);
@@ -124,36 +121,40 @@ void HarryGraphNode::Set(const StringName &p_name, const Vector2 &p_offset, bool
 //	return btn_bypass->is_pressed();
 //}
 
-bool HarryGraphNode::set_bypass(bool enabled) {
+void HarryGraphNode::set_bypass(bool enabled) {
 
-	if (enabled == old_bypass)
-		return false;
+	subnet->set_node_bypass(get_title(), enabled);
 
-	old_bypass = enabled;
+	//if (enabled == old_bypass)
+	//	return false;
+
+	//old_bypass = enabled;
+
+
 	btn_bypass->set_pressed(enabled);
-
 	set_comment(enabled);
 
 	//if (enabled)
 		//set_output(false);
 
-	return true;
+	//return true;
 }
 
 //bool HarryGraphNode::get_output() {
 //	return btn_output->is_pressed();
 //}
 
-bool HarryGraphNode::set_output(bool enabled) {
+void HarryGraphNode::set_output(bool enabled) {
 
-	if (enabled == old_output)
-		return false;
+	subnet->set_node_output(get_title(), enabled);
+	//if (enabled == old_output)
+	//	return false;
 
-	old_output = enabled;
+	//old_output = enabled;
 	btn_output->set_pressed(enabled);
 
 	//if (enabled)
 		//set_bypass(false);
 
-	return true;
+	//return true;
 }

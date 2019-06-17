@@ -43,6 +43,7 @@ class HarryNode : public Resource {
 protected:
 	StringName node_name;
 	static void _bind_methods();
+	void dirty();
 
 public:
 	String get_node_name() const;

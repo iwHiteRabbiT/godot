@@ -272,12 +272,15 @@ void HarryEditor::_dive_in(const String &p_which) {
 
 void HarryEditor::_toggle_bypass(const String &p_which, bool pressed) {
 
-	harry_subnet->set_node_bypass(p_which, pressed);
+	//harry_subnet->set_node_bypass(p_which, pressed);
+	//harry->set_edited(true);
+	//_change_notify();
 }
 
 void HarryEditor::_toggle_output(const String &p_which, bool pressed) {
 
-	harry_subnet->set_node_output(p_which, pressed);
+	//harry_subnet->set_node_output(p_which, pressed);
+	//harry->_change_notify();
 
 	return;
 	if (toggling)
@@ -339,6 +342,9 @@ void HarryEditor::_update_graph() {
 	List<StringName> nodes;
 	harry_subnet->GetNodeList(&nodes);
 
+	if (!output_btn_grp.is_valid())
+		output_btn_grp.instance();
+
 	for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {
 
 		StringName name = E->get();
@@ -358,7 +364,7 @@ void HarryEditor::_update_graph() {
 		node->connect("dragged", this, "_node_dragged", varray(name));
 		node->connect("toggle_bypass", this, "_toggle_bypass");
 		node->connect("toggle_output", this, "_toggle_output");
-		node->Set(name, hn.position, hn.bypass, hn.output);
+		node->Set(harry_subnet, name, hn.position, hn.bypass, hn.output, output_btn_grp);
 	}
 
 	for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {

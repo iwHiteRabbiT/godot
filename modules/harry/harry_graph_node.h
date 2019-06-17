@@ -47,13 +47,13 @@ class HarryGraphNode : public GraphNode {
 	GDCLASS(HarryGraphNode, GraphNode);
 
 	//Ref<HarryNode> node;
-	//Ref<HarrySubnet> subnet;
+	Ref<HarrySubnet> subnet;
 
 	TextureButton *btn_bypass;
 	TextureButton *btn_output;
 
-	bool old_bypass;
-	bool old_output;
+	//bool old_bypass;
+	//bool old_output;
 
 	void _toggle_bypass(bool enabled);
 	void _toggle_output(bool enabled);
@@ -63,13 +63,13 @@ protected:
 
 public:
 	HarryGraphNode(){};
-	virtual void Set(const StringName &p_name, const Vector2 &p_offset, bool bypass, bool output);
+	virtual void Set(Ref<HarrySubnet> &p_subnet, const StringName &p_name, const Vector2 &p_offset, bool bypass, bool output, Ref<ButtonGroup> &output_btn_grp);
 	//void set_unique_title(const StringName &p_name);
 
 	//bool get_bypass();
-	bool set_bypass(bool enabled);
+	void set_bypass(bool enabled);
 	//bool get_output();
-	bool set_output(bool enabled);
+	void set_output(bool enabled);
 };
 
 #endif

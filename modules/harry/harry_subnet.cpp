@@ -212,7 +212,7 @@ void HarrySubnet::AddNode(StringName instance_name, Ref<HarryNode> p_node) {
 		n.node->connect("name_changed", this, "set_unique_title");
 	children[instance_name] = n;
 
-	emit_changed();
+	dirty();
 	//emit_signal("tree_changed");
 
 	//p_node->connect("tree_changed", this, "_tree_changed", varray(), CONNECT_REFERENCE_COUNTED);
@@ -280,11 +280,14 @@ void HarrySubnet::set_unique_title(const Ref<HarryNode> &p_node) {
 
 		emit_signal("node_instance_name_changed", old_instance_name, new_instance_name);
 	}
+
+	dirty();
 }
 
 void HarrySubnet::set_node_position(const StringName &p_node, const Vector2 &p_position) {
 	ERR_FAIL_COND(!children.has(p_node));
 	children[p_node].position = p_position;
+	dirty();
 }
 
 Vector2 HarrySubnet::get_node_position(const StringName &p_node) const {
@@ -295,6 +298,7 @@ Vector2 HarrySubnet::get_node_position(const StringName &p_node) const {
 void HarrySubnet::set_node_bypass(const StringName &p_node, const bool &enabled) {
 	ERR_FAIL_COND(!children.has(p_node));
 	children[p_node].bypass = enabled;
+	dirty();
 }
 
 bool HarrySubnet::get_node_bypass(const StringName &p_node) const {
@@ -305,6 +309,7 @@ bool HarrySubnet::get_node_bypass(const StringName &p_node) const {
 void HarrySubnet::set_node_output(const StringName &p_node, const bool &enabled) {
 	ERR_FAIL_COND(!children.has(p_node));
 	children[p_node].output = enabled;
+	dirty();
 }
 
 bool HarrySubnet::get_node_output(const StringName &p_node) const {
@@ -326,7 +331,7 @@ void HarrySubnet::connect_node(const StringName &p_from_node, int p_from_index, 
 
 	children[p_from_node].connections.push_back(connection);
 
-	emit_changed();
+	dirty();
 }
 
 bool HarrySubnet::connection_exists(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index) {
@@ -360,6 +365,8 @@ void HarrySubnet::disconnect_node(const StringName &p_from_node, int p_from_inde
 			n.connections.erase(c);
 		}
 	}
+
+	dirty();
 }
 
 StringName HarrySubnet::FindNewName(const StringName &p_name) const {
