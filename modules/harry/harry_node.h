@@ -62,7 +62,14 @@ private:
 	ATTRMAP primitives;
 	ATTRMAP details;
 
-	ATTRMAP get_attrib_class(const AttribClass &p_attribclass);
+	ATTRMAP &get_attrib_class(const AttribClass &p_attribclass);
+
+	bool has_attrib(ATTRMAP &att, const StringName &p_attribute_name);
+	void add_attrib(ATTRMAP &att, const StringName &p_attribute_name, const Variant &p_defvalue);
+	void set_attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum, const Variant &p_value); //string mode = "set"
+	Variant attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum);
+
+	int add_row(ATTRMAP &att);
 
 protected:
 	StringName node_name;
@@ -80,7 +87,7 @@ public:
 
 	int add_point(Vector3 &p);
 	int add_vertex(int prim_num, int point_num);
-	int add_prim(int points[]);
+	int add_prim(PoolVector<int> &points);
 };
 
 #endif

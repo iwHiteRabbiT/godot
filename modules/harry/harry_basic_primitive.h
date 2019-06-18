@@ -43,10 +43,10 @@ class HarryBasicPrimitive : public HarryNode {
 public:
 	HarryBasicPrimitive() {
 		node_name = "BasicPrimitive";
-		CreateCube();
+		create_quad();
 	}
 
-	void CreateCube();
+	void create_quad();
 };
 
 #endif

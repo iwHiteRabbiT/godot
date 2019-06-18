@@ -34,6 +34,23 @@
  * @Author iWhiteRabbiT
 */
 
-void HarryBasicPrimitive::CreateCube() {
-	
+void HarryBasicPrimitive::create_quad() {
+
+	int p0 = add_point(Vector3(0, 1, 0));
+	int p1 = add_point(Vector3(1, 0, 0));
+	int p2 = add_point(Vector3(1, 0, 1));
+	int p3 = add_point(Vector3(0, 0, 1));
+
+	PoolVector<int> tri;
+	tri.resize(3);
+
+	tri.set(0, p0);
+	tri.set(1, p1);
+	tri.set(2, p2);
+	add_prim(tri);
+
+	tri.set(0, p0);
+	tri.set(1, p3);
+	tri.set(2, p2);
+	add_prim(tri);
 }

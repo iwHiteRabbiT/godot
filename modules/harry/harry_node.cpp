@@ -31,10 +31,11 @@
 #include "harry_node.h"
 
 /**
- * @Author iWhiteRabbiT
+ @Author iWhiteRabbiT
 */
 
-ATTRMAP HarryNode::get_attrib_class(const AttribClass &p_attribclass) {
+ATTRMAP &HarryNode::get_attrib_class(const AttribClass &p_attribclass) {
+
 	switch (p_attribclass) {
 
 		case POINT:
@@ -55,7 +56,21 @@ ATTRMAP HarryNode::get_attrib_class(const AttribClass &p_attribclass) {
 	}
 }
 
+int HarryNode::add_row(ATTRMAP &att) {
+
+	for (ATTRMAP::Element *a = att.front(); a; a = a->next()) {
+
+		DefaultVectorVariant dvv = a->get();
+
+		dvv.values.push_back(dvv.default);
+		att[a->key()] = dvv;
+	}
+
+	return att.front()->get().values.size() - 1;
+}
+
 void HarryNode::_bind_methods() {
+
 	ClassDB::bind_method(D_METHOD("set_node_name", "node_name"), &HarryNode::set_node_name);
 	ClassDB::bind_method(D_METHOD("get_node_name"), &HarryNode::get_node_name);
 
@@ -67,6 +82,7 @@ void HarryNode::_bind_methods() {
 }
 
 void HarryNode::dirty() {
+
 	//set_edited(true);
 	//emit_changed();
 	_change_notify();
@@ -77,6 +93,7 @@ void HarryNode::dirty() {
 }
 
 String HarryNode::get_node_name() const {
+
 	return node_name;
 }
 
@@ -96,16 +113,20 @@ void HarryNode::set_node_name(const String &p_name) {
 
 bool HarryNode::has_attrib(const AttribClass &attribclass, const StringName &attribute_name) {
 
-	ATTRMAP att = get_attrib_class(attribclass);
+	return has_attrib(get_attrib_class(attribclass), attribute_name);
+}
+bool HarryNode::has_attrib(ATTRMAP &att, const StringName &attribute_name) {
 
 	return att.has(attribute_name);
 }
 
 void HarryNode::add_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, const Variant &p_defvalue) {
 
-	DefaultVectorVariant dvv;
+	add_attrib(get_attrib_class(p_attribclass), p_attribute_name, p_defvalue);
+}
+void HarryNode::add_attrib(ATTRMAP &att, const StringName &p_attribute_name, const Variant &p_defvalue) {
 
-	ATTRMAP att = get_attrib_class(p_attribclass);
+	DefaultVectorVariant dvv;
 
 	if (att.has(p_attribute_name)) {
 		att[p_attribute_name].default = p_defvalue;
@@ -113,17 +134,30 @@ void HarryNode::add_attrib(const AttribClass &p_attribclass, const StringName &p
 	}
 
 	dvv.default = p_defvalue;
+
+	int size = 0;
+	for (ATTRMAP::Element *a = att.front(); a; a = a->next()) {
+		int s = a->get().values.size();
+		size = size < s ? s : size;
+	}
+	dvv.values.resize(size);
+
+	for (int i=0 ; i<size ; i++)
+		dvv.values.set(i, dvv.default);
+
 	att[p_attribute_name] = dvv;
 }
 
 void HarryNode::set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value) {
 
-	ATTRMAP att = get_attrib_class(p_attribclass);
+	set_attrib(get_attrib_class(p_attribclass), p_attribute_name, elemnum, p_value);
+}
+void HarryNode::set_attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum, const Variant &p_value) {
 
 	if (!att.has(p_attribute_name))
-		att[p_attribute_name] = DefaultVectorVariant();
+		add_attrib(att, p_attribute_name, Variant());
 
-	PoolVector<Variant> vals = att[p_attribute_name].values;
+	PoolVector<Variant> &vals = att[p_attribute_name].values;
 
 	if (vals.size() <= elemnum)
 		return;
@@ -133,13 +167,15 @@ void HarryNode::set_attrib(const AttribClass &p_attribclass, const StringName &p
 
 Variant HarryNode::attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum) {
 
-	ATTRMAP att = get_attrib_class(p_attribclass);
+	return attrib(get_attrib_class(p_attribclass), p_attribute_name, elemnum);
+}
+Variant HarryNode::attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum) {
 
 	if (!att.has(p_attribute_name)) {
 		return Variant();
 	}
 	   
-	PoolVector<Variant> vals = att[p_attribute_name].values;
+	PoolVector<Variant> &vals = att[p_attribute_name].values;
 
 	if (vals.size() <= elemnum)
 		return Variant();
@@ -149,28 +185,59 @@ Variant HarryNode::attrib(const AttribClass &p_attribclass, const StringName &p_
 
 int HarryNode::add_point(Vector3 &p) {
 
-	ATTRMAP att = get_attrib_class(POINT);
+	ATTRMAP &att = get_attrib_class(POINT);
 
-	att["P"].values.append(p);
+	if (!has_attrib(att, "P"))
+		add_attrib(att, "P", Vector3());
 
-	return att["P"].values.size() - 1;
+	int pn = add_row(att);
+
+	set_attrib(att, "P", pn, p);
+
+	return pn;
 }
 
 int HarryNode::add_vertex(int prim_num, int point_num) {
 
-	ATTRMAP att = get_attrib_class(VERTEX);
+	ATTRMAP &att = get_attrib_class(VERTEX);
 
-	att["P"].values.append(prim_num);
-	att["N"].values.append(point_num);
+	if (!has_attrib(att, "PrimNum"))
+		add_attrib(att, "PrimNum", 0);
 
-	return 0;
+	if (!has_attrib(att, "PointNum"))
+		add_attrib(att, "PointNum", 0);
+
+	int pn = add_row(att);
+
+	set_attrib(att, "PrimNum", pn, prim_num);
+	set_attrib(att, "PointNum", pn, point_num);
+
+	return pn;
 }
 
-int HarryNode::add_prim(int points[]) {
+int HarryNode::add_prim(PoolVector<int> &points) {
 
-	ATTRMAP att = get_attrib_class(PRIMITIVE);
+	ATTRMAP &att = get_attrib_class(PRIMITIVE);
 
+	if (!has_attrib(att, "Points"))
+		add_attrib(att, "Points", PoolVector<int>());
 
+	if (!has_attrib(att, "Vertices"))
+		add_attrib(att, "Vertices", PoolVector<int>());
+
+	int pn = add_row(att);
+
+	PoolVector<int> vertices;
+	vertices.resize(points.size());
+
+	for (int i = 0; i < points.size(); i++) {
+
+		int vn = add_vertex(pn, points[i]);
+		vertices.set(i, vn);
+	}
+
+	set_attrib(att, "Points", pn, points);
+	set_attrib(att, "Vertices", pn, vertices);
 
 	return 0;
 }
