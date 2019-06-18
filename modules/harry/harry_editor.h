@@ -85,6 +85,7 @@ class HarryEditor : public VBoxContainer {
 	void _toggle_output(const String &p_which, bool pressed);
 
 	void _node_instance_name_changed(const StringName &p_old_name, const StringName &p_new_name);
+	void _dirty_node(const Ref<HarryNode> &p_node);
 
 	void edit(Ref<HarrySubnet> p_subnet);
 

@@ -95,13 +95,17 @@ void HarryEditor::edit(Harry *p_harry) {
 
 void HarryEditor::edit(Ref<HarrySubnet> p_subnet) {
 
-	if (harry_subnet.is_valid())
+	if (harry_subnet.is_valid()) {
 		harry_subnet->disconnect("node_instance_name_changed", this, "_node_instance_name_changed");
+		harry_subnet->disconnect("dirty", this, "_dirty_node");
+	}
 
 	harry_subnet = p_subnet;
 
-	if (harry_subnet.is_valid())
+	if (harry_subnet.is_valid()) {
 		harry_subnet->connect("node_instance_name_changed", this, "_node_instance_name_changed");
+		harry_subnet->connect("dirty", this, "_dirty_node");
+	}
 
 	_update_graph();
 	update_path();
@@ -321,6 +325,14 @@ void HarryEditor::_node_instance_name_changed(const StringName &p_old_name, cons
 	}
 }
 
+void HarryEditor::_dirty_node(const Ref<HarryNode> &p_node) {
+	undo_redo->create_action(TTR("Dirty Node"));
+	undo_redo->commit_action();
+
+	//EditorData &editor_data = EditorNode::get_editor_data();
+	//editor_data.get_edited_scene_root()->_change_notify();
+}
+
 void HarryEditor::_update_graph() {
 
 	if (updating)
@@ -349,6 +361,9 @@ void HarryEditor::_update_graph() {
 
 		StringName name = E->get();
 		HarrySubnet::Node hn = harry_subnet->GetNode(name);
+
+		//if (!hn.node->is_connected("dirty", this, "_dirty_node"))
+		//	hn.node->connect("dirty", this, "_dirty_node");
 
 		//HarryNode *p_hn = hn.node.ptr();
 
@@ -394,19 +409,7 @@ void HarryEditor::_notification(int p_what) {
 
 	if (p_what == NOTIFICATION_PROCESS) {
 		if (harry && !harry_subnet.is_valid() && harry->get_harry_root().is_valid()) {
-
-			//		ObjectID root = 0;
-			//		if (harry_subnet != NULL)
-			//			root = harry_subnet->get_instance_id();
-
-			//		ObjectID root1 = 0;
-			//		if (harry->get_harry_root() != NULL)
-			//			root1 = harry->get_harry_root()->get_instance_id();
-
-			//		if (root != root1) {
-			harry_subnet = harry->get_harry_root();
-			_update_graph();
-			//		}
+			edit(harry->get_harry_root());
 		}
 	}
 }
@@ -426,4 +429,5 @@ void HarryEditor::_bind_methods() {
 	ClassDB::bind_method("_path_button_pressed", &HarryEditor::_path_button_pressed);
 	ClassDB::bind_method("_toggle_bypass", &HarryEditor::_toggle_bypass);
 	ClassDB::bind_method("_toggle_output", &HarryEditor::_toggle_output);
+	ClassDB::bind_method("_dirty_node", &HarryEditor::_dirty_node);	
 }
