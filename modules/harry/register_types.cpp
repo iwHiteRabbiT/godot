@@ -33,6 +33,7 @@
 #include "core/class_db.h"
 #include "harry.h"
 #include "harry_wrangle.h"
+#include "harry_basic_primitive.h"
 #include "harry_editor_plugin.h"
 #endif
 
@@ -43,6 +44,7 @@ void register_harry_types() {
 #ifndef _3D_DISABLED
 	ClassDB::register_class<Harry>();
 	ClassDB::register_class<HarryNode>();
+	ClassDB::register_class<HarryBasicPrimitive>();
 	ClassDB::register_class<HarryWrangle>();
 	ClassDB::register_class<HarrySubnet>();
 	ClassDB::register_class<HarryRoot>();

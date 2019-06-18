@@ -69,6 +69,7 @@ HarryEditor::HarryEditor() {
 	add_popup->connect("id_pressed", this, "_add_node");
 	add_popup->add_item("Wrangle", 0);
 	add_popup->add_item("Subnet", 1);
+	add_popup->add_item("Basic Primitive", 2);
 	add_popup->add_separator();
 	add_popup->add_item(TTR("Load..."), MENU_LOAD_FILE);
 
@@ -205,6 +206,10 @@ void HarryEditor::_add_node(int p_idx) {
 
 		case 1:
 			type = "HarrySubnet";
+			break;
+
+		case 2:
+			type = "HarryBasicPrimitive";
 			break;
 
 		case MENU_LOAD_FILE:

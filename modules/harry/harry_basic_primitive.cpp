@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.h                                                              */
+/*  harry.cpp                                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,59 +28,12 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HARRY_NODE_H
-#define HARRY_NODE_H
-
-#include "core/resource.h"
-
+#include "harry_basic_primitive.h"
 
 /**
-@Author iWhiteRabbiT
+ * @Author iWhiteRabbiT
 */
-class HarryNode : public Resource {
-	GDCLASS(HarryNode, Resource);
 
-public:
-	enum AttribClass {
-		POINT,
-		VERTEX,
-		PRIMITIVE,
-		DETAIL
-	};
-
-	struct DefaultVectorVariant {
-		Variant default;
-		PoolVector<Variant> values;
-	};
-
-
-private:
-#define ATTRMAP Map<StringName, HarryNode::DefaultVectorVariant>
-
-	ATTRMAP points;
-	ATTRMAP vertices;
-	ATTRMAP primitives;
-	ATTRMAP details;
-
-	ATTRMAP get_attrib_class(const AttribClass &p_attribclass);
-
-protected:
-	StringName node_name;
-	static void _bind_methods();
-	void dirty();
-
-public:
-	String get_node_name() const;
-	void set_node_name(const String &p_name);
-
-	bool has_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name);
-	void add_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, const Variant &p_defvalue);
-	void set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value); //string mode = "set"
-	Variant attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum);
-
-	int add_point(Vector3 &p);
-	int add_vertex(int prim_num, int point_num);
-	int add_prim(int points[]);
-};
-
-#endif
+void HarryBasicPrimitive::CreateCube() {
+	
+}
