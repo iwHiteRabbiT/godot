@@ -142,7 +142,7 @@ void HarryNode::add_attrib(ATTRMAP &att, const StringName &p_attribute_name, con
 	}
 	dvv.values.resize(size);
 
-	for (int i=0 ; i<size ; i++)
+	for (int i = 0; i < size; i++)
 		dvv.values.set(i, dvv.default);
 
 	att[p_attribute_name] = dvv;
@@ -174,7 +174,7 @@ Variant HarryNode::attrib(ATTRMAP &att, const StringName &p_attribute_name, int 
 	if (!att.has(p_attribute_name)) {
 		return Variant();
 	}
-	   
+
 	PoolVector<Variant> &vals = att[p_attribute_name].values;
 
 	if (vals.size() <= elemnum)
@@ -240,4 +240,31 @@ int HarryNode::add_prim(PoolVector<int> &points) {
 	set_attrib(att, "Vertices", pn, vertices);
 
 	return 0;
+}
+
+Ref<ArrayMesh> HarryNode::create_mesh() {
+
+	//if (!p_mesh.is_valid())
+	//	p_mesh.instance();
+
+	//p_mesh->clear_cache();
+	//p_mesh->generate_triangle_mesh();
+
+	PoolVector<Vector3> vertices; //	= PoolVector3Array();
+	vertices.push_back(Vector3(0, 1, 0));
+	vertices.push_back(Vector3(1, 0, 0));
+	vertices.push_back(Vector3(0, 0, 1));
+
+	Ref<ArrayMesh> arr_mesh;
+	arr_mesh.instance();
+
+	Array arrays;
+	arrays.resize(ArrayMesh::ARRAY_MAX);
+
+	arrays[ArrayMesh::ARRAY_VERTEX] = vertices;
+	arr_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
+
+	Ref<Mesh> mesh = arr_mesh;
+
+	return arr_mesh;
 }

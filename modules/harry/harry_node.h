@@ -32,6 +32,7 @@
 #define HARRY_NODE_H
 
 #include "core/resource.h"
+#include "scene/resources/mesh.h"
 
 
 /**
@@ -88,6 +89,8 @@ public:
 	int add_point(Vector3 &p);
 	int add_vertex(int prim_num, int point_num);
 	int add_prim(PoolVector<int> &points);
+
+	Ref<ArrayMesh> create_mesh();
 };
 
 #endif

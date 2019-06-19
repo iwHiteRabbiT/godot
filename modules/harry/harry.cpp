@@ -56,6 +56,8 @@ void Harry::set_harry_root(const Ref<HarryRoot> &p_root) {
 	//properties_dirty = true;
 
 	update_configuration_warning();
+
+	set_mesh(harry_root->create_mesh());
 }
 
 Ref<HarryRoot> Harry::get_harry_root() const {
