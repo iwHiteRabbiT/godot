@@ -79,6 +79,7 @@ void HarryNode::_bind_methods() {
 
 	ADD_SIGNAL(MethodInfo("name_changed", PropertyInfo(Variant::OBJECT, "node")));
 	ADD_SIGNAL(MethodInfo("dirty", PropertyInfo(Variant::OBJECT, "node")));
+	ADD_SIGNAL(MethodInfo("mesh_changed"));
 }
 
 void HarryNode::dirty() {
@@ -90,6 +91,7 @@ void HarryNode::dirty() {
 	Ref<HarryNode> t = this;
 
 	emit_signal("dirty", t);
+	emit_signal("mesh_changed");
 }
 
 String HarryNode::get_node_name() const {
@@ -219,8 +221,8 @@ int HarryNode::add_prim(PoolVector<int> &points) {
 
 	ATTRMAP &att = get_attrib_class(PRIMITIVE);
 
-	if (!has_attrib(att, "Points"))
-		add_attrib(att, "Points", PoolVector<int>());
+	//if (!has_attrib(att, "Points"))
+	//	add_attrib(att, "Points", PoolVector<int>());
 
 	if (!has_attrib(att, "Vertices"))
 		add_attrib(att, "Vertices", PoolVector<int>());
@@ -236,7 +238,7 @@ int HarryNode::add_prim(PoolVector<int> &points) {
 		vertices.set(i, vn);
 	}
 
-	set_attrib(att, "Points", pn, points);
+	//set_attrib(att, "Points", pn, points);
 	set_attrib(att, "Vertices", pn, vertices);
 
 	return 0;
@@ -244,24 +246,43 @@ int HarryNode::add_prim(PoolVector<int> &points) {
 
 Ref<ArrayMesh> HarryNode::create_mesh() {
 
-	//if (!p_mesh.is_valid())
-	//	p_mesh.instance();
+	ATTRMAP &att_points = get_attrib_class(POINT);
+	ATTRMAP &att_verts = get_attrib_class(VERTEX);
+	ATTRMAP &att_prims = get_attrib_class(PRIMITIVE);
 
-	//p_mesh->clear_cache();
-	//p_mesh->generate_triangle_mesh();
-
-	PoolVector<Vector3> vertices; //	= PoolVector3Array();
-	vertices.push_back(Vector3(0, 1, 0));
-	vertices.push_back(Vector3(1, 0, 0));
-	vertices.push_back(Vector3(0, 0, 1));
-
-	Ref<ArrayMesh> arr_mesh;
-	arr_mesh.instance();
+	PoolVector<Variant> v_points = att_points["P"].values;
+	PoolVector<Variant> v_verts = att_verts["PointNum"].values;
+	PoolVector<Variant> v_prims = att_prims["Vertices"].values;
 
 	Array arrays;
 	arrays.resize(ArrayMesh::ARRAY_MAX);
 
-	arrays[ArrayMesh::ARRAY_VERTEX] = vertices;
+	// Vertex
+	PoolVector<Vector3> points;
+	points.resize(v_points.size());
+
+	for (int i = 0; i < v_points.size(); i++)
+		points.write()[i] = v_points[i];
+
+	arrays[ArrayMesh::ARRAY_VERTEX] = points;
+
+	// Index
+	PoolVector<int> indices;
+	indices.resize(v_prims.size() * 3);
+	int n = 0;
+
+	for (int i = 0; i < v_prims.size(); i++) {
+		PoolVector<int> ind = v_prims[i];
+		indices.write()[n++] = v_verts[ind[0]];
+		indices.write()[n++] = v_verts[ind[1]];
+		indices.write()[n++] = v_verts[ind[2]];
+	}
+
+	arrays[ArrayMesh::ARRAY_INDEX] = indices;
+
+	// Mesh
+	Ref<ArrayMesh> arr_mesh;
+	arr_mesh.instance();
 	arr_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
 
 	Ref<Mesh> mesh = arr_mesh;

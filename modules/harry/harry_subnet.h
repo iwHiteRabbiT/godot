@@ -83,6 +83,8 @@ public:
 private:
 	Map<StringName, Node> children;
 
+	void refresh_mesh();
+
 protected:
 	//static void _bind_methods();
 	bool _set(const StringName &p_name, const Variant &p_value);
@@ -114,6 +116,8 @@ public:
 
 	StringName FindNewName(const StringName &p_name) const;
 	void GetNodeList(List<StringName> *r_list);
+
+	Ref<ArrayMesh> create_mesh() override;
 };
 
 #endif

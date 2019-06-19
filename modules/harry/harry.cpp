@@ -34,9 +34,14 @@
  * @Author iWhiteRabbiT
 */
 
+void Harry::refresh_mesh() {
+	set_mesh(harry_root->create_mesh());
+}
+
 void Harry::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_harry_root", "root"), &Harry::set_harry_root);
 	ClassDB::bind_method(D_METHOD("get_harry_root"), &Harry::get_harry_root);
+	ClassDB::bind_method("refresh_mesh", &Harry::refresh_mesh);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "harry_root", PROPERTY_HINT_RESOURCE_TYPE, "HarryRoot"), "set_harry_root", "get_harry_root");
 }
@@ -44,20 +49,20 @@ void Harry::_bind_methods() {
 void Harry::set_harry_root(const Ref<HarryRoot> &p_root) {
 
 	if (harry_root.is_valid()) {
-		//harry_root->disconnect("tree_changed", this, "_tree_changed");
+		harry_root->disconnect("mesh_changed", this, "refresh_mesh");
 	}
 
 	harry_root = p_root;
 
 	if (harry_root.is_valid()) {
-		//harry_root->connect("tree_changed", this, "_tree_changed");
+		harry_root->connect("mesh_changed", this, "refresh_mesh");
 	}
 
 	//properties_dirty = true;
 
 	update_configuration_warning();
 
-	set_mesh(harry_root->create_mesh());
+	refresh_mesh();
 }
 
 Ref<HarryRoot> Harry::get_harry_root() const {

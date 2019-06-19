@@ -90,7 +90,7 @@ public:
 	int add_vertex(int prim_num, int point_num);
 	int add_prim(PoolVector<int> &points);
 
-	Ref<ArrayMesh> create_mesh();
+	virtual Ref<ArrayMesh> create_mesh();
 };
 
 #endif

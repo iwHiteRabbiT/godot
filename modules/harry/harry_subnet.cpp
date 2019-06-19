@@ -34,6 +34,10 @@
  * @Author iWhiteRabbiT
 */
 
+void HarrySubnet::refresh_mesh() {
+	emit_signal("mesh_changed");
+}
+
 bool HarrySubnet::_set(const StringName &p_name, const Variant &p_value) {
 
 	String name = p_name;
@@ -197,6 +201,7 @@ void HarrySubnet::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("connect_node", "from", "from_i", "to", "to_i"), &HarrySubnet::connect_node);
 	ClassDB::bind_method(D_METHOD("disconnect_node", "from", "from_i", "to", "to_i"), &HarrySubnet::disconnect_node);
 	ClassDB::bind_method(D_METHOD("set_unique_title", "node"), &HarrySubnet::set_unique_title);
+	ClassDB::bind_method("refresh_mesh", &HarrySubnet::refresh_mesh);
 
 	ADD_SIGNAL(MethodInfo("node_instance_name_changed", PropertyInfo(Variant::STRING, "old_name"), PropertyInfo(Variant::STRING, "new_name")));
 }
@@ -210,6 +215,9 @@ void HarrySubnet::AddNode(StringName instance_name, Ref<HarryNode> p_node) {
 	n.node = p_node;
 	if (!n.node->is_connected("name_changed", this, "set_unique_title"))
 		n.node->connect("name_changed", this, "set_unique_title");
+
+	if (!n.node->is_connected("mesh_changed", this, "refresh_mesh"))
+		n.node->connect("mesh_changed", this, "refresh_mesh");
 
 	if (children[instance_name] == n)
 		return;
@@ -417,4 +425,16 @@ void HarrySubnet::GetNodeList(List<StringName> *r_list) {
 	for (Map<StringName, Node>::Element *E = children.front(); E; E = E->next()) {
 		r_list->push_back(E->key());
 	}
+}
+
+Ref<ArrayMesh> HarrySubnet::create_mesh() {
+
+	for (Map<StringName, Node>::Element *e = children.front(); e; e = e->next()) {
+		Node n = e->get();
+
+		if (n.output && !n.bypass)
+			return n.node->create_mesh();
+	}
+
+	return Ref<ArrayMesh>();
 }

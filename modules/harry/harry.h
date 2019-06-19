@@ -44,6 +44,8 @@ class Harry : public MeshInstance {
 
 	Ref<HarryRoot> harry_root;
 
+	void refresh_mesh();
+
 protected:
 	static void _bind_methods();
 
