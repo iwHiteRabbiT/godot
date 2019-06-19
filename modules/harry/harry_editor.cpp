@@ -82,7 +82,10 @@ HarryEditor::HarryEditor() {
 	undo_redo = EditorNode::get_singleton()->get_undo_redo();
 }
 
-void HarryEditor::edit(Harry *p_harry) {
+void HarryEditor::edit(Harry *p_harry, HarryGeoSheetEditor *p_harry_geo_editor) {
+
+	harry_geo_editor = p_harry_geo_editor;
+
 	if (harry == p_harry)
 		return;
 
@@ -253,6 +256,8 @@ void HarryEditor::_node_selected(Object *p_node) {
 	ERR_FAIL_COND(!hn.is_valid());
 
 	EditorNode::get_singleton()->push_item(hn.ptr(), "", true);
+
+	harry_geo_editor->refresh(hn);
 }
 
 void HarryEditor::_node_dragged(const Vector2 &p_from, const Vector2 &p_to, const StringName &p_which) {

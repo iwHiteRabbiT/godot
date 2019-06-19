@@ -62,8 +62,6 @@ private:
 	ATTRMAP primitives;
 	ATTRMAP details;
 
-	ATTRMAP &get_attrib_class(const AttribClass &p_attribclass);
-
 	bool has_attrib(ATTRMAP &att, const StringName &p_attribute_name);
 	void add_attrib(ATTRMAP &att, const StringName &p_attribute_name, const Variant &p_defvalue);
 	void set_attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum, const Variant &p_value); //string mode = "set"
@@ -79,6 +77,8 @@ protected:
 public:
 	String get_node_name() const;
 	void set_node_name(const String &p_name);
+
+	ATTRMAP &get_attrib_class(const AttribClass &p_attribclass);
 
 	bool has_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name);
 	void add_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, const Variant &p_defvalue);

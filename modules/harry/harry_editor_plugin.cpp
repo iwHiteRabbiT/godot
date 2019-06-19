@@ -42,6 +42,8 @@ HarryEditorPlugin::HarryEditorPlugin(EditorNode *p_editor) {
 
 	button = editor->add_bottom_panel_item(TTR("Harry"), harry_editor);
 	button->hide();
+
+	harry_geo_editor = memnew(HarryGeoSheetEditor);
 }
 
 HarryEditorPlugin::~HarryEditorPlugin() {
@@ -53,19 +55,21 @@ void HarryEditorPlugin::make_visible(bool isVisible) {
 		button->show();
 		editor->make_bottom_panel_item_visible(harry_editor);
 		harry_editor->set_process(true);
-		//harry_editor->show();
+
+		editor->add_control_to_dock(EditorNode::DockSlot::DOCK_SLOT_RIGHT_UL, harry_geo_editor);
 	} else {
 		if (harry_editor->is_visible_in_tree())
 			editor->hide_bottom_panel();
 		button->hide();
 		harry_editor->set_process(false);
-		//harry_editor->hide();
+
+		editor->remove_control_from_dock(harry_geo_editor);
 	}
 }
 
 void HarryEditorPlugin::edit(Object *p_object) {
 
-	harry_editor->edit(Object::cast_to<Harry>(p_object));
+	harry_editor->edit(Object::cast_to<Harry>(p_object), harry_geo_editor);
 }
 
 bool HarryEditorPlugin::handles(Object *p_object) const {

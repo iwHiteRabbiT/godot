@@ -35,6 +35,7 @@
 #include "editor/editor_plugin.h"
 //#include "editor/pane_drag.h"
 #include "harry_editor.h"
+#include "harry_geosheet_editor.h"
 //#include "scene/gui/graph_edit.h"
 
 /**
@@ -47,6 +48,7 @@ class HarryEditorPlugin : public EditorPlugin {
 	EditorNode *editor;
 	HarryEditor *harry_editor;
 	Button *button;
+	HarryGeoSheetEditor *harry_geo_editor;
 
 public:
 	HarryEditorPlugin(EditorNode *p_editor);

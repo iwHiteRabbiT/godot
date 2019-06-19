@@ -31,15 +31,16 @@
 #ifndef HARRY_H
 #define HARRY_H
 
-#include "scene/3d/spatial.h"
+//#include "scene/3d/spatial.h"
+#include "scene/3d/mesh_instance.h"
 #include "harry_root.h"
 
 /**
  * @Author iWhiteRabbiT
 */
 
-class Harry : public Spatial {
-	GDCLASS(Harry, Spatial);
+class Harry : public MeshInstance {
+	GDCLASS(Harry, MeshInstance);
 
 	Ref<HarryRoot> harry_root;
 

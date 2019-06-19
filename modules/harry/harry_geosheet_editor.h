@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry_editor_plugin.h                                                */
+/*  harry_geosheet_editor.h                                              */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,85 +28,42 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HARRY_EDITOR_H
-#define HARRY_EDITOR_H
+#ifndef HARRY_GEOSHEET_EDITOR_H
+#define HARRY_GEOSHEET_EDITOR_H
 
-#include "editor/editor_node.h"
-#include "harry.h"
-#include "harry_geosheet_editor.h"
-#include "harry_subnet_graph_node.h"
-#include "harry_wrangle.h"
+//#include "editor/editor_node.h"
+//#include "harry.h"
+//#include "harry_subnet_graph_node.h"
+//#include "harry_wrangle.h"
 #include "scene/gui/graph_edit.h"
+#include "scene/gui/tree.h"
+#include "scene/gui/grid_container.h"
+#include "scene/gui/button.h"
+#include "harry_node.h"
 //#include "editor/editor_plugin.h"
 //#include "editor/pane_drag.h"
 
 /**
- * @Author iWhiteRabbiT
+ @Author iWhiteRabbiT
 */
+class HarryGeoSheetEditor : public VBoxContainer {
+	GDCLASS(HarryGeoSheetEditor, VBoxContainer);
 
-class HarryEditor : public VBoxContainer {
-	GDCLASS(HarryEditor, VBoxContainer);
+	Tree *tree;
+	Ref<HarryNode> current_node;
 
-	enum {
-		MENU_LOAD_FILE = 1000,
-		MENU_PASTE = 1001,
-		MENU_LOAD_FILE_CONFIRM = 1002
-	};
-
-	HarryGeoSheetEditor *harry_geo_editor;
-
-	Harry *harry;
-	Ref<HarrySubnet> harry_subnet;
-	Ref<ButtonGroup> output_btn_grp;
-
-	HBoxContainer *path_hb;
-
-	GraphEdit *graph;
-	PopupMenu *add_popup;
-
-	UndoRedo *undo_redo;
-	bool updating = false;
-
-	EditorFileDialog *open_file;
-	Ref<HarryNode> file_loaded;
-	void _file_opened(const String &p_file);
-
-	void _popup_request(const Vector2 &p_position);
-	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
-	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
-
-	void _add_node(int p_idx);
-	void _node_selected(Object *p_node);
-
-	void _update_graph();
-
-	void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, const StringName &p_which);
-	void _dive_in(const String &p_which);
-
-	bool toggling = false;
-	void _toggle_bypass(const String &p_which, bool pressed);
-	void _toggle_output(const String &p_which, bool pressed);
-
-	void _node_instance_name_changed(const StringName &p_old_name, const StringName &p_new_name);
-	void _dirty_node(const Ref<HarryNode> &p_node);
-
-	void edit(Ref<HarrySubnet> p_subnet);
-
-	struct NameNode {
-		StringName name;
-		Ref<HarryNode> node;
-	};
-	Vector<NameNode> button_path;
-	void update_path();
-	void _path_button_pressed(int p_path);
+	HarryNode::AttribClass current_attrib_class;
 
 protected:
-	void _notification(int p_what);
 	static void _bind_methods();
 
 public:
-	HarryEditor();
-	void edit(Harry *p_harry, HarryGeoSheetEditor *p_harry_geo_editor);
+	HarryGeoSheetEditor();
+	//void edit();
+
+	void refresh();
+	void refresh(Ref<HarryNode> &p_node);
+	void refresh_attrib(int index);
 };
 
 #endif
