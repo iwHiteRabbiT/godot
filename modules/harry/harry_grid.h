@@ -39,12 +39,28 @@
 class HarryGrid : public HarryNode {
 	GDCLASS(HarryGrid, HarryNode);
 
+	Vector2 grid_size = Vector2(1, 1);
+	int num_column = 2;
+	int num_row = 2;
+
+protected:
+	static void _bind_methods();
+
 public:
 	HarryGrid() {
 		node_category = "Primitive";
 		node_name = "Grid";
 		create_geo();
 	}
+
+	Vector2 get_grid_size() const;
+	void set_grid_size(const Vector2 &p_size);
+
+	int get_num_column() const;
+	void set_num_column(const int &p_num_column);
+
+	int get_num_row() const;
+	void set_num_row(const int &p_num_row);
 
 	void create_geo();
 };

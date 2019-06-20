@@ -73,8 +73,12 @@ private:
 protected:
 	StringName node_category;
 	StringName node_name;
+
 	static void _bind_methods();
 	void dirty();
+
+	void reset(const AttribClass &p_attribclass);
+	void reset_all();
 
 public:
 	StringName get_node_category() const { return node_category; }

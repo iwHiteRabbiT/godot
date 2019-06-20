@@ -94,6 +94,25 @@ void HarryNode::dirty() {
 	emit_signal("mesh_changed");
 }
 
+void HarryNode::reset(const AttribClass &p_attribclass) {
+
+	ATTRMAP &attr = get_attrib_class(p_attribclass);
+
+	for (ATTRMAP::Element *a = attr.front(); a; a = a->next()) {
+
+		a->get().values.resize(0);
+	}
+}
+
+void HarryNode::reset_all(){
+
+	reset(POINT);
+	reset(VERTEX);
+	reset(PRIMITIVE);
+	reset(DETAIL);
+}
+
+
 String HarryNode::get_node_name() const {
 
 	return node_name;

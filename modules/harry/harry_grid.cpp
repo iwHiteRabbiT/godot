@@ -34,25 +34,90 @@
   @Author iWhiteRabbiT
 */
 
+void HarryGrid::_bind_methods() {
+
+	ClassDB::bind_method(D_METHOD("set_grid_size", "grid_size"), &HarryGrid::set_grid_size);
+	ClassDB::bind_method(D_METHOD("get_grid_size"), &HarryGrid::get_grid_size);
+	ClassDB::bind_method(D_METHOD("set_num_column", "num_column"), &HarryGrid::set_num_column);
+	ClassDB::bind_method(D_METHOD("get_num_column"), &HarryGrid::get_num_column);
+	ClassDB::bind_method(D_METHOD("set_num_row", "num_row"), &HarryGrid::set_num_row);
+	ClassDB::bind_method(D_METHOD("get_num_row"), &HarryGrid::get_num_row);
+
+	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "grid_size"), "set_grid_size", "get_grid_size");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "num_column"), "set_num_column", "get_num_column");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "num_row"), "set_num_row", "get_num_row");
+}
+
+Vector2 HarryGrid::get_grid_size() const {
+
+	return grid_size;
+}
+
+void HarryGrid::set_grid_size(const Vector2 &p_size) {
+
+	grid_size = p_size;
+	create_geo();
+	dirty();
+}
+
+int HarryGrid::get_num_column() const {
+
+	return num_column;
+}
+
+void HarryGrid::set_num_column(const int &p_num_column) {
+
+	num_column = p_num_column;
+	create_geo();
+	dirty();
+}
+
+int HarryGrid::get_num_row() const {
+
+	return num_row;
+}
+
+void HarryGrid::set_num_row(const int &p_num_row) {
+
+	num_row = p_num_row;
+	create_geo();
+	dirty();
+}
+
 void HarryGrid::create_geo() {
 
-	float decal = 2.0f * (Math::rand()%1000)/1000.0f;
+	reset_all();
 
-	int p0 = add_point(Vector3(0, decal, 0));
-	int p1 = add_point(Vector3(1, decal, 0));
-	int p2 = add_point(Vector3(1, decal, 1));
-	int p3 = add_point(Vector3(0, decal, 1));
+	Vector3 g = Vector3(grid_size.x, 0, grid_size.y);
+	Vector3 s = g / Vector3(num_column-1, 1, num_row-1);
+	Vector3 o = -0.5f * g;
+
+	for (int j = 0; j < num_row; j++) {
+		for (int i = 0; i < num_column; i++) {
+
+			add_point(o + s * Vector3(i, 0, j));
+		}
+	}
 
 	PoolVector<int> tri;
 	tri.resize(3);
+	for (int j = 0; j < num_row-1; j++) {
+		for (int i = 0; i < num_column-1; i++) {
 
-	tri.set(0, p0);
-	tri.set(1, p1);
-	tri.set(2, p2);
-	add_prim(tri);
+			int p0 = i + j * num_column;
+			int p1 = p0 + 1;
+			int p2 = (i+1) + (j+1) * num_column;
+			int p3 = p2 - 1;
 
-	tri.set(0, p0);
-	tri.set(1, p2);
-	tri.set(2, p3);
-	add_prim(tri);
+			tri.set(0, p0);
+			tri.set(1, p1);
+			tri.set(2, p2);
+			add_prim(tri);
+
+			tri.set(0, p0);
+			tri.set(1, p2);
+			tri.set(2, p3);
+			add_prim(tri);
+		}
+	}
 }
