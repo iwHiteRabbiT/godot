@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry_basic_primitive.h                                              */
+/*  harry_grid.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,26 +28,31 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HARRY_BASIC_PRIMITIVE_H
-#define HARRY_BASIC_PRIMITIVE_H
-
-#include "harry_node.h"
+#include "harry_grid.h"
 
 /**
   @Author iWhiteRabbiT
 */
-class HarryBasicPrimitive : public HarryNode {
-	GDCLASS(HarryBasicPrimitive, HarryNode);
 
-public:
-	HarryBasicPrimitive() {
-		node_category = "Primitive";
-		node_name = "Test Primitive";
+void HarryGrid::create_geo() {
 
-		create_geo();
-	}
+	float decal = 2.0f * (Math::rand()%1000)/1000.0f;
 
-	void create_geo();
-};
+	int p0 = add_point(Vector3(0, decal, 0));
+	int p1 = add_point(Vector3(1, decal, 0));
+	int p2 = add_point(Vector3(1, decal, 1));
+	int p3 = add_point(Vector3(0, decal, 1));
 
-#endif
+	PoolVector<int> tri;
+	tri.resize(3);
+
+	tri.set(0, p0);
+	tri.set(1, p1);
+	tri.set(2, p2);
+	add_prim(tri);
+
+	tri.set(0, p0);
+	tri.set(1, p2);
+	tri.set(2, p3);
+	add_prim(tri);
+}

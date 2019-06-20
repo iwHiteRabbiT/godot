@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.h                                                              */
+/*  harry_node.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -71,11 +71,14 @@ private:
 	int add_row(ATTRMAP &att);
 
 protected:
+	StringName node_category;
 	StringName node_name;
 	static void _bind_methods();
 	void dirty();
 
 public:
+	StringName get_node_category() const { return node_category; }
+
 	String get_node_name() const;
 	void set_node_name(const String &p_name);
 

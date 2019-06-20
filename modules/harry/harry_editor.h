@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry_editor_plugin.h                                                */
+/*  harry_editor.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -41,11 +41,17 @@
 //#include "editor/pane_drag.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
-
 class HarryEditor : public VBoxContainer {
 	GDCLASS(HarryEditor, VBoxContainer);
+
+	struct ClassName {
+		StringName class_name;
+		StringName node_name;
+	};
+
+	List<ClassName> harry_class_names;
 
 	enum {
 		MENU_LOAD_FILE = 1000,

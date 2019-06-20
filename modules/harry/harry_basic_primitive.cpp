@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.cpp                                                            */
+/*  harry_basic_primitive.cpp                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,10 +31,10 @@
 #include "harry_basic_primitive.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
 
-void HarryBasicPrimitive::create_quad() {
+void HarryBasicPrimitive::create_geo() {
 
 	float decal = 2.0f * (Math::rand()%1000)/1000.0f;
 

@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.cpp                                                            */
+/*  harry_node.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,7 +31,7 @@
 #include "harry_node.h"
 
 /**
- @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
 
 ATTRMAP &HarryNode::get_attrib_class(const AttribClass &p_attribclass) {

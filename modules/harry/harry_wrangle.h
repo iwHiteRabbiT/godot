@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.h                                                              */
+/*  harry_wrangle.h                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -34,14 +34,16 @@
 #include "harry_node.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
-
 class HarryWrangle : public HarryNode {
 	GDCLASS(HarryWrangle, HarryNode);
 
 public:
-	HarryWrangle() { node_name = "Wrangle"; }
+	HarryWrangle() {
+		node_category = "Utility";
+		node_name = "Wrangle";
+	}
 };
 
 #endif

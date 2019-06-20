@@ -39,9 +39,8 @@
 //#include "scene/gui/graph_edit.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
-
 class HarryEditorPlugin : public EditorPlugin {
 	GDCLASS(HarryEditorPlugin, EditorPlugin);
 

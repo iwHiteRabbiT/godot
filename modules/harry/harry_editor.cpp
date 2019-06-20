@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry_editor_plugin.cpp                                              */
+/*  harry_editor.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,7 +31,7 @@
 #include "harry_editor.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
 
 HarryEditor::HarryEditor() {
@@ -64,14 +64,46 @@ HarryEditor::HarryEditor() {
 	graph->connect("disconnection_request", this, "_disconnection_request", varray(), CONNECT_DEFERRED);
 	graph->connect("node_selected", this, "_node_selected");
 
+	// Popup Menu
 	add_popup = memnew(PopupMenu);
 	graph->add_child(add_popup);
 	add_popup->connect("id_pressed", this, "_add_node");
-	add_popup->add_item("Wrangle", 0);
-	add_popup->add_item("Subnet", 1);
-	add_popup->add_item("Basic Primitive", 2);
+
+	List<StringName> harry_node_classes;
+	ClassDB::get_inheriters_from_class("HarryNode", &harry_node_classes);
+
+	Map<StringName, PopupMenu *> submenus;
+	for (int i = 0; i < harry_node_classes.size(); i++) {
+		ClassName cn;
+		cn.class_name = harry_node_classes[i];
+
+		HarryNode *hn = Object::cast_to<HarryNode>(ClassDB::instance(cn.class_name));
+
+		StringName cat = hn->get_node_category();
+		if (!cat)
+			continue;
+
+		if (!submenus.has(cat)) {
+			submenus[cat] = memnew(PopupMenu);
+			submenus[cat]->set_name(cat);
+		}
+
+		cn.node_name = ((HarryNode *)ClassDB::instance(cn.class_name))->get_node_name();
+		harry_class_names.push_back(cn);
+
+		submenus[cat]->add_item(cn.node_name, i);
+	}
+
+	for (Map<StringName, PopupMenu *>::Element *e; e = submenus.front(); e = e->next()) {
+		PopupMenu *sub = e->get();
+
+		add_popup->add_child(sub);
+		add_popup->add_submenu_item(sub->get_name(), sub->get_name());
+	}
+
 	add_popup->add_separator();
 	add_popup->add_item(TTR("Load..."), MENU_LOAD_FILE);
+	// End PopupMenu
 
 	open_file = memnew(EditorFileDialog);
 	add_child(open_file);
@@ -439,5 +471,5 @@ void HarryEditor::_bind_methods() {
 	ClassDB::bind_method("_path_button_pressed", &HarryEditor::_path_button_pressed);
 	ClassDB::bind_method("_toggle_bypass", &HarryEditor::_toggle_bypass);
 	ClassDB::bind_method("_toggle_output", &HarryEditor::_toggle_output);
-	ClassDB::bind_method("_dirty_node", &HarryEditor::_dirty_node);	
+	ClassDB::bind_method("_dirty_node", &HarryEditor::_dirty_node);
 }

@@ -31,7 +31,7 @@
 #include "harry_editor_plugin.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
 
 HarryEditorPlugin::HarryEditorPlugin(EditorNode *p_editor) {

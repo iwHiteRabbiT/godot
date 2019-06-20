@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry_node.cpp                                                       */
+/*  harry_subnet_graph_node.cpp                                          */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,7 +31,7 @@
 #include "harry_subnet_graph_node.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
 
 void HarrySubnetGraphNode::_dive_in() {

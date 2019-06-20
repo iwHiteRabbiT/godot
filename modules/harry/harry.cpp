@@ -31,7 +31,7 @@
 #include "harry.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
 
 void Harry::refresh_mesh() {

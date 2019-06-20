@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry_node.h                                                         */
+/*  harry_graph_node.h                                                   */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -40,9 +40,8 @@
 #include "scene/gui/texture_button.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
-
 class HarryGraphNode : public GraphNode {
 	GDCLASS(HarryGraphNode, GraphNode);
 

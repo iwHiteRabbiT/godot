@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.cpp                                                            */
+/*  harry_subnet.cpp                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,7 +31,7 @@
 #include "harry_subnet.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
 
 void HarrySubnet::refresh_mesh() {

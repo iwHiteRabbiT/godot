@@ -36,9 +36,8 @@
 #include "harry_root.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
-
 class Harry : public MeshInstance {
 	GDCLASS(Harry, MeshInstance);
 

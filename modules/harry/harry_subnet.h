@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.h                                                              */
+/*  harry_subnet.h                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -34,9 +34,8 @@
 #include "harry_node.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
-
 class HarrySubnet : public HarryNode {
 	GDCLASS(HarrySubnet, HarryNode);
 
@@ -93,7 +92,11 @@ protected:
 	static void _bind_methods();
 
 public:
-	HarrySubnet() { node_name = "Subnet"; }
+	HarrySubnet() {
+		node_category = "Utility";
+		node_name = "Subnet";
+	}
+
 	void AddNode(StringName instance_name, Ref<HarryNode> p_node);
 	Node GetNode(const StringName &p_name) const;
 	List<Node> GetNodes(const Ref<HarryNode> &p_node) const;

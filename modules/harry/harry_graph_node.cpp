@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry_node.cpp                                                       */
+/*  harry_graph_node.cpp                                                 */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -32,9 +32,8 @@
 //#include "scene/resources/default_theme/default_theme.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
-
 
 void HarryGraphNode::_toggle_bypass(bool enabled) {
 

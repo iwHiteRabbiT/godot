@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry_basic_primitive.h                                              */
+/*  harry_grid.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,22 +28,20 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HARRY_BASIC_PRIMITIVE_H
-#define HARRY_BASIC_PRIMITIVE_H
+#ifndef HARRY_GRID_H
+#define HARRY_GRID_H
 
 #include "harry_node.h"
 
 /**
   @Author iWhiteRabbiT
 */
-class HarryBasicPrimitive : public HarryNode {
-	GDCLASS(HarryBasicPrimitive, HarryNode);
+class HarryGrid : public HarryNode {
+	GDCLASS(HarryGrid, HarryNode);
 
 public:
-	HarryBasicPrimitive() {
-		node_category = "Primitive";
-		node_name = "Test Primitive";
-
+	HarryGrid() {
+		node_name = "Grid";
 		create_geo();
 	}
 

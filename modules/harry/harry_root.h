@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.h                                                              */
+/*  harry_root.h                                                         */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -34,14 +34,15 @@
 #include "harry_subnet.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
-
 class HarryRoot : public HarrySubnet {
 	GDCLASS(HarryRoot, HarrySubnet);
 
 public:
-	HarryRoot() { node_name = "Root"; }
+	HarryRoot() {
+		node_name = "Root";
+	}
 };
 
 #endif

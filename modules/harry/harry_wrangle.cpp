@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.cpp                                                            */
+/*  harry_wrangle.cpp                                                    */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,6 +31,5 @@
 #include "harry_wrangle.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
-

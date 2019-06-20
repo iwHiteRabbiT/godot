@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry.cpp                                                            */
+/*  harry_root.cpp                                                       */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -31,5 +31,5 @@
 #include "harry_root.h"
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */

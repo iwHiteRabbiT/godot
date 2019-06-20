@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry_node.h                                                         */
+/*  harry_subnet_graph_node.h                                            */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -39,9 +39,8 @@
 
 
 /**
- * @Author iWhiteRabbiT
+  @Author iWhiteRabbiT
 */
-
 class HarrySubnetGraphNode : public HarryGraphNode {
 	GDCLASS(HarrySubnetGraphNode, HarryGraphNode);
 
