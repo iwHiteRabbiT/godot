@@ -41,6 +41,7 @@ class HarryRoot : public HarrySubnet {
 
 public:
 	HarryRoot() {
+		node_category.~StringName();
 		node_name = "Root";
 	}
 };

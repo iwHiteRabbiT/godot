@@ -64,46 +64,7 @@ HarryEditor::HarryEditor() {
 	graph->connect("disconnection_request", this, "_disconnection_request", varray(), CONNECT_DEFERRED);
 	graph->connect("node_selected", this, "_node_selected");
 
-	// Popup Menu
-	add_popup = memnew(PopupMenu);
-	graph->add_child(add_popup);
-	add_popup->connect("id_pressed", this, "_add_node");
-
-	List<StringName> harry_node_classes;
-	ClassDB::get_inheriters_from_class("HarryNode", &harry_node_classes);
-
-	Map<StringName, PopupMenu *> submenus;
-	for (int i = 0; i < harry_node_classes.size(); i++) {
-		ClassName cn;
-		cn.class_name = harry_node_classes[i];
-
-		HarryNode *hn = Object::cast_to<HarryNode>(ClassDB::instance(cn.class_name));
-
-		StringName cat = hn->get_node_category();
-		if (!cat)
-			continue;
-
-		if (!submenus.has(cat)) {
-			submenus[cat] = memnew(PopupMenu);
-			submenus[cat]->set_name(cat);
-		}
-
-		cn.node_name = ((HarryNode *)ClassDB::instance(cn.class_name))->get_node_name();
-		harry_class_names.push_back(cn);
-
-		submenus[cat]->add_item(cn.node_name, i);
-	}
-
-	for (Map<StringName, PopupMenu *>::Element *e; e = submenus.front(); e = e->next()) {
-		PopupMenu *sub = e->get();
-
-		add_popup->add_child(sub);
-		add_popup->add_submenu_item(sub->get_name(), sub->get_name());
-	}
-
-	add_popup->add_separator();
-	add_popup->add_item(TTR("Load..."), MENU_LOAD_FILE);
-	// End PopupMenu
+	_add_popup();
 
 	open_file = memnew(EditorFileDialog);
 	add_child(open_file);
@@ -127,6 +88,8 @@ void HarryEditor::edit(Harry *p_harry, HarryGeoSheetEditor *p_harry_geo_editor) 
 	button_path.push_back(NameNode{ "Root", harry->get_harry_root() });
 
 	edit(harry->get_harry_root());
+
+	//_add_popup();
 }
 
 void HarryEditor::edit(Ref<HarrySubnet> p_subnet) {
@@ -181,7 +144,8 @@ void HarryEditor::_popup_request(const Vector2 &p_position) {
 
 	//_update_options_menu();
 	//use_popup_menu_position = true;
-	Vector2 popup_menu_position = graph->get_local_mouse_position();
+	popup_menu_position = graph->get_local_mouse_position();
+	popup_menu_position += graph->get_scroll_ofs();
 	add_popup->set_position(p_position);
 	add_popup->popup();
 }
@@ -233,20 +197,7 @@ void HarryEditor::_add_node(int p_idx) {
 
 	Ref<HarryNode> rhn;
 
-	String type;
 	switch (p_idx) {
-		case 0:
-			type = "HarryWrangle";
-			break;
-
-		case 1:
-			type = "HarrySubnet";
-			break;
-
-		case 2:
-			type = "HarryBasicPrimitive";
-			break;
-
 		case MENU_LOAD_FILE:
 			open_file->clear_filters();
 			{
@@ -263,16 +214,19 @@ void HarryEditor::_add_node(int p_idx) {
 			rhn = file_loaded;
 			file_loaded.unref();
 			break;
-	}
 
-	if (!rhn.is_valid()) {
-		HarryNode *hn = Object::cast_to<HarryNode>(ClassDB::instance(type));
-		ERR_FAIL_COND(!hn);
-		rhn = Ref<HarryNode>(hn);
+		default:
+			StringName type = harry_class_names[p_idx].class_name;
+
+			HarryNode *hn = Object::cast_to<HarryNode>(ClassDB::instance(type));
+			ERR_FAIL_COND(!hn);
+			rhn = Ref<HarryNode>(hn);
 	}
 
 	StringName instance_name = harry_subnet->FindNewName(rhn->get_node_name());
 	harry_subnet->AddNode(instance_name, rhn);
+	//graph->make_canvas_position_local(popup_menu_position);
+	harry_subnet->set_node_position(instance_name, popup_menu_position);
 
 	_update_graph();
 }
@@ -472,4 +426,46 @@ void HarryEditor::_bind_methods() {
 	ClassDB::bind_method("_toggle_bypass", &HarryEditor::_toggle_bypass);
 	ClassDB::bind_method("_toggle_output", &HarryEditor::_toggle_output);
 	ClassDB::bind_method("_dirty_node", &HarryEditor::_dirty_node);
+}
+
+void HarryEditor::_add_popup() {
+	add_popup = memnew(PopupMenu);
+	graph->add_child(add_popup);
+	add_popup->connect("id_pressed", this, "_add_node");
+
+	List<StringName> harry_node_classes;
+	ClassDB::get_inheriters_from_class("HarryNode", &harry_node_classes);
+
+	Map<StringName, PopupMenu *> submenus;
+	for (int i = 0; i < harry_node_classes.size(); i++) {
+		ClassName cn;
+		cn.class_name = harry_node_classes[i];
+
+		HarryNode *hn = Object::cast_to<HarryNode>(ClassDB::instance(cn.class_name));
+
+		StringName cat = hn->get_node_category();
+		if (!cat)
+			continue;
+
+		if (!submenus.has(cat)) {
+			submenus[cat] = memnew(PopupMenu);
+			submenus[cat]->set_name(cat);
+			submenus[cat]->connect("id_pressed", this, "_add_node");
+		}
+
+		cn.node_name = hn->get_node_name();
+		harry_class_names.push_back(cn);
+
+		submenus[cat]->add_item(cn.node_name, i);
+	}
+
+	for (Map<StringName, PopupMenu *>::Element *e = submenus.front(); e; e = e->next()) {
+		PopupMenu *sub = e->get();
+
+		add_popup->add_child(sub);
+		add_popup->add_submenu_item(sub->get_name(), sub->get_name());
+	}
+
+	add_popup->add_separator();
+	add_popup->add_item(TTR("Load..."), MENU_LOAD_FILE);
 }

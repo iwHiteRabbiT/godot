@@ -69,6 +69,7 @@ class HarryEditor : public VBoxContainer {
 
 	GraphEdit *graph;
 	PopupMenu *add_popup;
+	Vector2 popup_menu_position;
 
 	UndoRedo *undo_redo;
 	bool updating = false;
@@ -109,6 +110,8 @@ class HarryEditor : public VBoxContainer {
 protected:
 	void _notification(int p_what);
 	static void _bind_methods();
+
+	void _add_popup();
 
 public:
 	HarryEditor();

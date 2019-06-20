@@ -41,6 +41,7 @@ class HarryGrid : public HarryNode {
 
 public:
 	HarryGrid() {
+		node_category = "Primitive";
 		node_name = "Grid";
 		create_geo();
 	}
