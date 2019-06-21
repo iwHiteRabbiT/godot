@@ -36,6 +36,8 @@
 
 ATTRMAP &HarryNode::get_attrib_class(const AttribClass &p_attribclass) {
 
+	return cache[p_attribclass];
+
 	switch (p_attribclass) {
 
 		case POINT:
@@ -94,24 +96,164 @@ void HarryNode::dirty() {
 	emit_signal("mesh_changed");
 }
 
-void HarryNode::reset(const AttribClass &p_attribclass) {
+void HarryNode::clear(const AttribClass &p_attribclass) {
 
-	ATTRMAP &attr = get_attrib_class(p_attribclass);
+	//ATTRMAP &attr = cache[p_attribclass]; //get_attrib_class(p_attribclass);
 
-	for (ATTRMAP::Element *a = attr.front(); a; a = a->next()) {
+	//for (ATTRMAP::Element *a = attr.front(); a; a = a->next()) {
 
-		a->get().values.resize(0);
+	//	a->get().values.resize(0);
+	//}
+
+	att_count_size[p_attribclass].count = 0;
+
+	if (att_count_size[p_attribclass].size < MIN_SIZE)
+		att_count_size[p_attribclass].size = MIN_SIZE;
+}
+
+void HarryNode::clear_all() {
+
+	clear(POINT);
+	clear(VERTEX);
+	clear(PRIMITIVE);
+	clear(DETAIL);
+}
+
+void HarryNode::reset_cache(const AttribClass &p_attribclass) {
+
+	//ATTRMAP &att = get_attrib_class(p_attribclass);
+
+	//Map<StringName, HarryNode::DefaultVectorVariant> &c = cache[p_attribclass];
+
+	//for (ATTRMAP::Element *a = att.front(); a; a = a->next()) {
+
+	//	Map<StringName, PoolVector<Variant> > s = a->get();
+
+	//	for (Map<StringName, PoolVector<Variant> >::Element *b = s.front(); b; b = b->next()) {
+
+	//		b->get().resize(0);
+	//	}
+	//	s.clear();
+	//}
+
+	//cache
+}
+
+void HarryNode::reset_cache() {
+
+	reset_cache(POINT);
+	reset_cache(VERTEX);
+	reset_cache(PRIMITIVE);
+	reset_cache(DETAIL);
+}
+
+void HarryNode::start_batch() {
+
+	//for (CACHE::Element *a = cache.front(); a; a = a->next()) {
+
+	//	Map<StringName, PoolVector<Variant>> s = a->get();
+
+	//	for (Map<StringName, PoolVector<Variant>>::Element *b = s.front(); b; b = b->next()) {
+
+	//			b->get().resize(0);
+	//	}
+	//	s.clear();
+	//}
+	//cache.clear();
+
+	/////////////////////
+	//cache[POINT];
+	//cache[VERTEX];
+	//cache[PRIMITIVE];
+	//cache[DETAIL];
+
+	//for (CACHE::Element *a = cache.front(); a; a = a->next()) {
+
+	//	Map<StringName, PoolVector<Variant> > s = a->get();
+
+	//	for (Map<StringName, PoolVector<Variant> >::Element *b = s.front(); b; b = b->next()) {
+
+	//		b->get().resize(0);
+	//	}
+	//	s.clear();
+	//}
+	//cache.clear();
+
+	batching = true;
+}
+
+void HarryNode::commit_batch() {
+
+	batching = false;
+}
+
+int HarryNode::batch_add_row(const AttribClass &p_attribclass) {
+
+	CountSize &cs = att_count_size[p_attribclass];
+
+	int count = cs.count++;
+
+	if (cs.count > cs.size) {
+
+		cs.size *= 2;
+
+		for (ATTRMAP::Element *a = cache[p_attribclass].front(); a; a = a->next()) {
+
+			HarryNode::DefaultVectorVariant &dvv = a->get();
+			dvv.values.resize(cs.size);
+		}
 	}
+
+	return count;
 }
 
-void HarryNode::reset_all(){
+void HarryNode::batch_set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value) {
 
-	reset(POINT);
-	reset(VERTEX);
-	reset(PRIMITIVE);
-	reset(DETAIL);
+	HarryNode::DefaultVectorVariant &dvv = cache[p_attribclass][p_attribute_name];
+
+	if (dvv.values.size() < att_count_size[p_attribclass].size)
+		dvv.values.resize(att_count_size[p_attribclass].size);
+
+	dvv.values.write()[elemnum] = p_value;
 }
 
+int HarryNode::batch_add_point(Vector3 &p) {
+
+	int pn = batch_add_row(POINT);
+
+	batch_set_attrib(POINT, "P", pn, p);
+
+	return pn;
+}
+
+int HarryNode::batch_add_vertex(int prim_num, int point_num) {
+
+	int pn = batch_add_row(VERTEX);
+
+	batch_set_attrib(VERTEX, "PrimNum", pn, prim_num);
+	batch_set_attrib(VERTEX, "PointNum", pn, point_num);
+
+	return pn;
+}
+
+int HarryNode::batch_add_prim(PoolVector<int> &points) {
+
+	int pn = batch_add_row(PRIMITIVE);
+
+	PoolVector<int> vertices;
+	vertices.resize(points.size());
+
+	for (int i = 0; i < points.size(); i++) {
+
+		int vn = batch_add_vertex(pn, points[i]);
+		vertices.set(i, vn);
+	}
+
+	//set_attrib(att, "Points", pn, points);
+	batch_set_attrib(PRIMITIVE, "Vertices", pn, vertices);
+
+	return pn;
+}
 
 String HarryNode::get_node_name() const {
 
@@ -206,6 +348,9 @@ Variant HarryNode::attrib(ATTRMAP &att, const StringName &p_attribute_name, int 
 
 int HarryNode::add_point(Vector3 &p) {
 
+	if (batching)
+		return batch_add_point(p);
+
 	ATTRMAP &att = get_attrib_class(POINT);
 
 	if (!has_attrib(att, "P"))
@@ -219,6 +364,9 @@ int HarryNode::add_point(Vector3 &p) {
 }
 
 int HarryNode::add_vertex(int prim_num, int point_num) {
+
+	if (batching)
+		return batch_add_vertex(prim_num, point_num);
 
 	ATTRMAP &att = get_attrib_class(VERTEX);
 
@@ -237,6 +385,9 @@ int HarryNode::add_vertex(int prim_num, int point_num) {
 }
 
 int HarryNode::add_prim(PoolVector<int> &points) {
+
+	if (batching)
+		return batch_add_prim(points);
 
 	ATTRMAP &att = get_attrib_class(PRIMITIVE);
 
@@ -265,32 +416,36 @@ int HarryNode::add_prim(PoolVector<int> &points) {
 
 Ref<ArrayMesh> HarryNode::create_mesh() {
 
-	ATTRMAP &att_points = get_attrib_class(POINT);
-	ATTRMAP &att_verts = get_attrib_class(VERTEX);
-	ATTRMAP &att_prims = get_attrib_class(PRIMITIVE);
+	ATTRMAP &att_points = cache[POINT]; //get_attrib_class(POINT);
+	ATTRMAP &att_verts = cache[VERTEX]; //get_attrib_class(VERTEX);
+	ATTRMAP &att_prims = cache[PRIMITIVE]; //get_attrib_class(PRIMITIVE);
 
 	PoolVector<Variant> v_points = att_points["P"].values;
 	PoolVector<Variant> v_verts = att_verts["PointNum"].values;
 	PoolVector<Variant> v_prims = att_prims["Vertices"].values;
+
+	int pc = att_count_size[POINT].count;
+	int vc = att_count_size[VERTEX].count;
+	int pmc = att_count_size[PRIMITIVE].count;
 
 	Array arrays;
 	arrays.resize(ArrayMesh::ARRAY_MAX);
 
 	// Vertex
 	PoolVector<Vector3> points;
-	points.resize(v_points.size());
+	points.resize(pc);
 
-	for (int i = 0; i < v_points.size(); i++)
+	for (int i = 0; i < pc; i++)
 		points.write()[i] = v_points[i];
 
 	arrays[ArrayMesh::ARRAY_VERTEX] = points;
 
 	// Index
 	PoolVector<int> indices;
-	indices.resize(v_prims.size() * 3);
+	indices.resize(pmc * 3);
 	int n = 0;
 
-	for (int i = 0; i < v_prims.size(); i++) {
+	for (int i = 0; i < pmc; i++) {
 		PoolVector<int> ind = v_prims[i];
 		indices.write()[n++] = v_verts[ind[0]];
 		indices.write()[n++] = v_verts[ind[1]];

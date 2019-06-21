@@ -34,6 +34,7 @@
 #include "core/resource.h"
 #include "scene/resources/mesh.h"
 
+#include "core/ordered_hash_map.h"
 
 /**
 @Author iWhiteRabbiT
@@ -49,14 +50,29 @@ public:
 		DETAIL
 	};
 
+#define MIN_SIZE 16
+
 	struct DefaultVectorVariant {
 		Variant default;
 		PoolVector<Variant> values;
+
+		DefaultVectorVariant() {
+			values.resize(MIN_SIZE);
+		}
 	};
 
-
 private:
+	struct CountSize {
+		int count;
+		int size;
+	};
+
+	Map<AttribClass, CountSize> att_count_size;
+
 #define ATTRMAP Map<StringName, HarryNode::DefaultVectorVariant>
+#define CACHE Map<AttribClass, Map<StringName, HarryNode::DefaultVectorVariant> >
+
+	CACHE cache;
 
 	ATTRMAP points;
 	ATTRMAP vertices;
@@ -70,6 +86,10 @@ private:
 
 	int add_row(ATTRMAP &att);
 
+	bool batching = false;
+
+	//HashMap<StringName, HarryNode::DefaultVectorVariant>
+
 protected:
 	StringName node_category;
 	StringName node_name;
@@ -77,8 +97,19 @@ protected:
 	static void _bind_methods();
 	void dirty();
 
-	void reset(const AttribClass &p_attribclass);
-	void reset_all();
+	void clear(const AttribClass &p_attribclass);
+	void clear_all();
+
+	void reset_cache(const AttribClass &p_attribclass);
+	void reset_cache();
+	void start_batch();
+	void commit_batch();
+
+	int batch_add_row(const AttribClass &p_attribclass);
+	void batch_set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value);
+	int batch_add_point(Vector3 &p);
+	int batch_add_vertex(int prim_num, int point_num);
+	int batch_add_prim(PoolVector<int> &points);
 
 public:
 	StringName get_node_category() const { return node_category; }

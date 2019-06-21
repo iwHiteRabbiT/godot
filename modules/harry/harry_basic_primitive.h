@@ -43,8 +43,7 @@ public:
 	HarryBasicPrimitive() {
 		node_category = "Primitive";
 		node_name = "Test Primitive";
-
-		create_geo();
+		//create_geo();
 	}
 
 	void create_geo();

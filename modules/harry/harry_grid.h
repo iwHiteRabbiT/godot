@@ -50,7 +50,7 @@ public:
 	HarryGrid() {
 		node_category = "Primitive";
 		node_name = "Grid";
-		create_geo();
+		//create_geo();
 	}
 
 	Vector2 get_grid_size() const;

@@ -86,10 +86,12 @@ void HarryGrid::set_num_row(const int &p_num_row) {
 
 void HarryGrid::create_geo() {
 
-	reset_all();
+	clear_all();
+
+	start_batch();
 
 	Vector3 g = Vector3(grid_size.x, 0, grid_size.y);
-	Vector3 s = g / Vector3(num_column-1, 1, num_row-1);
+	Vector3 s = g / Vector3(num_column - 1, 1, num_row - 1);
 	Vector3 o = -0.5f * g;
 
 	for (int j = 0; j < num_row; j++) {
@@ -101,12 +103,12 @@ void HarryGrid::create_geo() {
 
 	PoolVector<int> tri;
 	tri.resize(3);
-	for (int j = 0; j < num_row-1; j++) {
-		for (int i = 0; i < num_column-1; i++) {
+	for (int j = 0; j < num_row - 1; j++) {
+		for (int i = 0; i < num_column - 1; i++) {
 
 			int p0 = i + j * num_column;
 			int p1 = p0 + 1;
-			int p2 = (i+1) + (j+1) * num_column;
+			int p2 = (i + 1) + (j + 1) * num_column;
 			int p3 = p2 - 1;
 
 			tri.set(0, p0);
@@ -120,4 +122,6 @@ void HarryGrid::create_geo() {
 			add_prim(tri);
 		}
 	}
+
+	commit_batch();
 }
