@@ -123,7 +123,20 @@ void HarryGeoSheetEditor::refresh() {
 	att_names.push_back("");
 
 	for (ATTRMAP::Element *a = att.front(); a; a = a->next()) {
-		att_names.push_back(a->key());
+
+		HarryNode::DefaultVectorVariant dvv = a->get();
+		Variant::Type type = dvv.default.get_type();
+
+		if (type == Variant::VECTOR3) {
+			att_names.push_back(((String)a->key()) + "[x]");
+			att_names.push_back(((String)a->key()) + "[y]");
+			att_names.push_back(((String)a->key()) + "[z]");
+		} else if (type == Variant::VECTOR2) {
+			att_names.push_back(((String)a->key()) + "[x]");
+			att_names.push_back(((String)a->key()) + "[y]");
+		} else {
+			att_names.push_back(a->key());
+		}
 	}
 
 	tree->set_columns(att_names.size());
@@ -137,24 +150,44 @@ void HarryGeoSheetEditor::refresh() {
 	if (!att.front())
 		return;
 
-	int nb_rows = att.front()->get().values.size();
+	int nb_rows = current_node->get_attrib_class_count(current_attrib_class); //att.front()->get().values.size();
 
 	for (int i = 0; i < nb_rows; i++) {
 		TreeItem *item = tree->create_item(root);
 
 		int j = 0;
 
-		item->set_text(j, itos(i));
 		item->set_editable(j, false);
 		item->set_selectable(j, true);
+		item->set_text(j++, itos(i));
 
 		for (ATTRMAP::Element *a = att.front(); a; a = a->next()) {
 
-			j++;
+			int j0 = j;
 
-			item->set_text(j, a->get().values[i]);
-			item->set_editable(j, false);
-			item->set_selectable(j, true);
+			HarryNode::DefaultVectorVariant dvv = a->get();
+			Variant::Type type = dvv.default.get_type();
+
+			if (type == Variant::VECTOR3) {
+				const Vector3 &v = a->get().values[i];
+				item->set_text(j++, rtos(v.x));
+				item->set_text(j++, rtos(v.y));
+				item->set_text(j++, rtos(v.z));
+			}
+			else if (type == Variant::VECTOR2) {
+				const Vector2 &v = a->get().values[i];
+				item->set_text(j++, rtos(v.x));
+				item->set_text(j++, rtos(v.y));
+			} else {
+				item->set_text(j++, a->get().values[i]);
+			}
+
+
+			for (int jx = j0; jx < j; jx++)
+			{
+				item->set_editable(jx, false);
+				item->set_selectable(jx, true);
+			}
 		}
 	}
 }

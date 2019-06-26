@@ -50,7 +50,7 @@ public:
 		DETAIL
 	};
 
-#define MIN_SIZE 16
+#define MIN_SIZE 0
 
 	struct DefaultVectorVariant {
 		Variant default;
@@ -106,7 +106,7 @@ protected:
 	void commit_batch();
 
 	int batch_add_row(const AttribClass &p_attribclass);
-	void batch_set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value);
+	void batch_set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value, const Variant &p_defvalue);
 	int batch_add_point(Vector3 &p);
 	int batch_add_vertex(int prim_num, int point_num);
 	int batch_add_prim(PoolVector<int> &points);
@@ -118,6 +118,8 @@ public:
 	void set_node_name(const String &p_name);
 
 	ATTRMAP &get_attrib_class(const AttribClass &p_attribclass);
+
+	int get_attrib_class_count(const AttribClass &p_attribclass) { return att_count_size[p_attribclass].count; }
 
 	bool has_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name);
 	void add_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, const Variant &p_defvalue);

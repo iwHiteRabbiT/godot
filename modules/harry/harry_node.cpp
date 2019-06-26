@@ -193,6 +193,23 @@ int HarryNode::batch_add_row(const AttribClass &p_attribclass) {
 
 	int count = cs.count++;
 
+	if (cs.size == 0) {
+		cs.size = 16;
+
+		for (ATTRMAP::Element *a = cache[p_attribclass].front(); a; a = a->next()) {
+
+			HarryNode::DefaultVectorVariant &dvv = a->get();
+			dvv.values.resize(cs.size);
+
+			//if (!dvv.default.is_ref())
+			//	continue;
+
+			//PoolVector<Variant>::Write w = dvv.values.write();
+			//for (int i=0 ; i<cs.size ; i++)
+			//	w[i] = dvv.default;
+		}
+	}
+
 	if (cs.count > cs.size) {
 
 		cs.size *= 2;
@@ -201,18 +218,25 @@ int HarryNode::batch_add_row(const AttribClass &p_attribclass) {
 
 			HarryNode::DefaultVectorVariant &dvv = a->get();
 			dvv.values.resize(cs.size);
+
+			//PoolVector<Variant>::Write w = dvv.values.write();
+			//for (int i = count; i < cs.size; i++)
+			//	w[i] = dvv.default;
 		}
 	}
 
 	return count;
 }
 
-void HarryNode::batch_set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value) {
+void HarryNode::batch_set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value, const Variant &p_defvalue) {
 
 	HarryNode::DefaultVectorVariant &dvv = cache[p_attribclass][p_attribute_name];
 
 	if (dvv.values.size() < att_count_size[p_attribclass].size)
 		dvv.values.resize(att_count_size[p_attribclass].size);
+
+	if (dvv.default.is_zero())
+		dvv.default = p_defvalue;
 
 	dvv.values.write()[elemnum] = p_value;
 }
@@ -221,7 +245,7 @@ int HarryNode::batch_add_point(Vector3 &p) {
 
 	int pn = batch_add_row(POINT);
 
-	batch_set_attrib(POINT, "P", pn, p);
+	batch_set_attrib(POINT, "P", pn, p, Vector3());
 
 	return pn;
 }
@@ -230,8 +254,8 @@ int HarryNode::batch_add_vertex(int prim_num, int point_num) {
 
 	int pn = batch_add_row(VERTEX);
 
-	batch_set_attrib(VERTEX, "PrimNum", pn, prim_num);
-	batch_set_attrib(VERTEX, "PointNum", pn, point_num);
+	batch_set_attrib(VERTEX, "PrimNum", pn, prim_num, 0);
+	batch_set_attrib(VERTEX, "PointNum", pn, point_num, 0);
 
 	return pn;
 }
@@ -250,7 +274,7 @@ int HarryNode::batch_add_prim(PoolVector<int> &points) {
 	}
 
 	//set_attrib(att, "Points", pn, points);
-	batch_set_attrib(PRIMITIVE, "Vertices", pn, vertices);
+	batch_set_attrib(PRIMITIVE, "Vertices", pn, vertices, Array());
 
 	return pn;
 }
