@@ -49,10 +49,10 @@ void HarryBasicPrimitive::create_geo() {
 	tri.set(0, p0);
 	tri.set(1, p1);
 	tri.set(2, p2);
-	add_prim(tri);
+	add_prim(tri, true);
 
 	tri.set(0, p0);
 	tri.set(1, p2);
 	tri.set(2, p3);
-	add_prim(tri);
+	add_prim(tri, true);
 }

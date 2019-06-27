@@ -50,6 +50,23 @@ public:
 		DETAIL
 	};
 
+	enum PrimType {
+		POLY,
+		MESH
+	};
+#define PRIM_TYPES "Polygon,Mesh"
+
+	enum Connectivity {
+		OPEN_OR_ROW,
+		CLOSED_OR_TRI,
+		//TRI,
+		QUAD,
+		//ROW,
+		COL,
+		ROWCOL
+	};
+#define CONNECTIVITIES "Open or Rows,Closed or Triangles,Quadrilaterals,Columns,Rows and Columns"
+
 #define MIN_SIZE 0
 
 	struct DefaultVectorVariant {
@@ -74,19 +91,19 @@ private:
 
 	CACHE cache;
 
-	ATTRMAP points;
-	ATTRMAP vertices;
-	ATTRMAP primitives;
-	ATTRMAP details;
+	//ATTRMAP points;
+	//ATTRMAP vertices;
+	//ATTRMAP primitives;
+	//ATTRMAP details;
 
-	bool has_attrib(ATTRMAP &att, const StringName &p_attribute_name);
-	void add_attrib(ATTRMAP &att, const StringName &p_attribute_name, const Variant &p_defvalue);
-	void set_attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum, const Variant &p_value); //string mode = "set"
-	Variant attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum);
+	//bool has_attrib(ATTRMAP &att, const StringName &p_attribute_name);
+	//void add_attrib(ATTRMAP &att, const StringName &p_attribute_name, const Variant &p_defvalue);
+	//void set_attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum, const Variant &p_value); //string mode = "set"
+	//Variant attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum);
 
-	int add_row(ATTRMAP &att);
+	int add_row(const AttribClass &p_attribclass);
 
-	bool batching = false;
+	//bool batching = false;
 
 	//HashMap<StringName, HarryNode::DefaultVectorVariant>
 
@@ -100,16 +117,16 @@ protected:
 	void clear(const AttribClass &p_attribclass);
 	void clear_all();
 
-	void reset_cache(const AttribClass &p_attribclass);
-	void reset_cache();
-	void start_batch();
-	void commit_batch();
+	//void reset_cache(const AttribClass &p_attribclass);
+	//void reset_cache();
+	//void start_batch();
+	//void commit_batch();
 
-	int batch_add_row(const AttribClass &p_attribclass);
-	void batch_set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value, const Variant &p_defvalue);
-	int batch_add_point(Vector3 &p);
-	int batch_add_vertex(int prim_num, int point_num);
-	int batch_add_prim(PoolVector<int> &points);
+	//int batch_add_row(const AttribClass &p_attribclass);
+	//void batch_set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value, const Variant &p_defvalue);
+	//int batch_add_point(Vector3 &p);
+	//int batch_add_vertex(int prim_num, int point_num);
+	//int batch_add_prim(PoolVector<int> &points, bool closed);
 
 public:
 	StringName get_node_category() const { return node_category; }
@@ -121,16 +138,19 @@ public:
 
 	int get_attrib_class_count(const AttribClass &p_attribclass) { return att_count_size[p_attribclass].count; }
 
-	bool has_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name);
-	void add_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, const Variant &p_defvalue);
-	void set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value); //string mode = "set"
-	Variant attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum);
+	//bool has_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name);
+	//void add_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, const Variant &p_defvalue);
+	//Variant attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum);
+
+	void set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value, const Variant &p_defvalue); //string mode = "set"
 
 	int add_point(Vector3 &p);
 	int add_vertex(int prim_num, int point_num);
-	int add_prim(PoolVector<int> &points);
+	int add_prim(PoolVector<int> &points, bool closed);
 
 	virtual Ref<ArrayMesh> create_mesh();
 };
 
+VARIANT_ENUM_CAST(HarryNode::PrimType)
+VARIANT_ENUM_CAST(HarryNode::Connectivity)
 #endif

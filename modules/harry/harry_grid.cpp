@@ -43,6 +43,14 @@ void HarryGrid::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_num_row", "num_row"), &HarryGrid::set_num_row);
 	ClassDB::bind_method(D_METHOD("get_num_row"), &HarryGrid::get_num_row);
 
+	ClassDB::bind_method(D_METHOD("set_primitive_type"), &HarryGrid::set_primitive_type);
+	ClassDB::bind_method(D_METHOD("get_primitive_type"), &HarryGrid::get_primitive_type);
+	ClassDB::bind_method(D_METHOD("set_primitive_connectivity"), &HarryGrid::set_primitive_connectivity);
+	ClassDB::bind_method(D_METHOD("get_primitive_connectivity"), &HarryGrid::get_primitive_connectivity);
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "primitive_type", PROPERTY_HINT_ENUM, PRIM_TYPES), "set_primitive_type", "get_primitive_type");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "primitive_connectivity", PROPERTY_HINT_ENUM, CONNECTIVITIES), "set_primitive_connectivity", "get_primitive_connectivity");
+
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "grid_size"), "set_grid_size", "get_grid_size");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "num_column"), "set_num_column", "get_num_column");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "num_row"), "set_num_row", "get_num_row");
@@ -88,7 +96,23 @@ void HarryGrid::create_geo() {
 
 	clear_all();
 
-	start_batch();
+	//start_batch();
+	create_points();
+
+	switch (prim_type) {
+		case POLY:
+			create_prims_poly();
+			break;
+
+		case MESH:
+			create_prims_mesh();
+			break;
+	}
+
+	//commit_batch();
+}
+
+void HarryGrid::create_points() {
 
 	Vector3 g = Vector3(grid_size.x, 0, grid_size.y);
 	Vector3 s = g / Vector3(num_column - 1, 1, num_row - 1);
@@ -100,6 +124,68 @@ void HarryGrid::create_geo() {
 			add_point(o + s * Vector3(i, 0, j));
 		}
 	}
+}
+
+void HarryGrid::create_prims_poly() {
+
+	switch (connectivity) {
+		case OPEN_OR_ROW:
+			create_prims_poly_rows();
+			break;
+
+		case COL:
+			create_prims_poly_columns();
+			break;
+
+		case ROWCOL:
+			create_prims_poly_rows_columns();
+			break;
+
+		case CLOSED_OR_TRI:
+			create_prims_poly_tris();
+			break;
+
+		case QUAD:
+			create_prims_poly_quads();
+			break;
+	}
+}
+
+void HarryGrid::create_prims_mesh() {
+
+	switch (connectivity) {
+		case OPEN_OR_ROW:
+			create_prims_mesh_rows();
+			break;
+
+		case COL:
+			create_prims_mesh_columns();
+			break;
+
+		case ROWCOL:
+			create_prims_mesh_rows_columns();
+			break;
+
+		case CLOSED_OR_TRI:
+			create_prims_mesh_tris();
+			break;
+
+		case QUAD:
+			create_prims_mesh_quads();
+			break;
+	}
+}
+
+void HarryGrid::create_prims_poly_rows() {
+}
+
+void HarryGrid::create_prims_poly_columns() {
+}
+
+void HarryGrid::create_prims_poly_rows_columns() {
+}
+
+void HarryGrid::create_prims_poly_tris() {
 
 	PoolVector<int> tri;
 	tri.resize(3);
@@ -114,14 +200,30 @@ void HarryGrid::create_geo() {
 			tri.set(0, p0);
 			tri.set(1, p1);
 			tri.set(2, p2);
-			add_prim(tri);
+			add_prim(tri, true);
 
 			tri.set(0, p0);
 			tri.set(1, p2);
 			tri.set(2, p3);
-			add_prim(tri);
+			add_prim(tri, true);
 		}
 	}
+}
 
-	commit_batch();
+void HarryGrid::create_prims_poly_quads() {
+}
+
+void HarryGrid::create_prims_mesh_rows() {
+}
+
+void HarryGrid::create_prims_mesh_columns() {
+}
+
+void HarryGrid::create_prims_mesh_rows_columns() {
+}
+
+void HarryGrid::create_prims_mesh_tris() {
+}
+
+void HarryGrid::create_prims_mesh_quads() {
 }
