@@ -363,6 +363,8 @@ Ref<ArrayMesh> HarryNode::create_mesh() {
 	PoolVector<Variant> v_points = att_points["P"].values;
 	PoolVector<Variant> v_verts = att_verts["PointNum"].values;
 	PoolVector<Variant> v_prims = att_prims["Vertices"].values;
+	PoolVector<Variant> v_prims_t = att_prims["Type"].values;
+	PoolVector<Variant> v_prims_c = att_prims["Connectivity"].values;
 
 	int pc = att_count_size[POINT].count;
 	int vc = att_count_size[VERTEX].count;
@@ -374,11 +376,18 @@ Ref<ArrayMesh> HarryNode::create_mesh() {
 	// Vertex
 	PoolVector<Vector3> points;
 	points.resize(pc);
+	PoolVector<Color> colors;
+	colors.resize(pc);
 
-	for (int i = 0; i < pc; i++)
-		points.write()[i] = v_points[i];
+	PoolVector3Array::Write pw = points.write();
+	PoolColorArray::Write cw = colors.write();
+	for (int i = 0; i < pc; i++) {
+		pw[i] = v_points[i];
+		cw[i] = Color(1, 0, 0);
+	}
 
 	arrays[ArrayMesh::ARRAY_VERTEX] = points;
+	arrays[ArrayMesh::ARRAY_COLOR] = colors;
 
 	// Index
 	PoolVector<int> indices;
@@ -397,7 +406,7 @@ Ref<ArrayMesh> HarryNode::create_mesh() {
 	// Mesh
 	Ref<ArrayMesh> arr_mesh;
 	arr_mesh.instance();
-	arr_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
+	arr_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_POINTS, arrays);
 
 	Ref<Mesh> mesh = arr_mesh;
 

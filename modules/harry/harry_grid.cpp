@@ -211,6 +211,24 @@ void HarryGrid::create_prims_poly_tris() {
 }
 
 void HarryGrid::create_prims_poly_quads() {
+
+	PoolVector<int> quad;
+	quad.resize(4);
+	for (int j = 0; j < num_row - 1; j++) {
+		for (int i = 0; i < num_column - 1; i++) {
+
+			int p0 = i + j * num_column;
+			int p1 = p0 + 1;
+			int p2 = (i + 1) + (j + 1) * num_column;
+			int p3 = p2 - 1;
+
+			quad.set(0, p0);
+			quad.set(1, p1);
+			quad.set(2, p2);
+			quad.set(3, p3);
+			add_prim(quad, true);
+		}
+	}
 }
 
 void HarryGrid::create_prims_mesh_rows() {

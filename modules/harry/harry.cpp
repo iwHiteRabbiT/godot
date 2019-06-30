@@ -35,6 +35,7 @@
 */
 
 void Harry::refresh_mesh() {
+	materials
 	set_mesh(harry_root->create_mesh());
 }
 
