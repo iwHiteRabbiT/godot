@@ -121,6 +121,7 @@ public:
 	void GetNodeList(List<StringName> *r_list);
 
 	Ref<ArrayMesh> create_mesh() override;
+	Vector<Ref<Material>> get_materials() override;
 };
 
 #endif

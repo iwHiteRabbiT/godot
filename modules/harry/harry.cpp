@@ -35,8 +35,12 @@
 */
 
 void Harry::refresh_mesh() {
-	materials
 	set_mesh(harry_root->create_mesh());
+
+	Vector<Ref<Material> > &mats = harry_root->get_materials();
+
+	for (int i = 0; i < mats.size(); i++)
+		set_surface_material(i, mats[i]);
 }
 
 void Harry::_bind_methods() {

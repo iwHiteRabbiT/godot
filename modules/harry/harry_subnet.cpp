@@ -438,3 +438,15 @@ Ref<ArrayMesh> HarrySubnet::create_mesh() {
 
 	return Ref<ArrayMesh>();
 }
+
+Vector<Ref<Material> > HarrySubnet::get_materials() {
+
+	for (Map<StringName, Node>::Element *e = children.front(); e; e = e->next()) {
+		Node n = e->get();
+
+		if (n.output && !n.bypass)
+			return n.node->get_materials();
+	}
+
+	return Vector<Ref<Material> >();
+}

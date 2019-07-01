@@ -177,12 +177,45 @@ void HarryGrid::create_prims_mesh() {
 }
 
 void HarryGrid::create_prims_poly_rows() {
+
+	PoolVector<int> line;
+	line.resize(num_row);
+
+	for (int i = 0; i < num_column; i++) {
+
+		for (int j = 0; j < num_row; j++) {
+
+			int p0 = i + j * num_column;
+
+			line.set(j, p0);
+		}
+
+		add_prim(line, false);
+	}
 }
 
 void HarryGrid::create_prims_poly_columns() {
+
+	PoolVector<int> line;
+	line.resize(num_column);
+
+	for (int j = 0; j < num_row; j++) {
+
+		for (int i = 0; i < num_column; i++) {
+
+			int p0 = i + j * num_column;
+
+			line.set(i, p0);
+		}
+
+		add_prim(line, false);
+	}
 }
 
 void HarryGrid::create_prims_poly_rows_columns() {
+
+	create_prims_poly_rows();
+	create_prims_poly_columns();
 }
 
 void HarryGrid::create_prims_poly_tris() {

@@ -33,6 +33,7 @@
 
 #include "core/resource.h"
 #include "scene/resources/mesh.h"
+#include "scene/resources/material.h"
 
 #include "core/ordered_hash_map.h"
 
@@ -108,6 +109,12 @@ private:
 	//HashMap<StringName, HarryNode::DefaultVectorVariant>
 
 protected:
+	static Ref<SpatialMaterial> mat_points;
+	static Ref<SpatialMaterial> mat_edges;
+	static Ref<SpatialMaterial> mat_surface;
+
+	Vector<Ref<Material> > materials;
+
 	StringName node_category;
 	StringName node_name;
 
@@ -127,6 +134,8 @@ protected:
 	//int batch_add_point(Vector3 &p);
 	//int batch_add_vertex(int prim_num, int point_num);
 	//int batch_add_prim(PoolVector<int> &points, bool closed);
+
+	void create_materials();
 
 public:
 	StringName get_node_category() const { return node_category; }
@@ -149,6 +158,7 @@ public:
 	int add_prim(PoolVector<int> &points, bool closed);
 
 	virtual Ref<ArrayMesh> create_mesh();
+	virtual Vector<Ref<Material>> get_materials();
 };
 
 VARIANT_ENUM_CAST(HarryNode::PrimType)
