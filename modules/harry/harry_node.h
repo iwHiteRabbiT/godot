@@ -50,23 +50,23 @@ public:
 		PRIMITIVE,
 		DETAIL
 	};
+#define ATTRIBCLASSES "Points,Vertices,Primitives,Details"
 
-	enum PrimType {
-		POLY,
-		MESH
-	};
-#define PRIM_TYPES "Polygon,Mesh"
+	//enum PrimType {
+	//	POLY,
+	//	MESH
+	//};
+//#define PRIM_TYPES "Polygon,Mesh"
 
 	enum Connectivity {
-		OPEN_OR_ROW,
-		CLOSED_OR_TRI,
-		//TRI,
 		QUAD,
-		//ROW,
+		TRI,
+		ROW,
 		COL,
-		ROWCOL
+		ROWCOL,
+		POINTS
 	};
-#define CONNECTIVITIES "Open or Rows,Closed or Triangles,Quadrilaterals,Columns,Rows and Columns"
+#define CONNECTIVITIES "Quadrilaterals,Triangles,Rows,Columns,Rows and Columns,Points"
 
 #define MIN_SIZE 0
 
@@ -159,8 +159,10 @@ public:
 
 	virtual Ref<ArrayMesh> create_mesh();
 	virtual Vector<Ref<Material>> get_materials();
+
+	PoolVector<Variant> get_overriden_attr(const StringName attr);
 };
 
-VARIANT_ENUM_CAST(HarryNode::PrimType)
+VARIANT_ENUM_CAST(HarryNode::AttribClass)
 VARIANT_ENUM_CAST(HarryNode::Connectivity)
 #endif

@@ -115,14 +115,20 @@ void HarryNode::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("dirty", PropertyInfo(Variant::OBJECT, "node")));
 	ADD_SIGNAL(MethodInfo("mesh_changed"));
 
-	BIND_CONSTANT(POLY);
-	BIND_CONSTANT(MESH);
+	//BIND_CONSTANT(POLY);
+	//BIND_CONSTANT(MESH);
 
-	BIND_CONSTANT(OPEN_OR_ROW);
-	BIND_CONSTANT(CLOSED_OR_TRI);
+	BIND_CONSTANT(POINT);
+	BIND_CONSTANT(VERTEX);
+	BIND_CONSTANT(PRIMITIVE);
+	BIND_CONSTANT(DETAIL);
+
 	BIND_CONSTANT(QUAD);
+	BIND_CONSTANT(TRI);
+	BIND_CONSTANT(ROW);
 	BIND_CONSTANT(COL);
 	BIND_CONSTANT(ROWCOL);
+	BIND_CONSTANT(POINTS);
 }
 
 void HarryNode::dirty() {
@@ -236,7 +242,7 @@ void HarryNode::create_materials() {
 		mat_points->set_flag(SpatialMaterial::FLAG_UNSHADED, true);
 		mat_points->set_flag(SpatialMaterial::FLAG_USE_POINT_SIZE, true);
 		mat_points->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
-		mat_points->set_point_size(3);
+		mat_points->set_point_size(6);
 	}
 
 	if (!mat_edges.is_valid()) {
@@ -249,6 +255,9 @@ void HarryNode::create_materials() {
 
 	if (!mat_surface.is_valid()) {
 		mat_surface.instance();
+		mat_surface->set_flag(SpatialMaterial::FLAG_ALBEDO_FROM_VERTEX_COLOR, true);
+		mat_surface->set_diffuse_mode(SpatialMaterial::DIFFUSE_OREN_NAYAR);
+		mat_surface->set_roughness(0.5f);
 	}
 }
 
@@ -373,10 +382,10 @@ int HarryNode::add_prim(PoolVector<int> &points, bool closed) {
 
 	//set_attrib(att, "Points", pn, points);
 
-	Connectivity c = closed ? CLOSED_OR_TRI : OPEN_OR_ROW;
+	//Connectivity c = closed ? CLOSED_OR_TRI : OPEN_OR_ROW;
 
-	set_attrib(PRIMITIVE, "Type", pn, POLY, POLY);
-	set_attrib(PRIMITIVE, "Connectivity", pn, c, c);
+	//set_attrib(PRIMITIVE, "Type", pn, POLY, POLY);
+	set_attrib(PRIMITIVE, "Closed", pn, closed, closed);
 	set_attrib(PRIMITIVE, "Vertices", pn, vertices, Array());
 
 	return pn;
@@ -392,36 +401,170 @@ Ref<ArrayMesh> HarryNode::create_mesh() {
 	arr_mesh.instance();
 
 	// Cache
-	ATTRMAP &att_points = cache[POINT]; //get_attrib_class(POINT);
-	ATTRMAP &att_verts = cache[VERTEX]; //get_attrib_class(VERTEX);
-	ATTRMAP &att_prims = cache[PRIMITIVE]; //get_attrib_class(PRIMITIVE);
+	ATTRMAP &att_points = cache[POINT];
+	ATTRMAP &att_verts = cache[VERTEX];
+	ATTRMAP &att_prims = cache[PRIMITIVE];
+	ATTRMAP &att_details = cache[DETAIL];
 
 	int pc = att_count_size[POINT].count;
 	int vc = att_count_size[VERTEX].count;
 	int pmc = att_count_size[PRIMITIVE].count;
 
 	// Attributes
-	PoolVector<Variant> v_points = att_points["P"].values;
+	PoolVector<Variant> v_p_pos = att_points["P"].values;
+	PoolVector<Variant> v_v_pn = att_verts["PointNum"].values;
+	PoolVector<Variant> v_pri_vn = att_prims["Vertices"].values;
+	PoolVector<Variant> v_pri_closed = att_prims["Closed"].values;
 
-	PoolVector<Variant> v_cols;
-	if (att_points.has("Cd"))
-		v_cols = att_points["Cd"].values;
-	else {
-		v_cols.resize(pc);
-		PoolVector<Variant>::Write cvw = v_cols.write();
-		for (int i = 0; i < pc; i++)
-			cvw[i] = Color(0.1f, 0.1f, 0.1f);
+	PoolVector<Variant> &v_v_cols = get_overriden_attr("Cd");
+
+	Color gizmo_col = Color(0.072f, 0.072f, 0.072f);
+	bool use_gizmo_col = false;
+
+	// Draw Polys
+	if (true) {
+
+		PoolVector<Vector3> points;
+		PoolVector<Color> colors;
+		PoolVector<Vector3> normals;
+		points.resize(vc);
+		colors.resize(vc);
+		normals.resize(vc);
+		PoolVector3Array::Write pw = points.write();
+		PoolColorArray::Write cw = colors.write();
+		PoolVector3Array::Write nw = normals.write();
+		for (int i = 0; i < vc; i++) {
+
+			int p = v_v_pn[i];
+
+			pw[i] = v_p_pos[p];
+			cw[i] = v_v_cols[i];
+			nw[i] = Vector3();
+		}
+
+		int pts_count = 0;
+
+		for (int p = 0; p < pmc; p++) {
+			if (v_pri_closed[p] == (Variant) false)
+				continue;
+
+			PoolVector<int> ind = v_pri_vn[p];
+
+			pts_count += (ind.size() - 2) * 3;
+		}
+
+		if (pts_count == 0)
+			goto NoPoly;
+
+		use_gizmo_col = true;
+
+		PoolVector<int> indices;
+		indices.resize(pts_count);
+		PoolIntArray::Write iw = indices.write();
+
+		int n = 0;
+
+		for (int p = 0; p < pmc; p++) {
+
+			if (v_pri_closed[p] == (Variant) false)
+				continue;
+
+			PoolVector<int> ind = v_pri_vn[p];
+
+			int s = ind.size();
+			for (int i = 0; i < s - 1; i += 2) {
+
+				int va = ind[i];
+				int vb = ind[i + 1];
+				int vc = ind[(i + 2) % s];
+
+				Vector3 pa = points[va];
+				Vector3 pb = points[vb];
+				Vector3 pc = points[vc];
+
+				Vector3 nrm = (pc - pa).cross(pb - pa);
+				nrm.normalize();
+				nw[va] = nrm;
+				nw[vb] = nrm;
+				nw[vc] = nrm;
+
+				iw[n++] = va;
+				iw[n++] = vb;
+				iw[n++] = vc;
+			}
+		}
+
+		Array arrays;
+		arrays.resize(ArrayMesh::ARRAY_MAX);
+		arrays[ArrayMesh::ARRAY_VERTEX] = points;
+		arrays[ArrayMesh::ARRAY_COLOR] = colors;
+		arrays[ArrayMesh::ARRAY_NORMAL] = normals;
+		arrays[ArrayMesh::ARRAY_INDEX] = indices;
+		arr_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
+		materials.push_back(mat_surface);
 	}
+NoPoly:
 
-	PoolVector<Variant> v_prim_types = att_prims["Type"].values;
-	PoolVector<Variant> v_prim_cos = att_prims["Connectivity"].values;
-	PoolVector<Variant> v_prims = att_prims["Vertices"].values;
+	// Draw Primitive Edges
+	if (true) {
 
-	PoolVector<Variant> v_verts = att_verts["PointNum"].values;
+		int pts_count = 0;
 
-	/////////////////
-	// Type == Poly
+		for (int p = 0; p < pmc; p++) {
+			PoolVector<int> ind = v_pri_vn[p];
+			pts_count += ind.size() * 2;
 
+			if (v_pri_closed[p] == (Variant)false)
+				pts_count -= 2;
+		}
+
+		if (pts_count == 0)
+			goto NoEdges;
+
+		use_gizmo_col = true;
+
+		PoolVector<Vector3> points;
+		PoolVector<Color> colors;
+		points.resize(pts_count);
+		colors.resize(pts_count);
+		PoolVector3Array::Write pw = points.write();
+		PoolColorArray::Write cw = colors.write();
+
+		int n = 0;
+		for (int p = 0; p < pmc; p++) {
+			PoolVector<int> ind = v_pri_vn[p];
+
+			int s = ind.size();
+			int scount = s;
+
+			if (v_pri_closed[p] == (Variant) false)
+				scount--;
+
+			for (int i = 0; i < scount; i++) {
+
+				int va = ind[i];
+				int vb = ind[(i + 1) % s];
+
+				int a = v_v_pn[va];
+				int b = v_v_pn[vb];
+
+				pw[n] = v_p_pos[a];
+				cw[n++] = use_gizmo_col ? gizmo_col : v_v_cols[va];
+
+				pw[n] = v_p_pos[b];
+				cw[n++] = use_gizmo_col ? gizmo_col : v_v_cols[vb];
+			}
+		}
+
+		Array arrays;
+		arrays.resize(ArrayMesh::ARRAY_MAX);
+		arrays[ArrayMesh::ARRAY_VERTEX] = points;
+		arrays[ArrayMesh::ARRAY_COLOR] = colors;
+		arr_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, arrays);
+		materials.push_back(mat_edges);
+	}
+NoEdges:
+	
 	// Draw Points
 	if (true) {
 
@@ -432,8 +575,13 @@ Ref<ArrayMesh> HarryNode::create_mesh() {
 		PoolVector3Array::Write pw = points.write();
 		PoolColorArray::Write cw = colors.write();
 		for (int i = 0; i < pc; i++) {
-			pw[i] = v_points[i];
-			cw[i] = v_cols[i];
+			pw[i] = v_p_pos[i];
+		}
+
+		for (int v = 0; v < vc; v++) {
+
+			int p = v_v_pn[v];
+			cw[p] = use_gizmo_col ? gizmo_col : v_v_cols[v];
 		}
 
 		if (points.size() == 0)
@@ -447,127 +595,90 @@ Ref<ArrayMesh> HarryNode::create_mesh() {
 		materials.push_back(mat_points);
 	}
 NoPoints:
-	
-	// Draw Primitive Edges
-	if (true) {
-
-		int pts_count = 0;
-
-		for (int p = 0; p < pmc; p++) {
-			PoolVector<int> ind = v_prims[p];
-			pts_count += ind.size() * 2;
-
-			if (v_prim_cos[p] == (Variant)OPEN_OR_ROW)
-				pts_count -= 2;
-		}
-
-		if (pts_count == 0)
-			goto NoEdges;
-
-		PoolVector<Vector3> points;
-		PoolVector<Color> colors;
-		points.resize(pts_count);
-		colors.resize(pts_count);
-		PoolVector3Array::Write pw = points.write();
-		PoolColorArray::Write cw = colors.write();
-
-		int n = 0;
-		for (int p = 0; p < pmc; p++) {
-			PoolVector<int> ind = v_prims[p];
-
-			int s = ind.size();
-			int scount = s;
-
-			if (v_prim_cos[p] == (Variant)OPEN_OR_ROW)
-				scount--;
-
-			for (int i = 0; i < scount; i++) {
-				int a = v_verts[ind[i]];
-				int b = v_verts[ind[(i + 1) % s]];
-
-				pw[n] = v_points[a];
-				cw[n++] = v_cols[a];
-
-				pw[n] = v_points[b];
-				cw[n++] = v_cols[b];
-			}
-		}
-
-		Array arrays;
-		arrays.resize(ArrayMesh::ARRAY_MAX);
-		arrays[ArrayMesh::ARRAY_VERTEX] = points;
-		arrays[ArrayMesh::ARRAY_COLOR] = colors;
-		arr_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, arrays);
-		materials.push_back(mat_edges);
-	}
-NoEdges:
-	
-	// Draw Polys
-	if (true) {
-
-		PoolVector<Vector3> points;
-		PoolVector<Color> colors;
-		points.resize(pc);
-		colors.resize(pc);
-		PoolVector3Array::Write pw = points.write();
-		PoolColorArray::Write cw = colors.write();
-		for (int i = 0; i < pc; i++) {
-			pw[i] = v_points[i];
-			cw[i] = v_cols[i];
-		}
-
-		int pts_count = 0;
-
-		for (int p = 0; p < pmc; p++) {
-			if (v_prim_cos[p] == (Variant)OPEN_OR_ROW)
-				continue;
-
-			PoolVector<int> ind = v_prims[p];
-
-			pts_count += (ind.size() - 2) * 3;
-		}
-
-		if (pts_count == 0)
-			goto NoPoly;
-
-			PoolVector<int> indices;
-		indices.resize(pts_count);
-		PoolIntArray::Write iw = indices.write();
-
-		int n = 0;
-
-		for (int p = 0; p < pmc; p++) {
-
-			if (v_prim_cos[p] == (Variant)OPEN_OR_ROW)
-				continue;
-
-			PoolVector<int> ind = v_prims[p];
-
-			int s = ind.size();
-			for (int i = 0; i < s - 1; i += 2) {
-
-				iw[n++] = v_verts[ind[i]];
-				iw[n++] = v_verts[ind[i + 1]];
-				iw[n++] = v_verts[ind[(i + 2) % s]];
-			}
-		}
-
-		Array arrays;
-		arrays.resize(ArrayMesh::ARRAY_MAX);
-		arrays[ArrayMesh::ARRAY_VERTEX] = points;
-		arrays[ArrayMesh::ARRAY_COLOR] = colors;
-		arrays[ArrayMesh::ARRAY_INDEX] = indices;
-		arr_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
-		materials.push_back(mat_surface);
-	}
-NoPoly:
-	
+		
 	// Ref Mesh
 	Ref<Mesh> mesh = arr_mesh;
 
 	return arr_mesh;
 }
 
-Vector<Ref<Material> > HarryNode::get_materials() {
+Vector<Ref<Material>> HarryNode::get_materials() {
 	return materials;
+}
+
+PoolVector<Variant> HarryNode::get_overriden_attr(const StringName attr) {
+
+	// Cache
+	ATTRMAP &att_points = cache[POINT];
+	ATTRMAP &att_verts = cache[VERTEX];
+	ATTRMAP &att_prims = cache[PRIMITIVE];
+	ATTRMAP &att_details = cache[DETAIL];
+
+	int pc = att_count_size[POINT].count;
+	int vc = att_count_size[VERTEX].count;
+	int pmc = att_count_size[PRIMITIVE].count;
+
+	// Attributes
+	PoolVector<Variant> v_verts = att_verts["PointNum"].values;
+	PoolVector<Variant> v_prims = att_prims["Vertices"].values;
+
+	// Vertex over Point over Prim over Detail
+
+	PoolVector<Variant> v_attrs;
+	if (att_verts.has(attr)) {
+
+		v_attrs = att_verts[attr].values;
+
+		return v_attrs;
+	}
+
+	if (att_points.has(attr)) {
+
+		v_attrs.resize(vc);
+		PoolVector<Variant>::Write cvw = v_attrs.write();
+
+		for (int v = 0; v < vc; v++)
+			cvw[v] = att_points[attr].values[v_verts[v]];
+
+		return v_attrs;
+	}
+
+	if (att_prims.has(attr)) {
+
+		v_attrs.resize(vc);
+		PoolVector<Variant>::Write cvw = v_attrs.write();
+
+		for (int p = 0; p < pc; p++) {
+
+			PoolVector<int> ind = v_prims[p];
+
+			for (int i = 0; i < ind.size(); i++) {
+
+				int v = v_verts[ind[i]];
+
+				cvw[v] = att_prims[attr].values[p];
+			}
+		}
+
+		return v_attrs;
+	}
+
+	if (att_details.has(attr)) {
+
+		v_attrs.resize(vc);
+		PoolVector<Variant>::Write cvw = v_attrs.write();
+
+		for (int v = 0; v < vc; v++)
+			cvw[v] = att_details[attr].values[0];
+
+		return v_attrs;
+	}
+
+	v_attrs.resize(vc);
+	PoolVector<Variant>::Write cvw = v_attrs.write();
+
+	for (int v = 0; v < vc; v++)
+		cvw[v] = Color(1, 1, 1);
+
+	return v_attrs;
 }
