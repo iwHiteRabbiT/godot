@@ -2988,7 +2988,7 @@ void Tree::_notification(int p_what) {
 				ofs2 += tbrect.size.width;
 				//text
 				int clip_w = tbrect.size.width - sb->get_minimum_size().width;
-				f->draw_halign(ci, tbrect.position + Point2i(sb->get_offset().x, (tbrect.size.height - f->get_height()) / 2 + f->get_ascent()), HALIGN_CENTER, clip_w, columns[i].title, cache.title_button_color);
+				f->draw_halign(ci, tbrect.position + Point2i(sb->get_offset().x, (tbrect.size.height - f->get_height()) / 2 + f->get_ascent()), HALIGN_LEFT, clip_w, columns[i].title, cache.title_button_color);
 			}
 		}
 	}

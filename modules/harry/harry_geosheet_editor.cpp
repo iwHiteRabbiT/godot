@@ -128,15 +128,24 @@ void HarryGeoSheetEditor::refresh() {
 		Variant::Type type = dvv.default.get_type();
 
 		if (type == Variant::VECTOR3) {
+
 			att_names.push_back(((String)a->key()) + "[x]");
 			att_names.push_back(((String)a->key()) + "[y]");
 			att_names.push_back(((String)a->key()) + "[z]");
-		} else if (type == Variant::VECTOR2) {
+		}
+		else if (type == Variant::VECTOR2) {
+
 			att_names.push_back(((String)a->key()) + "[x]");
 			att_names.push_back(((String)a->key()) + "[y]");
-		} else {
-			att_names.push_back(a->key());
 		}
+		else if (type == Variant::COLOR) {
+
+			att_names.push_back(((String)a->key()) + "[r]");
+			att_names.push_back(((String)a->key()) + "[g]");
+			att_names.push_back(((String)a->key()) + "[b]");
+		}
+		else
+			att_names.push_back(a->key());
 	}
 
 	tree->set_columns(att_names.size());
@@ -169,18 +178,27 @@ void HarryGeoSheetEditor::refresh() {
 			Variant::Type type = dvv.default.get_type();
 
 			if (type == Variant::VECTOR3) {
+
 				const Vector3 &v = a->get().values[i];
 				item->set_text(j++, rtos(v.x));
 				item->set_text(j++, rtos(v.y));
 				item->set_text(j++, rtos(v.z));
 			}
 			else if (type == Variant::VECTOR2) {
+
 				const Vector2 &v = a->get().values[i];
 				item->set_text(j++, rtos(v.x));
 				item->set_text(j++, rtos(v.y));
-			} else {
-				item->set_text(j++, a->get().values[i]);
 			}
+			if (type == Variant::COLOR) {
+
+				const Color &c = a->get().values[i];
+				item->set_text(j++, rtos(c.r));
+				item->set_text(j++, rtos(c.g));
+				item->set_text(j++, rtos(c.b));
+			}
+			else
+				item->set_text(j++, a->get().values[i]);
 
 
 			for (int jx = j0; jx < j; jx++)

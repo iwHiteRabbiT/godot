@@ -416,7 +416,7 @@ Ref<ArrayMesh> HarryNode::create_mesh() {
 	PoolVector<Variant> v_pri_vn = att_prims["Vertices"].values;
 	PoolVector<Variant> v_pri_closed = att_prims["Closed"].values;
 
-	PoolVector<Variant> &v_v_cols = get_overriden_attr("Cd");
+	PoolVector<Variant> &v_pv_cols = get_overriden_attr("Cd");
 
 	Color gizmo_col = Color(0.072f, 0.072f, 0.072f);
 	bool use_gizmo_col = false;
@@ -424,26 +424,7 @@ Ref<ArrayMesh> HarryNode::create_mesh() {
 	// Draw Polys
 	if (true) {
 
-		PoolVector<Vector3> points;
-		PoolVector<Color> colors;
-		PoolVector<Vector3> normals;
-		points.resize(vc);
-		colors.resize(vc);
-		normals.resize(vc);
-		PoolVector3Array::Write pw = points.write();
-		PoolColorArray::Write cw = colors.write();
-		PoolVector3Array::Write nw = normals.write();
-		for (int i = 0; i < vc; i++) {
-
-			int p = v_v_pn[i];
-
-			pw[i] = v_p_pos[p];
-			cw[i] = v_v_cols[i];
-			nw[i] = Vector3();
-		}
-
 		int pts_count = 0;
-
 		for (int p = 0; p < pmc; p++) {
 			if (v_pri_closed[p] == (Variant) false)
 				continue;
@@ -455,6 +436,25 @@ Ref<ArrayMesh> HarryNode::create_mesh() {
 
 		if (pts_count == 0)
 			goto NoPoly;
+
+		PoolVector<Vector3> points;
+		PoolVector<Color> colors;
+		PoolVector<Vector3> normals;
+		points.resize(vc);
+		colors.resize(vc);
+		normals.resize(vc);
+		PoolVector3Array::Write pw = points.write();
+		PoolColorArray::Write cw = colors.write();
+		PoolVector3Array::Write nw = normals.write();
+
+		for (int i = 0; i < vc; i++) {
+
+			int p = v_v_pn[i];
+
+			pw[i] = v_p_pos[p];
+			cw[i] = v_pv_cols[i];
+			nw[i] = Vector3();
+		}
 
 		use_gizmo_col = true;
 
@@ -521,8 +521,6 @@ NoPoly:
 		if (pts_count == 0)
 			goto NoEdges;
 
-		use_gizmo_col = true;
-
 		PoolVector<Vector3> points;
 		PoolVector<Color> colors;
 		points.resize(pts_count);
@@ -549,12 +547,14 @@ NoPoly:
 				int b = v_v_pn[vb];
 
 				pw[n] = v_p_pos[a];
-				cw[n++] = use_gizmo_col ? gizmo_col : v_v_cols[va];
+				cw[n++] = use_gizmo_col ? gizmo_col : v_pv_cols[va];
 
 				pw[n] = v_p_pos[b];
-				cw[n++] = use_gizmo_col ? gizmo_col : v_v_cols[vb];
+				cw[n++] = use_gizmo_col ? gizmo_col : v_pv_cols[vb];
 			}
 		}
+
+		use_gizmo_col = true;
 
 		Array arrays;
 		arrays.resize(ArrayMesh::ARRAY_MAX);
@@ -568,6 +568,9 @@ NoEdges:
 	// Draw Points
 	if (true) {
 
+		if (pc == 0)
+			goto NoPoints;
+
 		PoolVector<Vector3> points;
 		PoolVector<Color> colors;
 		points.resize(pc);
@@ -578,14 +581,15 @@ NoEdges:
 			pw[i] = v_p_pos[i];
 		}
 
-		for (int v = 0; v < vc; v++) {
+		if (vc == 0)
+			for (int i = 0; i < pc; i++)
+				cw[i] = use_gizmo_col ? gizmo_col : v_pv_cols[i];
+		else
+			for (int v = 0; v < vc; v++) {
 
-			int p = v_v_pn[v];
-			cw[p] = use_gizmo_col ? gizmo_col : v_v_cols[v];
-		}
-
-		if (points.size() == 0)
-			goto NoPoints;
+				int p = v_v_pn[v];
+				cw[p] = use_gizmo_col ? gizmo_col : v_pv_cols[v];
+			}
 
 		Array arrays;
 		arrays.resize(ArrayMesh::ARRAY_MAX);
@@ -633,6 +637,9 @@ PoolVector<Variant> HarryNode::get_overriden_attr(const StringName attr) {
 	}
 
 	if (att_points.has(attr)) {
+
+		if (vc == 0)
+			return att_points[attr].values;
 
 		v_attrs.resize(vc);
 		PoolVector<Variant>::Write cvw = v_attrs.write();
