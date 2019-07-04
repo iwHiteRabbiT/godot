@@ -146,6 +146,7 @@ public:
 	ATTRMAP &get_attrib_class(const AttribClass &p_attribclass);
 
 	int get_attrib_class_count(const AttribClass &p_attribclass) { return att_count_size[p_attribclass].count; }
+	Variant::Type get_attrib_type(const AttribClass &p_attribclass, StringName &p_attr) { return cache[p_attribclass][p_attr].default.get_type(); }
 
 	//bool has_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name);
 	//void add_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, const Variant &p_defvalue);

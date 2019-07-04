@@ -164,6 +164,8 @@ void HarryNode::clear_all() {
 	clear(VERTEX);
 	clear(PRIMITIVE);
 	clear(DETAIL);
+
+	add_row(DETAIL);
 }
 
 //void HarryNode::reset_cache(const AttribClass &p_attribclass) {
@@ -655,13 +657,13 @@ PoolVector<Variant> HarryNode::get_overriden_attr(const StringName attr) {
 		v_attrs.resize(vc);
 		PoolVector<Variant>::Write cvw = v_attrs.write();
 
-		for (int p = 0; p < pc; p++) {
+		for (int p = 0; p < pmc; p++) {
 
 			PoolVector<int> ind = v_prims[p];
 
 			for (int i = 0; i < ind.size(); i++) {
 
-				int v = v_verts[ind[i]];
+				int v = ind[i];
 
 				cvw[v] = att_prims[attr].values[p];
 			}
@@ -671,6 +673,17 @@ PoolVector<Variant> HarryNode::get_overriden_attr(const StringName attr) {
 	}
 
 	if (att_details.has(attr)) {
+
+		if (vc == 0) {
+
+			v_attrs.resize(pc);
+			PoolVector<Variant>::Write cvw = v_attrs.write();
+
+			for (int p = 0; p < pc; p++)
+				cvw[p] = att_details[attr].values[0];
+
+			return v_attrs;
+		}
 
 		v_attrs.resize(vc);
 		PoolVector<Variant>::Write cvw = v_attrs.write();

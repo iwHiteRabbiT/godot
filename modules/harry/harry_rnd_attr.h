@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry_basic_primitive.cpp                                            */
+/*  harry_rnd_attr.h                                                     */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,31 +28,24 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#include "harry_basic_primitive.h"
+#ifndef HARRY_RND_ATTR_H
+#define HARRY_RND_ATTR_H
+
+#include "harry_node.h"
 
 /**
   @Author iWhiteRabbiT
 */
+class HarryRndAttr : public HarryNode {
+	GDCLASS(HarryRndAttr, HarryNode);
 
-void HarryBasicPrimitive::create_geo() {
+public:
+	HarryRndAttr() {
+		node_category = "Attribute";
+		node_name = "Randomize Attribute";
+	}
 
-	float decal = 2.0f * (Math::rand()%1000)/1000.0f;
+	static void RandomizeAttr(HarryNode* p_node, AttribClass p_attr_class, StringName p_attr, Variant p_default, float min, float max);
+};
 
-	int p0 = add_point(Vector3(0, decal, 0));
-	int p1 = add_point(Vector3(1, decal, 0));
-	int p2 = add_point(Vector3(1, decal, 1));
-	int p3 = add_point(Vector3(0, decal, 1));
-
-	PoolVector<int> tri;
-	tri.resize(3);
-
-	tri.set(0, p0);
-	tri.set(1, p1);
-	tri.set(2, p2);
-	add_prim(tri, true);
-
-	tri.set(0, p0);
-	tri.set(1, p2);
-	tri.set(2, p3);
-	add_prim(tri, true);
-}
+#endif

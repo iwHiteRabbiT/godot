@@ -32,6 +32,7 @@
 #define HARRY_GRID_H
 
 #include "harry_node.h"
+#include "harry_rnd_attr.h"
 
 /**
   @Author iWhiteRabbiT

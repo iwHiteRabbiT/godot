@@ -101,7 +101,7 @@ void HarryGrid::create_geo() {
 
 	//switch (prim_type) {
 	//	case POLY:
-			create_prims_poly();
+	create_prims_poly();
 	//		break;
 
 	//	case MESH:
@@ -110,6 +110,19 @@ void HarryGrid::create_geo() {
 	//}
 
 	//commit_batch();
+
+	int rnd = 1; //Math::random(0, 3);
+
+	HarryRndAttr::RandomizeAttr(this, DETAIL, "Cd", Color(), 0, 1);
+
+	if (rnd > 0)
+		HarryRndAttr::RandomizeAttr(this, PRIMITIVE, "Cd", Color(), 0, 1);
+
+	if (rnd > 1)
+		HarryRndAttr::RandomizeAttr(this, VERTEX, "Cd", Color(), 0, 1);
+
+	if (rnd > 2)
+		HarryRndAttr::RandomizeAttr(this, POINT, "Cd", Color(), 0, 1);
 }
 
 void HarryGrid::create_points() {
@@ -122,7 +135,7 @@ void HarryGrid::create_points() {
 		for (int i = 0; i < num_column; i++) {
 
 			int pn = add_point(o + s * Vector3(i, 0, j));
-			set_attrib(POINT, "Cd", pn, Color(i / (float)num_column, j / (float)num_row, 0.5f), Color());
+			//set_attrib(POINT, "Cd", pn, Color(i / (float)num_column, j / (float)num_row, 0.5f), Color());
 		}
 	}
 }
