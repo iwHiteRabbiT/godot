@@ -387,7 +387,8 @@ void HarryEditor::_update_graph() {
 
 			HarrySubnet::Connection c = E->get();
 
-			graph->connect_node(name, c.from_index, c.to, c.to_index);
+			//graph->connect_node(name, c.from_index, c.to, c.to_index);
+			graph->connect_node(c.output, c.output_index, name, c.input_index);
 		}
 	}
 }

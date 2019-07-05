@@ -56,11 +56,8 @@ protected:
 	//}
 	//PrimType get_primitive_type() { return prim_type; }
 
-	void set_primitive_connectivity(Connectivity p_connectivity) {
-		connectivity = p_connectivity;
-		create_geo();
-	}
-	Connectivity get_primitive_connectivity() { return connectivity; }
+	void set_primitive_connectivity(Connectivity connectivity);
+	Connectivity get_primitive_connectivity();
 
 	void create_points();
 	void create_prims_poly();
@@ -92,7 +89,7 @@ public:
 	int get_num_row() const;
 	void set_num_row(const int &p_num_row);
 
-	void create_geo();
+	void create_geo() override;
 };
 
 #endif

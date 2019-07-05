@@ -56,6 +56,17 @@ void HarryGrid::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "num_row"), "set_num_row", "get_num_row");
 }
 
+void HarryGrid::set_primitive_connectivity(Connectivity connectivity) {
+
+	this->connectivity = connectivity;
+	dirty();
+}
+
+HarryNode::Connectivity HarryGrid::get_primitive_connectivity() {
+
+	 return connectivity;
+}
+
 Vector2 HarryGrid::get_grid_size() const {
 
 	return grid_size;
@@ -64,7 +75,6 @@ Vector2 HarryGrid::get_grid_size() const {
 void HarryGrid::set_grid_size(const Vector2 &p_size) {
 
 	grid_size = p_size;
-	create_geo();
 	dirty();
 }
 
@@ -76,7 +86,6 @@ int HarryGrid::get_num_column() const {
 void HarryGrid::set_num_column(const int &p_num_column) {
 
 	num_column = p_num_column;
-	create_geo();
 	dirty();
 }
 
@@ -88,7 +97,6 @@ int HarryGrid::get_num_row() const {
 void HarryGrid::set_num_row(const int &p_num_row) {
 
 	num_row = p_num_row;
-	create_geo();
 	dirty();
 }
 
@@ -111,18 +119,10 @@ void HarryGrid::create_geo() {
 
 	//commit_batch();
 
-	int rnd = 1; //Math::random(0, 3);
-
-	HarryRndAttr::RandomizeAttr(this, DETAIL, "Cd", Color(), 0, 1);
-
-	if (rnd > 0)
-		HarryRndAttr::RandomizeAttr(this, PRIMITIVE, "Cd", Color(), 0, 1);
-
-	if (rnd > 1)
-		HarryRndAttr::RandomizeAttr(this, VERTEX, "Cd", Color(), 0, 1);
-
-	if (rnd > 2)
-		HarryRndAttr::RandomizeAttr(this, POINT, "Cd", Color(), 0, 1);
+	//HarryRndAttr::RandomizeAttr(this, DETAIL, "Cd", Color(), 0, 1);
+	//HarryRndAttr::RandomizeAttr(this, PRIMITIVE, "Cd", Color(), 0, 1);
+	//HarryRndAttr::RandomizeAttr(this, VERTEX, "Cd", Color(), 0, 1);
+	//HarryRndAttr::RandomizeAttr(this, POINT, "Cd", Color(), 0, 1);
 }
 
 void HarryGrid::create_points() {

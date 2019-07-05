@@ -37,6 +37,8 @@
 
 #include "core/ordered_hash_map.h"
 
+#include <iostream>
+
 /**
 @Author iWhiteRabbiT
 */
@@ -79,7 +81,12 @@ public:
 		}
 	};
 
+	static Color ToColor(Vector3 v);
+
 private:
+
+	int create_mesh_count = 0;
+
 	struct CountSize {
 		int count;
 		int size;
@@ -108,6 +115,7 @@ private:
 
 	//HashMap<StringName, HarryNode::DefaultVectorVariant>
 
+
 protected:
 	static Ref<SpatialMaterial> mat_points;
 	static Ref<SpatialMaterial> mat_edges;
@@ -119,6 +127,7 @@ protected:
 	StringName node_name;
 
 	static void _bind_methods();
+	bool is_dirty;
 	void dirty();
 
 	void clear(const AttribClass &p_attribclass);
@@ -138,6 +147,8 @@ protected:
 	void create_materials();
 
 public:
+	CACHE &get_cache() { return cache; }
+
 	StringName get_node_category() const { return node_category; }
 
 	String get_node_name() const;
@@ -158,6 +169,8 @@ public:
 	int add_vertex(int prim_num, int point_num);
 	int add_prim(PoolVector<int> &points, bool closed);
 
+	virtual void create_geo() {}
+	bool refresh_geo();
 	virtual Ref<ArrayMesh> create_mesh();
 	virtual Vector<Ref<Material>> get_materials();
 

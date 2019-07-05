@@ -155,9 +155,9 @@ bool HarrySubnet::_get(const StringName &p_name, Variant &r_ret) const {
 				int idx = 0;
 				for (List<Connection>::Element *E = cs.front(); E; E = E->next()) {
 					Connection c = E->get();
-					conns[idx * 3 + 0] = c.from_index;
-					conns[idx * 3 + 1] = c.to;
-					conns[idx * 3 + 2] = c.to_index;
+					conns[idx * 3 + 0] = c.input_index;
+					conns[idx * 3 + 1] = c.output;
+					conns[idx * 3 + 2] = c.output_index;
 					idx++;
 				}
 
@@ -288,8 +288,8 @@ void HarrySubnet::set_unique_title(const Ref<HarryNode> &p_node) {
 			Node n1 = E1->get();
 
 			for (int i = 0; i < n1.connections.size(); i++) {
-				if (n1.connections[i].to == old_instance_name)
-					n1.connections[i].to = new_instance_name;
+				if (n1.connections[i].output == old_instance_name)
+					n1.connections[i].output = new_instance_name;
 			}
 
 			children[E1->key()] = n1;
@@ -350,33 +350,33 @@ bool HarrySubnet::get_node_output(const StringName &p_node) const {
 	return children[p_node].output;
 }
 
-void HarrySubnet::connect_node(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index) {
+void HarrySubnet::connect_node(const StringName &p_output_node, int p_output_index, const StringName &p_input_node, int p_input_index) {
 
-	ERR_FAIL_COND(!children.has(p_from_node));
-	ERR_FAIL_COND(!children.has(p_to_node));
+	ERR_FAIL_COND(!children.has(p_output_node));
+	ERR_FAIL_COND(!children.has(p_input_node));
 	//ERR_FAIL_COND(p_output_node == SceneStringNames::get_singleton()->output);
-	ERR_FAIL_COND(p_from_node == p_to_node);
+	ERR_FAIL_COND(p_output_node == p_input_node);
 
 	Connection connection;
-	connection.from_index = p_from_index;
-	connection.to = p_to_node;
-	connection.to_index = p_to_index;
+	connection.input_index = p_input_index;
+	connection.output = p_output_node;
+	connection.output_index = p_output_index;
 
-	children[p_from_node].connections.push_back(connection);
+	children[p_input_node].connections.push_back(connection);
 
 	dirty();
 }
 
-bool HarrySubnet::connection_exists(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index) {
-	ERR_FAIL_COND_V(!children.has(p_from_node), false);
+bool HarrySubnet::connection_exists(const StringName &p_output_node, int p_output_index, const StringName &p_input_node, int p_input_index) {
+	ERR_FAIL_COND_V(!children.has(p_input_node), false);
 
-	Node n = children[p_from_node];
+	Node n = children[p_input_node];
 
 	for (int i = 0; i < n.connections.size(); i++) {
 		Connection c = n.connections[i];
-		if (c.from_index == p_from_index &&
-				c.to == p_to_node &&
-				c.to_index == p_to_index) {
+		if (c.input_index == p_input_index &&
+				c.output == p_output_node &&
+				c.output_index == p_output_index) {
 			return true;
 		}
 	}
@@ -384,17 +384,17 @@ bool HarrySubnet::connection_exists(const StringName &p_from_node, int p_from_in
 	return false;
 }
 
-void HarrySubnet::disconnect_node(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index) {
+void HarrySubnet::disconnect_node(const StringName &p_output_node, int p_output_index, const StringName &p_input_node, int p_input_index) {
 
-	ERR_FAIL_COND(!children.has(p_from_node));
+	ERR_FAIL_COND(!children.has(p_input_node));
 
-	Node &n = children[p_from_node];
+	Node &n = children[p_input_node];
 
 	for (int i = 0; i < n.connections.size(); i++) {
 		Connection c = n.connections[i];
-		if (c.from_index == p_from_index &&
-				c.to == p_to_node &&
-				c.to_index == p_to_index) {
+		if (c.input_index == p_input_index &&
+				c.output == p_output_node &&
+				c.output_index == p_output_index) {
 			n.connections.erase(c);
 		}
 	}

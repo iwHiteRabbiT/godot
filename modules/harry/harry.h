@@ -47,6 +47,7 @@ class Harry : public MeshInstance {
 
 protected:
 	static void _bind_methods();
+	void _notification(int p_what);
 
 public:
 	void set_harry_root(const Ref<HarryRoot> &p_root);

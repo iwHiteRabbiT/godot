@@ -35,7 +35,9 @@
 */
 
 void Harry::refresh_mesh() {
-	set_mesh(harry_root->create_mesh());
+
+	const Ref<Mesh> &mesh = harry_root->create_mesh();
+	set_mesh(mesh);
 
 	Vector<Ref<Material> > &mats = harry_root->get_materials();
 
@@ -49,6 +51,10 @@ void Harry::_bind_methods() {
 	ClassDB::bind_method("refresh_mesh", &Harry::refresh_mesh);
 
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "harry_root", PROPERTY_HINT_RESOURCE_TYPE, "HarryRoot"), "set_harry_root", "get_harry_root");
+}
+
+void Harry::_notification(int p_what) {
+	//std::cout << p_what << std::endl;
 }
 
 void Harry::set_harry_root(const Ref<HarryRoot> &p_root) {

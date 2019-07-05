@@ -34,28 +34,92 @@
   @Author iWhiteRabbiT
 */
 
-//void HarryRndAttr::create_geo() {
-//
-//	float decal = 2.0f * (Math::rand()%1000)/1000.0f;
-//
-//	int p0 = add_point(Vector3(0, decal, 0));
-//	int p1 = add_point(Vector3(1, decal, 0));
-//	int p2 = add_point(Vector3(1, decal, 1));
-//	int p3 = add_point(Vector3(0, decal, 1));
-//
-//	PoolVector<int> tri;
-//	tri.resize(3);
-//
-//	tri.set(0, p0);
-//	tri.set(1, p1);
-//	tri.set(2, p2);
-//	add_prim(tri, true);
-//
-//	tri.set(0, p0);
-//	tri.set(1, p2);
-//	tri.set(2, p3);
-//	add_prim(tri, true);
-//}
+void HarryRndAttr::_bind_methods() {
+
+	ClassDB::bind_method(D_METHOD("set_attribute_class", "attr_class"), &HarryRndAttr::set_attribute_class);
+	ClassDB::bind_method(D_METHOD("get_attribute_class"), &HarryRndAttr::get_attribute_class);
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "attribute_class", PROPERTY_HINT_ENUM, ATTRIBCLASSES), "set_attribute_class", "get_attribute_class");
+
+	ClassDB::bind_method(D_METHOD("set_attr_name", "attr_name"), &HarryRndAttr::set_attr_name);
+	ClassDB::bind_method(D_METHOD("get_attr_name"), &HarryRndAttr::get_attr_name);
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "attr_name"), "set_attr_name", "get_attr_name");
+
+	ClassDB::bind_method(D_METHOD("set_dimension", "dimension"), &HarryRndAttr::set_dimension);
+	ClassDB::bind_method(D_METHOD("get_dimension"), &HarryRndAttr::get_dimension);
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "dimension"), "set_dimension", "get_dimension");
+
+	ClassDB::bind_method(D_METHOD("set_min_val", "min_val"), &HarryRndAttr::set_min_val);
+	ClassDB::bind_method(D_METHOD("get_min_val"), &HarryRndAttr::get_min_val);
+	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "min_val"), "set_min_val", "get_min_val");
+
+	ClassDB::bind_method(D_METHOD("set_max_val", "max_val"), &HarryRndAttr::set_max_val);
+	ClassDB::bind_method(D_METHOD("get_max_val"), &HarryRndAttr::get_max_val);
+	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "max_val"), "set_max_val", "get_max_val");
+}
+
+
+void HarryRndAttr::set_attribute_class(AttribClass attr_class) {
+
+	this->attr_class = attr_class;
+	dirty();
+}
+
+HarryNode::AttribClass HarryRndAttr::get_attribute_class() {
+
+	return attr_class;
+}
+
+void HarryRndAttr::set_attr_name(StringName attr_name) {
+
+	this->attr_name = attr_name;
+	dirty();
+}
+StringName HarryRndAttr::get_attr_name() {
+
+	return attr_name;
+}
+
+void HarryRndAttr::set_dimension(int dimension) {
+
+	this->dimension = dimension;
+	dirty();
+}
+int HarryRndAttr::get_dimension() {
+
+	return dimension;
+}
+
+void HarryRndAttr::set_min_val(Vector3 min_val) {
+
+	this->min_val = min_val;
+	dirty();
+}
+Vector3 HarryRndAttr::get_min_val() {
+
+	return min_val;
+}
+
+void HarryRndAttr::set_max_val(Vector3 max_val) {
+
+	this->max_val = max_val;
+	dirty();
+}
+Vector3 HarryRndAttr::get_max_val() {
+
+	return max_val;
+}
+
+void HarryRndAttr::create_geo() {
+
+	if(dimension == 1)
+		RandomizeAttr(this, attr_class, attr_name, 0, min_val.x, max_val.x);
+
+	if(dimension == 2)
+		RandomizeAttr(this, attr_class, attr_name, Vector2(), min_val.x, max_val.x);
+
+	if(dimension == 3)
+		RandomizeAttr(this, attr_class, attr_name, Vector3(), min_val.x, max_val.x);
+}
 
 void HarryRndAttr::RandomizeAttr(HarryNode *p_node, AttribClass p_attr_class, StringName p_attr, Variant p_default, float min, float max) {
 

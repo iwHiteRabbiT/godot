@@ -39,6 +39,30 @@
 class HarryRndAttr : public HarryNode {
 	GDCLASS(HarryRndAttr, HarryNode);
 
+	AttribClass attr_class;
+	StringName attr_name;
+	int dimension;
+	Vector3 min_val;
+	Vector3 max_val;
+
+protected:
+	static void _bind_methods();
+
+	void set_attribute_class(AttribClass attr_class);
+	AttribClass get_attribute_class();
+
+	void set_attr_name(StringName attr_name);
+	StringName get_attr_name();
+
+	void set_dimension(int dimension);
+	int get_dimension();
+
+	void set_min_val(Vector3 min_val);
+	Vector3 get_min_val();
+
+	void set_max_val(Vector3 max_val);
+	Vector3 get_max_val();
+
 public:
 	HarryRndAttr() {
 		node_category = "Attribute";
@@ -46,6 +70,8 @@ public:
 	}
 
 	static void RandomizeAttr(HarryNode* p_node, AttribClass p_attr_class, StringName p_attr, Variant p_default, float min, float max);
+
+	void create_geo() override;
 };
 
 #endif

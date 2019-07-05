@@ -41,14 +41,14 @@ class HarrySubnet : public HarryNode {
 
 public:
 	struct Connection {
-		int from_index;
-		StringName to;
-		int to_index;
+		int input_index;
+		StringName output;
+		int output_index;
 
 		bool operator==(const Connection &c) {
-			return from_index == c.from_index &&
-				   to == c.to &&
-				   to_index == c.to_index;
+			return input_index == c.input_index &&
+				   output == c.output &&
+				   output_index == c.output_index;
 		}
 	};
 

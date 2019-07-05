@@ -38,6 +38,11 @@ Ref<SpatialMaterial> HarryNode::mat_points = NULL;
 Ref<SpatialMaterial> HarryNode::mat_edges = NULL;
 Ref<SpatialMaterial> HarryNode::mat_surface = NULL;
 
+Color HarryNode::ToColor(Vector3 v)
+{
+	return Color(v.x, v.y, v.z);
+}
+
 ATTRMAP &HarryNode::get_attrib_class(const AttribClass &p_attribclass) {
 
 	return cache[p_attribclass];
@@ -132,6 +137,8 @@ void HarryNode::_bind_methods() {
 }
 
 void HarryNode::dirty() {
+
+	is_dirty = true;
 
 	//set_edited(true);
 	//emit_changed();
@@ -393,7 +400,23 @@ int HarryNode::add_prim(PoolVector<int> &points, bool closed) {
 	return pn;
 }
 
+bool HarryNode::refresh_geo() {
+
+	if(!is_dirty)
+		return false;
+
+	is_dirty = false;
+
+	create_geo();
+
+	return true;
+}
+
 Ref<ArrayMesh> HarryNode::create_mesh() {
+
+	std::cout << "create_mesh_" << create_mesh_count++ << std::endl;
+
+	refresh_geo();
 
 	create_materials();
 	materials.clear();
@@ -454,7 +477,7 @@ Ref<ArrayMesh> HarryNode::create_mesh() {
 			int p = v_v_pn[i];
 
 			pw[i] = v_p_pos[p];
-			cw[i] = v_pv_cols[i];
+			cw[i] = ToColor(v_pv_cols[i]);
 			nw[i] = Vector3();
 		}
 
@@ -549,10 +572,10 @@ NoPoly:
 				int b = v_v_pn[vb];
 
 				pw[n] = v_p_pos[a];
-				cw[n++] = use_gizmo_col ? gizmo_col : v_pv_cols[va];
+				cw[n++] = use_gizmo_col ? gizmo_col : ToColor(v_pv_cols[va]);
 
 				pw[n] = v_p_pos[b];
-				cw[n++] = use_gizmo_col ? gizmo_col : v_pv_cols[vb];
+				cw[n++] = use_gizmo_col ? gizmo_col : ToColor(v_pv_cols[vb]);
 			}
 		}
 
@@ -585,12 +608,12 @@ NoEdges:
 
 		if (vc == 0)
 			for (int i = 0; i < pc; i++)
-				cw[i] = use_gizmo_col ? gizmo_col : v_pv_cols[i];
+				cw[i] = use_gizmo_col ? gizmo_col : ToColor(v_pv_cols[i]);
 		else
 			for (int v = 0; v < vc; v++) {
 
 				int p = v_v_pn[v];
-				cw[p] = use_gizmo_col ? gizmo_col : v_pv_cols[v];
+				cw[p] = use_gizmo_col ? gizmo_col : ToColor(v_pv_cols[v]);
 			}
 
 		Array arrays;
@@ -694,11 +717,12 @@ PoolVector<Variant> HarryNode::get_overriden_attr(const StringName attr) {
 		return v_attrs;
 	}
 
-	v_attrs.resize(vc);
+	int count = vc == 0 ? pc : vc;
+	v_attrs.resize(count);
 	PoolVector<Variant>::Write cvw = v_attrs.write();
 
-	for (int v = 0; v < vc; v++)
-		cvw[v] = Color(1, 1, 1);
+	for (int i = 0; i < count; i++)
+		cvw[i] = Vector3(1, 1, 1);
 
 	return v_attrs;
 }
