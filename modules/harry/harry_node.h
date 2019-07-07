@@ -72,6 +72,11 @@ public:
 
 #define MIN_SIZE 0
 
+	struct CountSize {
+		int count;
+		int size;
+	};
+
 	struct DefaultVectorVariant {
 		Variant default;
 		PoolVector<Variant> values;
@@ -83,20 +88,20 @@ public:
 
 	static Color ToColor(Vector3 v);
 
-private:
+#define ATTRCOUNTSIZE Map<HarryNode::AttribClass, HarryNode::CountSize>
+#define ATTRMAP Map<StringName, HarryNode::DefaultVectorVariant>
+#define CACHE Map<HarryNode::AttribClass, Map<StringName, HarryNode::DefaultVectorVariant> >
 
-	int create_mesh_count = 0;
-
-	struct CountSize {
-		int count;
-		int size;
+	struct CacheCount {
+		ATTRCOUNTSIZE att_count_size;
+		CACHE cache;
+		bool was_dirty;
 	};
 
-	Map<AttribClass, CountSize> att_count_size;
+private:
+	int create_mesh_count = 0;
 
-#define ATTRMAP Map<StringName, HarryNode::DefaultVectorVariant>
-#define CACHE Map<AttribClass, Map<StringName, HarryNode::DefaultVectorVariant> >
-
+	ATTRCOUNTSIZE att_count_size;
 	CACHE cache;
 
 	//ATTRMAP points;
@@ -110,6 +115,7 @@ private:
 	//Variant attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum);
 
 	int add_row(const AttribClass &p_attribclass);
+	int add_row(const AttribClass &p_attribclass, int sizeMin);
 
 	//bool batching = false;
 
@@ -147,7 +153,7 @@ protected:
 	void create_materials();
 
 public:
-	CACHE &get_cache() { return cache; }
+	void copy_from_cache(CacheCount cache);
 
 	StringName get_node_category() const { return node_category; }
 
@@ -164,14 +170,17 @@ public:
 	//Variant attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum);
 
 	void set_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum, const Variant &p_value, const Variant &p_defvalue); //string mode = "set"
+	Variant get_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum); //string mode = "set"
 
 	int add_point(Vector3 &p);
 	int add_vertex(int prim_num, int point_num);
 	int add_prim(PoolVector<int> &points, bool closed);
 
-	virtual void create_geo() {}
-	bool refresh_geo();
-	virtual Ref<ArrayMesh> create_mesh();
+	// p_ic_acs = Input Caches, Attribute Count/Size
+	virtual void create_geo(Vector<CacheCount> &p_input_caches) {}
+	bool refresh_geo(Vector<CacheCount> &p_input_caches);
+	CacheCount get_cache(Vector<CacheCount> &p_input_caches);
+	virtual Ref<ArrayMesh> create_mesh(Vector<CacheCount> &p_input_caches);
 	virtual Vector<Ref<Material>> get_materials();
 
 	PoolVector<Variant> get_overriden_attr(const StringName attr);

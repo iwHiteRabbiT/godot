@@ -100,7 +100,7 @@ void HarryGrid::set_num_row(const int &p_num_row) {
 	dirty();
 }
 
-void HarryGrid::create_geo() {
+void HarryGrid::create_geo(Vector<CacheCount> &p_input_caches) {
 
 	clear_all();
 

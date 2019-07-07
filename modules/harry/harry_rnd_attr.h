@@ -39,8 +39,20 @@
 class HarryRndAttr : public HarryNode {
 	GDCLASS(HarryRndAttr, HarryNode);
 
+public:
+	enum Operation {
+		SET,
+		ADD,
+		MIN,
+		MAX,
+		MUL
+	};
+#define OPERATIONS "Set Value,Add,Min,Max,Multiply"
+
+private:
 	AttribClass attr_class;
 	StringName attr_name;
+	Operation operation;
 	int dimension;
 	Vector3 min_val;
 	Vector3 max_val;
@@ -53,6 +65,9 @@ protected:
 
 	void set_attr_name(StringName attr_name);
 	StringName get_attr_name();
+
+	void set_operation(Operation operation);
+	Operation get_operation();
 
 	void set_dimension(int dimension);
 	int get_dimension();
@@ -69,9 +84,12 @@ public:
 		node_name = "Randomize Attribute";
 	}
 
-	static void RandomizeAttr(HarryNode* p_node, AttribClass p_attr_class, StringName p_attr, Variant p_default, float min, float max);
+	static void RandomizeAttr(HarryNode* p_node, AttribClass p_attr_class, StringName p_attr, Operation operation, Variant p_default, float min, float max);
+	static Variant VariantOperation(Variant current, Variant new_val, Operation operation);
 
-	void create_geo() override;
+	void create_geo(Vector<CacheCount> &p_input_caches) override;
 };
+
+VARIANT_ENUM_CAST(HarryRndAttr::Operation)
 
 #endif

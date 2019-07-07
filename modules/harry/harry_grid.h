@@ -44,40 +44,26 @@ class HarryGrid : public HarryNode {
 	int num_column = 2;
 	int num_row = 2;
 
-	//PrimType prim_type = POLY;
 	Connectivity connectivity = QUAD;
 
 protected:
 	static void _bind_methods();
-
-	//void set_primitive_type(PrimType p_type) {
-	//	prim_type = p_type;
-	//	create_geo();
-	//}
-	//PrimType get_primitive_type() { return prim_type; }
 
 	void set_primitive_connectivity(Connectivity connectivity);
 	Connectivity get_primitive_connectivity();
 
 	void create_points();
 	void create_prims_poly();
-	//void create_prims_mesh();
 	void create_prims_poly_rows();
 	void create_prims_poly_columns();
 	void create_prims_poly_rows_columns();
 	void create_prims_poly_tris();
 	void create_prims_poly_quads();
-	//void create_prims_mesh_rows();
-	//void create_prims_mesh_columns();
-	//void create_prims_mesh_rows_columns();
-	//void create_prims_mesh_tris();
-	//void create_prims_mesh_quads();
 
 public:
 	HarryGrid() {
 		node_category = "Primitive";
 		node_name = "Grid";
-		//create_geo();
 	}
 
 	Vector2 get_grid_size() const;
@@ -89,7 +75,7 @@ public:
 	int get_num_row() const;
 	void set_num_row(const int &p_num_row);
 
-	void create_geo() override;
+	void create_geo(Vector<CacheCount> &p_input_caches) override;
 };
 
 #endif

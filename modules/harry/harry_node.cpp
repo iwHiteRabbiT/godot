@@ -69,12 +69,17 @@ ATTRMAP &HarryNode::get_attrib_class(const AttribClass &p_attribclass) {
 
 int HarryNode::add_row(const AttribClass &p_attribclass) {
 
+	return add_row(p_attribclass, 16);
+}
+
+int HarryNode::add_row(const AttribClass &p_attribclass, int sizeMin) {
+
 	CountSize &cs = att_count_size[p_attribclass];
 
 	int count = cs.count++;
 
 	if (cs.size == 0) {
-		cs.size = 16;
+		cs.size = sizeMin;
 
 		for (ATTRMAP::Element *a = cache[p_attribclass].front(); a; a = a->next()) {
 
@@ -152,7 +157,8 @@ void HarryNode::dirty() {
 
 void HarryNode::clear(const AttribClass &p_attribclass) {
 
-	//ATTRMAP &attr = cache[p_attribclass]; //get_attrib_class(p_attribclass);
+	ATTRMAP &attr = cache[p_attribclass]; //get_attrib_class(p_attribclass);
+	attr.clear();
 
 	//for (ATTRMAP::Element *a = attr.front(); a; a = a->next()) {
 
@@ -270,6 +276,28 @@ void HarryNode::create_materials() {
 	}
 }
 
+void HarryNode::copy_from_cache(CacheCount cache) {
+	
+	clear_all();
+
+	for (AttribClass attr_c = POINT; attr_c != DETAIL; attr_c = (AttribClass)(attr_c + 1)) {
+
+		int count = cache.att_count_size[attr_c].count;
+		att_count_size[attr_c].size = 0;
+		add_row(attr_c, count);
+		att_count_size[attr_c].count = count;
+
+		for (ATTRMAP::Element *a = cache.cache[attr_c].front(); a; a = a->next()) {
+
+			const StringName &name = a->key();
+			HarryNode::DefaultVectorVariant &dvv = a->get();
+
+			for(int i=0 ; i<count ; i++)
+				set_attrib(attr_c, name, i, dvv.values[i], dvv.default);
+		}
+	}
+}
+
 String HarryNode::get_node_name() const {
 
 	return node_name;
@@ -339,6 +367,21 @@ void HarryNode::set_attrib(const AttribClass &p_attribclass, const StringName &p
 	dvv.values.write()[elemnum] = p_value;
 }
 
+Variant HarryNode::get_attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum) {
+
+	ATTRMAP attr = cache[p_attribclass];
+
+	if (att_count_size[p_attribclass].count<elemnum)
+		return Variant();
+
+	if (!attr.has(p_attribute_name))
+		return Variant();
+
+	HarryNode::DefaultVectorVariant &dvv = cache[p_attribclass][p_attribute_name];
+	return dvv.values[elemnum];
+}
+
+
 //Variant HarryNode::attrib(const AttribClass &p_attribclass, const StringName &p_attribute_name, int elemnum) {
 //
 //	return attrib(get_attrib_class(p_attribclass), p_attribute_name, elemnum);
@@ -400,23 +443,42 @@ int HarryNode::add_prim(PoolVector<int> &points, bool closed) {
 	return pn;
 }
 
-bool HarryNode::refresh_geo() {
+bool HarryNode::refresh_geo(Vector<CacheCount> &p_input_caches) {
+
+	for (int i = 0; i < p_input_caches.size(); i++)
+		if (p_input_caches[i].was_dirty) {
+			is_dirty = true;
+			continue;
+		}
+
 
 	if(!is_dirty)
 		return false;
 
 	is_dirty = false;
 
-	create_geo();
+	create_geo(p_input_caches);
 
 	return true;
 }
 
-Ref<ArrayMesh> HarryNode::create_mesh() {
+HarryNode::CacheCount HarryNode::get_cache(Vector<CacheCount> &p_input_caches) {
+
+	bool was_dirty = refresh_geo(p_input_caches);
+
+	CacheCount cc;
+	cc.cache = cache;
+	cc.att_count_size = att_count_size;
+	cc.was_dirty = was_dirty;
+
+	return cc;
+}
+
+Ref<ArrayMesh> HarryNode::create_mesh(Vector<CacheCount> &p_input_caches) {
 
 	std::cout << "create_mesh_" << create_mesh_count++ << std::endl;
 
-	refresh_geo();
+	refresh_geo(p_input_caches);
 
 	create_materials();
 	materials.clear();

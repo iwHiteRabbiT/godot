@@ -85,7 +85,7 @@ bool HarrySubnet::_set(const StringName &p_name, const Variant &p_value) {
 				ERR_FAIL_COND_V(conns.size() % 3 != 0, false);
 
 				for (int i = 0; i < conns.size(); i += 3) {
-					connect_node(node_name, conns[i], conns[i + 1], conns[i + 2]);
+					connect_node(conns[i + 1], conns[i + 2], node_name, conns[i]);
 				}
 			}
 			return true;
@@ -427,16 +427,38 @@ void HarrySubnet::GetNodeList(List<StringName> *r_list) {
 	}
 }
 
-Ref<ArrayMesh> HarrySubnet::create_mesh() {
+Ref<ArrayMesh> HarrySubnet::create_mesh(Vector<CacheCount> &p_input_caches) {
 
 	for (Map<StringName, Node>::Element *e = children.front(); e; e = e->next()) {
 		Node n = e->get();
 
-		if (n.output && !n.bypass)
-			return n.node->create_mesh();
+		if (n.output && !n.bypass) {
+			Vector<CacheCount> &caches = get_caches(n);
+			return n.node->create_mesh(caches);
+		}
 	}
 
 	return Ref<ArrayMesh>();
+}
+
+Vector<HarryNode::CacheCount> HarrySubnet::get_caches(Node &p_node) {
+
+	Vector<CacheCount> caches;
+	caches.resize(p_node.connections.size());
+	// VectorWriteProxy<CacheCount> cw = caches.write;
+
+	for (List<Connection>::Element *c = p_node.connections.front(); c; c = c->next()) {
+		Connection co = c->get();
+
+		Node &no = GetNode(co.output);
+
+		Vector<CacheCount> &subcaches = get_caches(no);
+		CacheCount cc = no.node->get_cache(subcaches);
+		caches.set(co.input_index, cc);
+		// cw[co.input_index] = cc;
+	}
+
+	return caches;
 }
 
 Vector<Ref<Material> > HarrySubnet::get_materials() {

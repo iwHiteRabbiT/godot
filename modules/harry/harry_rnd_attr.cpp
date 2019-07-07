@@ -44,6 +44,10 @@ void HarryRndAttr::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_attr_name"), &HarryRndAttr::get_attr_name);
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "attr_name"), "set_attr_name", "get_attr_name");
 
+	ClassDB::bind_method(D_METHOD("set_operation", "operation"), &HarryRndAttr::set_operation);
+	ClassDB::bind_method(D_METHOD("get_operation"), &HarryRndAttr::get_operation);
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "operation", PROPERTY_HINT_ENUM, OPERATIONS), "set_operation", "get_operation");
+
 	ClassDB::bind_method(D_METHOD("set_dimension", "dimension"), &HarryRndAttr::set_dimension);
 	ClassDB::bind_method(D_METHOD("get_dimension"), &HarryRndAttr::get_dimension);
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "dimension"), "set_dimension", "get_dimension");
@@ -55,6 +59,12 @@ void HarryRndAttr::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_max_val", "max_val"), &HarryRndAttr::set_max_val);
 	ClassDB::bind_method(D_METHOD("get_max_val"), &HarryRndAttr::get_max_val);
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "max_val"), "set_max_val", "get_max_val");
+
+	BIND_CONSTANT(SET);
+	BIND_CONSTANT(ADD);
+	BIND_CONSTANT(MIN);
+	BIND_CONSTANT(MAX);
+	BIND_CONSTANT(MUL);
 }
 
 
@@ -77,6 +87,17 @@ void HarryRndAttr::set_attr_name(StringName attr_name) {
 StringName HarryRndAttr::get_attr_name() {
 
 	return attr_name;
+}
+
+void HarryRndAttr::set_operation(Operation operation) {
+
+	this->operation = operation;
+	dirty();
+}
+
+HarryRndAttr::Operation HarryRndAttr::get_operation() {
+
+	return operation;
 }
 
 void HarryRndAttr::set_dimension(int dimension) {
@@ -109,19 +130,22 @@ Vector3 HarryRndAttr::get_max_val() {
 	return max_val;
 }
 
-void HarryRndAttr::create_geo() {
+void HarryRndAttr::create_geo(Vector<CacheCount> &p_input_caches) {
+
+	if (p_input_caches.size()>0)
+		copy_from_cache(p_input_caches[0]);
 
 	if(dimension == 1)
-		RandomizeAttr(this, attr_class, attr_name, 0, min_val.x, max_val.x);
+		RandomizeAttr(this, attr_class, attr_name, operation, 0, min_val.x, max_val.x);
 
 	if(dimension == 2)
-		RandomizeAttr(this, attr_class, attr_name, Vector2(), min_val.x, max_val.x);
+		RandomizeAttr(this, attr_class, attr_name, operation, Vector2(), min_val.x, max_val.x);
 
 	if(dimension == 3)
-		RandomizeAttr(this, attr_class, attr_name, Vector3(), min_val.x, max_val.x);
+		RandomizeAttr(this, attr_class, attr_name, operation, Vector3(), min_val.x, max_val.x);
 }
 
-void HarryRndAttr::RandomizeAttr(HarryNode *p_node, AttribClass p_attr_class, StringName p_attr, Variant p_default, float min, float max) {
+void HarryRndAttr::RandomizeAttr(HarryNode *p_node, AttribClass p_attr_class, StringName p_attr, Operation operation, Variant p_default, float min, float max) {
 
 	int c = p_node->get_attrib_class_count(p_attr_class);
 
@@ -139,7 +163,9 @@ void HarryRndAttr::RandomizeAttr(HarryNode *p_node, AttribClass p_attr_class, St
 					Math::random(min, max),
 					Math::random(min, max));
 
-			p_node->set_attrib(p_attr_class, p_attr, i, v, p_default);
+			Variant current = p_node->get_attrib(p_attr_class, p_attr, i);
+			Variant val = VariantOperation(current, v, operation);
+			p_node->set_attrib(p_attr_class, p_attr, i, val, p_default);
 		}
 
 		return;
@@ -153,6 +179,8 @@ void HarryRndAttr::RandomizeAttr(HarryNode *p_node, AttribClass p_attr_class, St
 					Math::random(min, max),
 					Math::random(min, max));
 
+			Variant current = p_node->get_attrib(p_attr_class, p_attr, i);
+			Variant val = VariantOperation(current, v, operation);
 			p_node->set_attrib(p_attr_class, p_attr, i, v, p_default);
 		}
 
@@ -168,6 +196,8 @@ void HarryRndAttr::RandomizeAttr(HarryNode *p_node, AttribClass p_attr_class, St
 					Math::random(min, max),
 					Math::random(min, max));
 
+			Variant current = p_node->get_attrib(p_attr_class, p_attr, i);
+			Variant val = VariantOperation(current, v, operation);
 			p_node->set_attrib(p_attr_class, p_attr, i, v, p_default);
 		}
 
@@ -176,17 +206,48 @@ void HarryRndAttr::RandomizeAttr(HarryNode *p_node, AttribClass p_attr_class, St
 
 	if (type == Variant::REAL) {
 
-		for (int i = 0; i < c; i++)
-			p_node->set_attrib(p_attr_class, p_attr, i, Math::random(min, max), p_default);
+		for (int i = 0; i < c; i++) {
+
+			float v = Math::random(min, max);
+			Variant current = p_node->get_attrib(p_attr_class, p_attr, i);
+			Variant val = VariantOperation(current, v, operation);
+			p_node->set_attrib(p_attr_class, p_attr, i, val, p_default);
+		}
 
 		return;
 	}
 
 	if (type == Variant::INT) {
 
-		for (int i = 0; i < c; i++)
-			p_node->set_attrib(p_attr_class, p_attr, i, Math::fast_ftoi(Math::random(min, max)), p_default);
+		for (int i = 0; i < c; i++) {
+
+			int v = Math::fast_ftoi(Math::random(min, max));
+			Variant current = p_node->get_attrib(p_attr_class, p_attr, i);
+			Variant val = VariantOperation(current, v, operation);
+			p_node->set_attrib(p_attr_class, p_attr, i, val, p_default);
+		}
 
 		return;
+	}
+}
+
+Variant HarryRndAttr::VariantOperation(Variant current, Variant new_val, Operation operation) {
+
+	switch (operation)
+	{
+	case SET:
+		return new_val;
+
+	case ADD:
+		return Variant::evaluate(Variant::OP_ADD, current, new_val);
+	
+	// case MIN:
+	// case MAX:
+	
+	case MUL:
+		return Variant::evaluate(Variant::OP_MULTIPLY, current, new_val);
+	
+	default:
+		return current;
 	}
 }
