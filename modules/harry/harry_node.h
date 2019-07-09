@@ -102,7 +102,6 @@ private:
 	int refresh_geo_count = 0;
 	int create_mesh_count = 0;
 
-	ATTRCOUNTSIZE att_count_size;
 	CACHE cache;
 
 	//ATTRMAP points;
@@ -115,8 +114,6 @@ private:
 	//void set_attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum, const Variant &p_value); //string mode = "set"
 	//Variant attrib(ATTRMAP &att, const StringName &p_attribute_name, int elemnum);
 
-	int add_row(const AttribClass &p_attribclass);
-	int add_row(const AttribClass &p_attribclass, int sizeMin);
 
 	//bool batching = false;
 
@@ -124,6 +121,10 @@ private:
 
 
 protected:
+	ATTRCOUNTSIZE att_count_size;
+	int add_row(const AttribClass &p_attribclass);
+	int add_row(const AttribClass &p_attribclass, int sizeMin);
+
 	static Ref<SpatialMaterial> mat_points;
 	static Ref<SpatialMaterial> mat_edges;
 	static Ref<SpatialMaterial> mat_surface;

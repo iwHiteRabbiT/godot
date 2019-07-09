@@ -36,9 +36,56 @@
 
 void HarryMerge::create_geo(Vector<CacheCount> &p_input_caches, bool bypass) {
 
-	if (p_input_caches.size()>0)
+	int nc = p_input_caches.size();
+	if (nc>0)
 		copy_from_cache(p_input_caches[0]);
 
 	if (bypass)
 		return;
+
+	Map<AttribClass, int> decal_by_class;	
+
+	for (int i=1; i<nc ; i++) {
+
+		for (AttribClass attr_c = POINT; attr_c != DETAIL; attr_c = (AttribClass)(attr_c + 1)) {
+
+			CacheCount cc = p_input_caches[i];
+
+			int count = cc.att_count_size[attr_c].count;
+			decal_by_class[attr_c] = count;
+
+			int old_count = att_count_size[attr_c].count;
+			att_count_size[attr_c].size = 0;
+
+			int tt_count = old_count + count;
+			add_row(attr_c, tt_count);
+			att_count_size[attr_c].count = tt_count;
+
+			for (ATTRMAP::Element *a = cc.cache[attr_c].front(); a; a = a->next()) {
+
+				const StringName &name = a->key();
+				HarryNode::DefaultVectorVariant &dvv = a->get();
+
+				for(int i=0 ; i<count ; i++) {
+
+					Variant v = dvv.values[i];
+
+					if (name == "PointNum") {
+						v = (int)v + decal_by_class[POINT];
+					}
+					else if (name == "Vertices") {
+
+						Array vs = (Array)v;
+
+						for(int iv=0; iv<vs.size(); iv++)
+							vs[iv] = (int)vs[iv] + decal_by_class[VERTEX];
+
+						v = vs;
+					}
+
+					set_attrib(attr_c, name, old_count + i, v, dvv.default);
+				}
+			}
+		}
+	}
 }

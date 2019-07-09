@@ -82,6 +82,8 @@ void HarryEditor::edit(Harry *p_harry, HarryGeoSheetEditor *p_harry_geo_editor) 
 	if (harry == p_harry)
 		return;
 
+		_add_popup();
+
 	harry = p_harry;
 
 	button_path.clear();
@@ -455,9 +457,10 @@ void HarryEditor::_add_popup() {
 		}
 
 		cn.node_name = hn->get_node_name();
+		int id = harry_class_names.size();
 		harry_class_names.push_back(cn);
 
-		submenus[cat]->add_item(cn.node_name, i);
+		submenus[cat]->add_item(cn.node_name, id);
 	}
 
 	for (Map<StringName, PopupMenu *>::Element *e = submenus.front(); e; e = e->next()) {

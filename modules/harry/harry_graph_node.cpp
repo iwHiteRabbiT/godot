@@ -114,7 +114,7 @@ void HarryGraphNode::Set(Ref<HarrySubnet> &p_subnet, const StringName &p_name, c
 		in_name->set_text("");
 
 		set_slot(i,
-				i<inputs, 0, Color(1, 1, 1, 1),
+				(input_connections < 0 && i == 0) || i<inputs, 0, Color(1, 1, 1, 1),
 				i<outputs, 0, Color(0.7f, 0.7f, 0.9f, 1));
 	}
 }

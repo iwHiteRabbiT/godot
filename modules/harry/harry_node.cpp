@@ -413,7 +413,7 @@ int HarryNode::add_vertex(int prim_num, int point_num) {
 
 	int pn = add_row(VERTEX);
 
-	set_attrib(VERTEX, "PrimNum", pn, prim_num, 0);
+	//set_attrib(VERTEX, "PrimNum", pn, prim_num, 0);
 	set_attrib(VERTEX, "PointNum", pn, point_num, 0);
 
 	return pn;
