@@ -54,7 +54,7 @@ protected:
 
 public:
 	//HarrySubnetGraphNode(){};
-	void Set(Ref<HarrySubnet> &p_subnet, const StringName &p_name, const Vector2 &p_offset, bool bypass, bool output, Ref<ButtonGroup> &output_btn_grp) override;
+	void Set(Ref<HarrySubnet> &p_subnet, const StringName &p_name, const int &input_connections, const Vector2 &p_offset, bool bypass, bool output, Ref<ButtonGroup> &output_btn_grp) override;
 	//void set_unique_title(const StringName &p_name);
 };
 

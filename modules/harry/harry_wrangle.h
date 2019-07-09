@@ -43,6 +43,7 @@ public:
 	HarryWrangle() {
 		node_category = "Utility";
 		node_name = "Wrangle";
+		input_connections = 4;
 	}
 };
 

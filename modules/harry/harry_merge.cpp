@@ -1,5 +1,5 @@
 /*************************************************************************/
-/*  harry_rnd_attr.h                                                     */
+/*  harry_merge.cpp                                                      */
 /*************************************************************************/
 /*                       This file is part of:                           */
 /*                           GODOT ENGINE                                */
@@ -28,69 +28,17 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifndef HARRY_RND_ATTR_H
-#define HARRY_RND_ATTR_H
-
-#include "harry_node.h"
+#include "harry_merge.h"
 
 /**
   @Author iWhiteRabbiT
 */
-class HarryRndAttr : public HarryNode {
-	GDCLASS(HarryRndAttr, HarryNode);
 
-public:
-	enum Operation {
-		SET,
-		ADD,
-		//MIN,
-		//MAX,
-		MUL
-	};
-#define OPERATIONS "Set Value,Add,Multiply"
+void HarryMerge::create_geo(Vector<CacheCount> &p_input_caches, bool bypass) {
 
-private:
-	AttribClass attr_class = POINT;
-	StringName attr_name = "Cd";
-	Operation operation = SET;
-	int dimension = 3;
-	Vector3 min_val = Vector3();
-	Vector3 max_val = Vector3(1,1,1);
+	if (p_input_caches.size()>0)
+		copy_from_cache(p_input_caches[0]);
 
-protected:
-	static void _bind_methods();
-
-	void set_attribute_class(AttribClass attr_class);
-	AttribClass get_attribute_class();
-
-	void set_attr_name(StringName attr_name);
-	StringName get_attr_name();
-
-	void set_operation(Operation operation);
-	Operation get_operation();
-
-	void set_dimension(int dimension);
-	int get_dimension();
-
-	void set_min_val(Vector3 min_val);
-	Vector3 get_min_val();
-
-	void set_max_val(Vector3 max_val);
-	Vector3 get_max_val();
-
-public:
-	HarryRndAttr() {
-		node_category = "Attribute";
-		node_name = "Randomize Attribute";
-		input_connections = 1;
-	}
-
-	static void RandomizeAttr(HarryNode* p_node, AttribClass p_attr_class, StringName p_attr, Operation operation, Variant p_default, float min, float max);
-	static Variant VariantOperation(Variant current, Variant new_val, Operation operation);
-
-	void create_geo(Vector<CacheCount> &p_input_caches, bool bypass) override;
-};
-
-VARIANT_ENUM_CAST(HarryRndAttr::Operation)
-
-#endif
+	if (bypass)
+		return;
+}

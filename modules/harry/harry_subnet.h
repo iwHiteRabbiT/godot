@@ -95,6 +95,7 @@ public:
 	HarrySubnet() {
 		node_category = "Utility";
 		node_name = "Subnet";
+		input_connections = 4;
 	}
 
 	void AddNode(StringName instance_name, Ref<HarryNode> p_node);
@@ -113,9 +114,9 @@ public:
 	void set_node_output(const StringName &p_node, const bool &enabled);
 	bool get_node_output(const StringName &p_node) const;
 
-	void connect_node(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index);
-	bool connection_exists(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index);
-	void disconnect_node(const StringName &p_from_node, int p_from_index, const StringName &p_to_node, int p_to_index);
+	void connect_node(const StringName &p_output_node, int p_output_index, const StringName &p_input_node, int p_input_index);
+	bool connection_exists(const StringName &p_output_node, int p_output_index, const StringName &p_input_node, int p_input_index);
+	void disconnect_node(const StringName &p_output_node, int p_output_index, const StringName &p_input_node, int p_input_index);
 
 	StringName FindNewName(const StringName &p_name) const;
 	void GetNodeList(List<StringName> *r_list);

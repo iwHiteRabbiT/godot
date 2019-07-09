@@ -33,6 +33,7 @@
 #include "core/class_db.h"
 #include "harry.h"
 #include "harry_wrangle.h"
+#include "harry_merge.h"
 #include "harry_grid.h"
 #include "harry_rnd_attr.h"
 #include "harry_editor_plugin.h"
@@ -47,6 +48,7 @@ void register_harry_types() {
 	ClassDB::register_class<HarryNode>();
 	ClassDB::register_class<HarryGrid>();
 	ClassDB::register_class<HarryRndAttr>();
+	ClassDB::register_class<HarryMerge>();
 	ClassDB::register_class<HarryWrangle>();
 	ClassDB::register_class<HarrySubnet>();
 	ClassDB::register_class<HarryRoot>();

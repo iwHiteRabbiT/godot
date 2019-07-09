@@ -133,6 +133,11 @@ protected:
 	StringName node_category;
 	StringName node_name;
 
+	// -1: One connector allowing multiple connections
+	//  0: Any connector
+	//  N: N connectors
+	int input_connections = 0;
+
 	static void _bind_methods();
 	bool is_dirty = true;
 
@@ -160,6 +165,8 @@ public:
 
 	String get_node_name() const;
 	void set_node_name(const String &p_name);
+
+	int get_input_connections() const { return input_connections; }
 
 	ATTRMAP &get_attrib_class(const AttribClass &p_attribclass);
 

@@ -358,13 +358,30 @@ void HarrySubnet::connect_node(const StringName &p_output_node, int p_output_ind
 	//ERR_FAIL_COND(p_output_node == SceneStringNames::get_singleton()->output);
 	ERR_FAIL_COND(p_output_node == p_input_node);
 
+	Node &n = children[p_input_node];
+
+	int allowed_co = n.node->get_input_connections();
+	if (allowed_co == 0)
+		return;
+
+	if (allowed_co > 0) {
+
+		for (int i = 0; i < n.connections.size(); i++) {
+
+			Connection c = n.connections[i];
+			if (c.input_index == p_input_index) {
+				disconnect_node(c.output, c.output_index, p_input_node, c.input_index);
+			}
+		}
+	}
+
 	Connection connection;
 	connection.input_index = p_input_index;
 	connection.output = p_output_node;
 	connection.output_index = p_output_index;
 
-	children[p_input_node].connections.push_back(connection);
-	children[p_input_node].node->dirty();
+	n.connections.push_back(connection);
+	n.node->dirty();
 
 	dirty();
 }

@@ -375,7 +375,7 @@ void HarryEditor::_update_graph() {
 		node->connect("dragged", this, "_node_dragged", varray(name));
 		node->connect("toggle_bypass", this, "_toggle_bypass");
 		node->connect("toggle_output", this, "_toggle_output");
-		node->Set(harry_subnet, name, hn.position, hn.bypass, hn.output, output_btn_grp);
+		node->Set(harry_subnet, name, hn.node->get_input_connections(), hn.position, hn.bypass, hn.output, output_btn_grp);
 	}
 
 	for (List<StringName>::Element *E = nodes.front(); E; E = E->next()) {

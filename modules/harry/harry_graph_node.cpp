@@ -59,7 +59,7 @@ void HarryGraphNode::_bind_methods() {
 	ADD_SIGNAL(MethodInfo("toggle_output", PropertyInfo(Variant::STRING, "node_name"), PropertyInfo(Variant::BOOL, "pressed")));
 }
 
-void HarryGraphNode::Set(Ref<HarrySubnet> &p_subnet, const StringName &p_name, const Vector2 &p_offset, bool bypass, bool output, Ref<ButtonGroup> &output_btn_grp) {
+void HarryGraphNode::Set(Ref<HarrySubnet> &p_subnet, const StringName &p_name, const int &input_connections, const Vector2 &p_offset, bool bypass, bool output, Ref<ButtonGroup> &output_btn_grp) {
 
 	//node = p_node;
 	subnet = p_subnet;
@@ -104,15 +104,18 @@ void HarryGraphNode::Set(Ref<HarrySubnet> &p_subnet, const StringName &p_name, c
 	set_output(output);
 	set_bypass(bypass);
 
+	int inputs = input_connections > 0 ? input_connections : 0;
+	int outputs = 1;
+	int slots = inputs < outputs ? outputs : inputs;
 
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < slots; i++) {
 		Label *in_name = memnew(Label);
 		add_child(in_name);
 		in_name->set_text("");
 
 		set_slot(i,
-				true, 0, Color(1, 1, 1, 1),
-				true, 0, Color(0.7f, 0.7f, 0.9f, 1));
+				i<inputs, 0, Color(1, 1, 1, 1),
+				i<outputs, 0, Color(0.7f, 0.7f, 0.9f, 1));
 	}
 }
 
