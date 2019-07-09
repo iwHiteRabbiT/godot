@@ -62,8 +62,8 @@ void HarryRndAttr::_bind_methods() {
 
 	BIND_CONSTANT(SET);
 	BIND_CONSTANT(ADD);
-	BIND_CONSTANT(MIN);
-	BIND_CONSTANT(MAX);
+	// BIND_CONSTANT(MIN);
+	// BIND_CONSTANT(MAX);
 	BIND_CONSTANT(MUL);
 }
 
@@ -130,10 +130,13 @@ Vector3 HarryRndAttr::get_max_val() {
 	return max_val;
 }
 
-void HarryRndAttr::create_geo(Vector<CacheCount> &p_input_caches) {
+void HarryRndAttr::create_geo(Vector<CacheCount> &p_input_caches, bool bypass) {
 
 	if (p_input_caches.size()>0)
 		copy_from_cache(p_input_caches[0]);
+
+	if (bypass)
+		return;
 
 	if(dimension == 1)
 		RandomizeAttr(this, attr_class, attr_name, operation, 0, min_val.x, max_val.x);

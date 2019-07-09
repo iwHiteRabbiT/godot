@@ -100,9 +100,12 @@ void HarryGrid::set_num_row(const int &p_num_row) {
 	dirty();
 }
 
-void HarryGrid::create_geo(Vector<CacheCount> &p_input_caches) {
+void HarryGrid::create_geo(Vector<CacheCount> &p_input_caches, bool bypass) {
 
 	clear_all();
+
+	if (bypass)
+		return;
 
 	//start_batch();
 	create_points();

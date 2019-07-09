@@ -327,7 +327,8 @@ void HarrySubnet::set_node_bypass(const StringName &p_node, const bool &enabled)
 		return;
 
 	children[p_node].bypass = enabled;
-	dirty();
+	children[p_node].node->dirty();
+	//dirty();
 }
 
 bool HarrySubnet::get_node_bypass(const StringName &p_node) const {
@@ -363,6 +364,7 @@ void HarrySubnet::connect_node(const StringName &p_output_node, int p_output_ind
 	connection.output_index = p_output_index;
 
 	children[p_input_node].connections.push_back(connection);
+	children[p_input_node].node->dirty();
 
 	dirty();
 }
@@ -396,6 +398,7 @@ void HarrySubnet::disconnect_node(const StringName &p_output_node, int p_output_
 				c.output == p_output_node &&
 				c.output_index == p_output_index) {
 			n.connections.erase(c);
+			n.node->dirty();
 		}
 	}
 
@@ -427,14 +430,15 @@ void HarrySubnet::GetNodeList(List<StringName> *r_list) {
 	}
 }
 
-Ref<ArrayMesh> HarrySubnet::create_mesh(Vector<CacheCount> &p_input_caches) {
+Ref<ArrayMesh> HarrySubnet::create_mesh() {
 
 	for (Map<StringName, Node>::Element *e = children.front(); e; e = e->next()) {
 		Node n = e->get();
 
-		if (n.output && !n.bypass) {
+		if (n.output) {// && !n.bypass) {
 			Vector<CacheCount> &caches = get_caches(n);
-			return n.node->create_mesh(caches);
+			n.node->refresh_geo(caches, n.bypass);
+			return n.node->create_mesh();
 		}
 	}
 
@@ -453,7 +457,7 @@ Vector<HarryNode::CacheCount> HarrySubnet::get_caches(Node &p_node) {
 		Node &no = GetNode(co.output);
 
 		Vector<CacheCount> &subcaches = get_caches(no);
-		CacheCount cc = no.node->get_cache(subcaches);
+		CacheCount cc = no.node->get_cache(subcaches, no.bypass);
 		caches.set(co.input_index, cc);
 		// cw[co.input_index] = cc;
 	}

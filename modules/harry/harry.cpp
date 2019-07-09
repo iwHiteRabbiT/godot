@@ -36,10 +36,7 @@
 
 void Harry::refresh_mesh() {
 
-	Vector<HarryNode::CacheCount> cc;
-	cc.resize(0);
-
-	const Ref<Mesh> &mesh = harry_root->create_mesh(cc);
+	const Ref<Mesh> &mesh = harry_root->create_mesh();
 	set_mesh(mesh);
 
 	Vector<Ref<Material> > &mats = harry_root->get_materials();

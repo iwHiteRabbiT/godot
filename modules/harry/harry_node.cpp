@@ -443,7 +443,9 @@ int HarryNode::add_prim(PoolVector<int> &points, bool closed) {
 	return pn;
 }
 
-bool HarryNode::refresh_geo(Vector<CacheCount> &p_input_caches) {
+bool HarryNode::refresh_geo(Vector<CacheCount> &p_input_caches, bool bypass) {
+
+	std::cout << "refresh_geo_" << refresh_geo_count++ << std::endl;
 
 	for (int i = 0; i < p_input_caches.size(); i++)
 		if (p_input_caches[i].was_dirty) {
@@ -451,20 +453,19 @@ bool HarryNode::refresh_geo(Vector<CacheCount> &p_input_caches) {
 			continue;
 		}
 
-
 	if(!is_dirty)
 		return false;
 
 	is_dirty = false;
 
-	create_geo(p_input_caches);
+	create_geo(p_input_caches, bypass);
 
 	return true;
 }
 
-HarryNode::CacheCount HarryNode::get_cache(Vector<CacheCount> &p_input_caches) {
+HarryNode::CacheCount HarryNode::get_cache(Vector<CacheCount> &p_input_caches, bool bypass) {
 
-	bool was_dirty = refresh_geo(p_input_caches);
+	bool was_dirty = refresh_geo(p_input_caches, bypass);
 
 	CacheCount cc;
 	cc.cache = cache;
@@ -474,11 +475,9 @@ HarryNode::CacheCount HarryNode::get_cache(Vector<CacheCount> &p_input_caches) {
 	return cc;
 }
 
-Ref<ArrayMesh> HarryNode::create_mesh(Vector<CacheCount> &p_input_caches) {
+Ref<ArrayMesh> HarryNode::create_mesh() {
 
 	std::cout << "create_mesh_" << create_mesh_count++ << std::endl;
-
-	refresh_geo(p_input_caches);
 
 	create_materials();
 	materials.clear();

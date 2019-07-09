@@ -120,7 +120,7 @@ public:
 	StringName FindNewName(const StringName &p_name) const;
 	void GetNodeList(List<StringName> *r_list);
 
-	Ref<ArrayMesh> create_mesh(Vector<CacheCount> &p_input_caches) override;
+	Ref<ArrayMesh> create_mesh() override;
 	Vector<CacheCount> get_caches(Node &node);
 
 	Vector<Ref<Material>> get_materials() override;

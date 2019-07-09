@@ -43,19 +43,19 @@ public:
 	enum Operation {
 		SET,
 		ADD,
-		MIN,
-		MAX,
+		//MIN,
+		//MAX,
 		MUL
 	};
-#define OPERATIONS "Set Value,Add,Min,Max,Multiply"
+#define OPERATIONS "Set Value,Add,Multiply"
 
 private:
-	AttribClass attr_class;
-	StringName attr_name;
-	Operation operation;
-	int dimension;
-	Vector3 min_val;
-	Vector3 max_val;
+	AttribClass attr_class = POINT;
+	StringName attr_name = "Cd";
+	Operation operation = SET;
+	int dimension = 3;
+	Vector3 min_val = Vector3();
+	Vector3 max_val = Vector3(1,1,1);
 
 protected:
 	static void _bind_methods();
@@ -87,7 +87,7 @@ public:
 	static void RandomizeAttr(HarryNode* p_node, AttribClass p_attr_class, StringName p_attr, Operation operation, Variant p_default, float min, float max);
 	static Variant VariantOperation(Variant current, Variant new_val, Operation operation);
 
-	void create_geo(Vector<CacheCount> &p_input_caches) override;
+	void create_geo(Vector<CacheCount> &p_input_caches, bool bypass) override;
 };
 
 VARIANT_ENUM_CAST(HarryRndAttr::Operation)

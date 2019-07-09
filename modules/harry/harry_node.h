@@ -99,6 +99,7 @@ public:
 	};
 
 private:
+	int refresh_geo_count = 0;
 	int create_mesh_count = 0;
 
 	ATTRCOUNTSIZE att_count_size;
@@ -133,8 +134,7 @@ protected:
 	StringName node_name;
 
 	static void _bind_methods();
-	bool is_dirty;
-	void dirty();
+	bool is_dirty = true;
 
 	void clear(const AttribClass &p_attribclass);
 	void clear_all();
@@ -154,6 +154,7 @@ protected:
 
 public:
 	void copy_from_cache(CacheCount cache);
+	void dirty();
 
 	StringName get_node_category() const { return node_category; }
 
@@ -177,10 +178,10 @@ public:
 	int add_prim(PoolVector<int> &points, bool closed);
 
 	// p_ic_acs = Input Caches, Attribute Count/Size
-	virtual void create_geo(Vector<CacheCount> &p_input_caches) {}
-	bool refresh_geo(Vector<CacheCount> &p_input_caches);
-	CacheCount get_cache(Vector<CacheCount> &p_input_caches);
-	virtual Ref<ArrayMesh> create_mesh(Vector<CacheCount> &p_input_caches);
+	virtual void create_geo(Vector<CacheCount> &p_input_caches, bool bypass) {}
+	bool refresh_geo(Vector<CacheCount> &p_input_caches, bool bypass);
+	CacheCount get_cache(Vector<CacheCount> &p_input_caches, bool bypass);
+	virtual Ref<ArrayMesh> create_mesh();
 	virtual Vector<Ref<Material>> get_materials();
 
 	PoolVector<Variant> get_overriden_attr(const StringName attr);

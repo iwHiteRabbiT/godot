@@ -75,7 +75,7 @@ public:
 	int get_num_row() const;
 	void set_num_row(const int &p_num_row);
 
-	void create_geo(Vector<CacheCount> &p_input_caches) override;
+	void create_geo(Vector<CacheCount> &p_input_caches, bool bypass) override;
 };
 
 #endif

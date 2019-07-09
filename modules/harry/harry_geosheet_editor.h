@@ -52,7 +52,7 @@ class HarryGeoSheetEditor : public VBoxContainer {
 	Tree *tree;
 	Ref<HarryNode> current_node;
 
-	HarryNode::AttribClass current_attrib_class;
+	HarryNode::AttribClass current_attrib_class = HarryNode::AttribClass::PRIMITIVE;
 
 protected:
 	static void _bind_methods();
