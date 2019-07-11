@@ -122,7 +122,7 @@ public:
 	void GetNodeList(List<StringName> *r_list);
 
 	Ref<ArrayMesh> create_mesh() override;
-	Vector<CacheCount> get_caches(Node &node);
+	Vector<CacheCount> get_caches(Node &p_node, bool use_input_index);
 
 	Vector<Ref<Material>> get_materials() override;
 };

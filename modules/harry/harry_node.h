@@ -135,7 +135,7 @@ protected:
 	StringName node_name;
 
 	// -1: One connector allowing multiple connections
-	//  0: Any connector
+	//  0: No connector
 	//  N: N connectors
 	int input_connections = 0;
 

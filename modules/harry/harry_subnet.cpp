@@ -453,7 +453,8 @@ Ref<ArrayMesh> HarrySubnet::create_mesh() {
 		Node n = e->get();
 
 		if (n.output) {// && !n.bypass) {
-			Vector<CacheCount> &caches = get_caches(n);
+			bool use_input_index = n.node->get_input_connections() != -1;
+			Vector<CacheCount> &caches = get_caches(n, use_input_index);
 			n.node->refresh_geo(caches, n.bypass);
 			return n.node->create_mesh();
 		}
@@ -462,21 +463,26 @@ Ref<ArrayMesh> HarrySubnet::create_mesh() {
 	return Ref<ArrayMesh>();
 }
 
-Vector<HarryNode::CacheCount> HarrySubnet::get_caches(Node &p_node) {
+Vector<HarryNode::CacheCount> HarrySubnet::get_caches(Node &p_node, bool use_input_index) {
 
 	Vector<CacheCount> caches;
-	caches.resize(p_node.connections.size());
-	// VectorWriteProxy<CacheCount> cw = caches.write;
+
+	if (use_input_index)
+		caches.resize(p_node.connections.size());
 
 	for (List<Connection>::Element *c = p_node.connections.front(); c; c = c->next()) {
 		Connection co = c->get();
 
 		Node &no = GetNode(co.output);
 
-		Vector<CacheCount> &subcaches = get_caches(no);
+		bool use_index = no.node->get_input_connections() != -1;
+		Vector<CacheCount> &subcaches = get_caches(no, use_index);
 		CacheCount cc = no.node->get_cache(subcaches, no.bypass);
-		caches.set(co.input_index, cc);
-		// cw[co.input_index] = cc;
+
+		if (use_input_index)
+			caches.set(co.input_index, cc);
+		else
+			caches.push_back(cc);
 	}
 
 	return caches;
