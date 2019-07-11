@@ -82,8 +82,6 @@ void HarryEditor::edit(Harry *p_harry, HarryGeoSheetEditor *p_harry_geo_editor) 
 	if (harry == p_harry)
 		return;
 
-		_add_popup();
-
 	harry = p_harry;
 
 	button_path.clear();

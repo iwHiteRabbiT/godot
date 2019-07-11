@@ -47,14 +47,17 @@ void HarryMerge::create_geo(Vector<CacheCount> &p_input_caches, bool bypass) {
 
 	for (int i=1; i<nc ; i++) {
 
+		for (AttribClass attr_c = POINT; attr_c != DETAIL; attr_c = (AttribClass)(attr_c + 1))
+			decal_by_class[attr_c] += p_input_caches[i-1].att_count_size[attr_c].count;
+
 		for (AttribClass attr_c = POINT; attr_c != DETAIL; attr_c = (AttribClass)(attr_c + 1)) {
 
 			CacheCount cc = p_input_caches[i];
 
 			int count = cc.att_count_size[attr_c].count;
-			decal_by_class[attr_c] = count;
+			//decal_by_class[attr_c] = count;
 
-			int old_count = att_count_size[attr_c].count;
+			int old_count = decal_by_class[attr_c];
 			att_count_size[attr_c].size = 0;
 
 			int tt_count = old_count + count;
